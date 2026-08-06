@@ -10,7 +10,7 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, helperText, autoResize = false, className = '', onChange, ...props }, ref) => {
     const hasError = !!error;
-    const internalRef = useRef<HTMLTextAreaElement>(null);
+    const internalRef = useRef<HTMLTextAreaElement | null>(null);
 
     const setRefs = (element: HTMLTextAreaElement | null) => {
       internalRef.current = element;
