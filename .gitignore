@@ -1,2 +1,10 @@
+node_modules/
+dist/
+.next/
+.env
+.env.*
+*.log
+coverage/
+.DS_Store
 .vscode/
 docs/planning.md
