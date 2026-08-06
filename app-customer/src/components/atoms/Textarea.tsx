@@ -21,16 +21,16 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       }
     };
 
-    const handleAutoResize = () => {
+    const handleAutoResize = React.useCallback(() => {
       if (autoResize && internalRef.current) {
         internalRef.current.style.height = 'auto';
         internalRef.current.style.height = `${internalRef.current.scrollHeight}px`;
       }
-    };
+    }, [autoResize]);
 
     useEffect(() => {
       handleAutoResize();
-    }, [props.value]);
+    }, [props.value, handleAutoResize]);
 
     return (
       <div className="flex flex-col gap-1.5 w-full">
