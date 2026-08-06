@@ -6,15 +6,8 @@ import { Badge } from '@/components/atoms/Badge';
 import { Button } from '@/components/atoms/Button';
 import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal';
 import { SearchBar } from '@/components/molecules/SearchBar';
+import { Category, CategoryFormModal } from '@/components/organisms/CategoryFormModal';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
-
-interface Category {
-  id: string;
-  name: string;
-  productsCount: number;
-  createdDate: string;
-  status: 'ACTIVE' | 'INACTIVE';
-}
 
 const mockCategories: Category[] = [
   { id: '1', name: 'Men', productsCount: 120, createdDate: '2026-08-01', status: 'ACTIVE' },
@@ -29,9 +22,14 @@ export default function CategoryListPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
+
   // Filter categories based on search query
   const filteredCategories = useMemo(() => {
-    if (!searchQuery.trim()) return mockCategories;
+    if (!searchQuery.trim()) {
+      return mockCategories;
+    }
     const lowerQuery = searchQuery.toLowerCase();
     return mockCategories.filter((cat) => cat.name.toLowerCase().includes(lowerQuery));
   }, [searchQuery]);
@@ -49,8 +47,18 @@ export default function CategoryListPage() {
   };
 
   const handleEditClick = (category: Category) => {
-    // Navigation to edit page logic here
-    console.log('Editing category:', category.name);
+    setCategoryToEdit(category);
+    setIsFormModalOpen(true);
+  };
+
+  const handleAddClick = () => {
+    setCategoryToEdit(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleFormSave = (data: Partial<Category>) => {
+    // Logic goes here
+    console.log('Saved category data:', data);
   };
 
   const columns: DataTableColumn<Category>[] = [
@@ -81,7 +89,7 @@ export default function CategoryListPage() {
             placeholder="Search categories..."
           />
         </div>
-        <Button variant="primary" leftIcon="Plus">
+        <Button variant="primary" leftIcon="Plus" onClick={handleAddClick}>
           Add Category
         </Button>
       </div>
@@ -96,7 +104,7 @@ export default function CategoryListPage() {
           description: 'Get started by creating your first product category.',
           action: {
             label: 'Add Category',
-            onClick: () => console.log('Add Category clicked'),
+            onClick: handleAddClick,
           },
         }}
         rowActions={(row) => (
@@ -118,6 +126,17 @@ export default function CategoryListPage() {
             />
           </>
         )}
+      />
+
+      {/* Create / Edit Form Modal */}
+      <CategoryFormModal
+        isOpen={isFormModalOpen}
+        onClose={() => {
+          setIsFormModalOpen(false);
+          setCategoryToEdit(null);
+        }}
+        category={categoryToEdit}
+        onSave={handleFormSave}
       />
 
       {/* Delete Confirmation Modal */}
