@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 
 import { Icon } from '@/components/atoms/Icon';
 
@@ -9,15 +9,22 @@ export interface PasswordInputProps extends React.InputHTMLAttributes<HTMLInputE
 }
 
 export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
-  ({ label, error, helperText, className = '', ...props }, ref) => {
+  ({ label, error, helperText, className = '', id, ...props }, ref) => {
     const [show, setShow] = useState(false);
     const hasError = !!error;
+    const generatedId = useId();
+    const inputId = id || generatedId;
 
     return (
       <div className="flex flex-col gap-1.5 w-full">
-        {label && <label className="text-sm font-medium text-text">{label}</label>}
+        {label && (
+          <label htmlFor={inputId} className="text-sm font-medium text-text">
+            {label}
+          </label>
+        )}
         <div className="relative w-full">
           <input
+            id={inputId}
             ref={ref}
             type={show ? 'text' : 'password'}
             className={`

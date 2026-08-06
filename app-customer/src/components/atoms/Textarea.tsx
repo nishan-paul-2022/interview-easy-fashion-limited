@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useId } from 'react';
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -8,9 +8,14 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
 }
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ label, error, helperText, autoResize = false, className = '', onChange, ...props }, ref) => {
+  (
+    { label, error, helperText, autoResize = false, className = '', id, onChange, ...props },
+    ref,
+  ) => {
     const hasError = !!error;
     const internalRef = useRef<HTMLTextAreaElement | null>(null);
+    const generatedId = useId();
+    const textareaId = id || generatedId;
 
     const setRefs = (element: HTMLTextAreaElement | null) => {
       internalRef.current = element;
@@ -34,8 +39,13 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 
     return (
       <div className="flex flex-col gap-1.5 w-full">
-        {label && <label className="text-sm font-medium text-text">{label}</label>}
+        {label && (
+          <label htmlFor={textareaId} className="text-sm font-medium text-text">
+            {label}
+          </label>
+        )}
         <textarea
+          id={textareaId}
           ref={setRefs}
           onChange={(e) => {
             handleAutoResize();

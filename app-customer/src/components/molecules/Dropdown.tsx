@@ -77,7 +77,15 @@ export const Dropdown: React.FC<DropdownProps> = ({
     <div className={`relative inline-block ${className}`} ref={containerRef}>
       <div
         onClick={() => setIsOpen((prev) => !prev)}
-        className="cursor-pointer"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsOpen((prev) => !prev);
+          }
+        }}
+        tabIndex={0}
+        role="button"
+        className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 rounded"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >

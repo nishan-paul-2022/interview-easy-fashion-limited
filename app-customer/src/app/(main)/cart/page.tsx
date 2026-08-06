@@ -102,6 +102,7 @@ export default function CartPage() {
                       }
                       className="text-muted hover:text-text disabled:opacity-50"
                       disabled={item.quantity <= 1}
+                      aria-label="Decrease quantity"
                     >
                       <Icon name="Minus" size={14} />
                     </button>
@@ -114,6 +115,7 @@ export default function CartPage() {
                         })
                       }
                       className="text-muted hover:text-text"
+                      aria-label="Increase quantity"
                     >
                       <Icon name="Plus" size={14} />
                     </button>

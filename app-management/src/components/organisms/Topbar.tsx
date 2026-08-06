@@ -53,7 +53,7 @@ export const Topbar = () => {
       <div className="flex items-center gap-6">
         <button
           className="text-muted hover:text-text transition-colors relative"
-          aria-label="Notifications"
+          aria-label="Toggle Theme"
         >
           <Icon name="AlertTriangle" size={20} />
           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-surface" />

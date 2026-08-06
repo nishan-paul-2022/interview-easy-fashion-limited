@@ -47,8 +47,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           <button
             type="button"
             onClick={handleClear}
-            className="text-muted hover:text-text focus:outline-none transition-colors p-1"
-            aria-label="Clear search"
+            aria-label="Clear Search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted hover:text-text hover:bg-muted/10 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-accent"
           >
             <Icon name="X" size={16} />
           </button>

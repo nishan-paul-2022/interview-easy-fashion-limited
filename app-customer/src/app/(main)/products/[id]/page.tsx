@@ -155,11 +155,16 @@ export default function ProductDetailsPage({ params }: { params: { id: string } 
                 onClick={handleDecrement}
                 className="text-muted hover:text-text disabled:opacity-50"
                 disabled={quantity <= 1}
+                aria-label="Decrease quantity"
               >
                 <Icon name="Minus" size={16} />
               </button>
               <span className="font-semibold text-text">{quantity}</span>
-              <button onClick={handleIncrement} className="text-muted hover:text-text">
+              <button
+                onClick={handleIncrement}
+                className="text-muted hover:text-text"
+                aria-label="Increase quantity"
+              >
                 <Icon name="Plus" size={16} />
               </button>
             </div>

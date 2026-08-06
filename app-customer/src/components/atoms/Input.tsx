@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 import { Icon, IconName } from '@/components/atoms/Icon';
 
@@ -13,14 +13,21 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
-    { label, error, helperText, leftIcon, rightIcon, rightElement, className = '', ...props },
+    { label, error, helperText, leftIcon, rightIcon, rightElement, className = '', id, ...props },
     ref,
   ) => {
     const hasError = !!error;
 
+    const generatedId = useId();
+    const inputId = id || generatedId;
+
     return (
       <div className="flex flex-col gap-1.5 w-full">
-        {label && <label className="text-sm font-medium text-text">{label}</label>}
+        {label && (
+          <label htmlFor={inputId} className="text-sm font-medium text-text">
+            {label}
+          </label>
+        )}
         <div className="relative w-full">
           {leftIcon && (
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
@@ -28,6 +35,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             </div>
           )}
           <input
+            id={inputId}
             ref={ref}
             className={`
               w-full bg-surface text-text rounded-lg py-2 min-h-[44px]

@@ -78,7 +78,7 @@ export const Sidebar = () => {
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="hidden md:flex text-muted hover:text-text transition-colors p-1.5 rounded-md hover:bg-muted/10 outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label="Toggle Sidebar"
           >
             <Icon name={isCollapsed ? 'ChevronRight' : 'ChevronLeft'} size={20} />
           </button>

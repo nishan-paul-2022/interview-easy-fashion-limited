@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 import { Icon } from '@/components/atoms/Icon';
 
@@ -10,14 +10,21 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 }
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, helperText, options, className = '', ...props }, ref) => {
+  ({ label, error, helperText, className = '', options, id, ...props }, ref) => {
     const hasError = !!error;
+    const generatedId = useId();
+    const selectId = id || generatedId;
 
     return (
       <div className="flex flex-col gap-1.5 w-full">
-        {label && <label className="text-sm font-medium text-text">{label}</label>}
+        {label && (
+          <label htmlFor={selectId} className="text-sm font-medium text-text">
+            {label}
+          </label>
+        )}
         <div className="relative w-full">
           <select
+            id={selectId}
             ref={ref}
             className={`
               w-full bg-surface text-text rounded-lg py-2 pl-4 pr-10 appearance-none min-h-[44px]

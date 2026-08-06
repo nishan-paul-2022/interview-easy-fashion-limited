@@ -91,7 +91,7 @@ export default function Home() {
       <section className="w-full rounded-lg overflow-hidden relative">
         <Carousel autoplay effect="fade">
           <div className="relative min-h-96 md:min-h-screen w-full">
-            <div className="absolute inset-0 bg-black/40 z-10" />
+            <div className="absolute inset-0 bg-black/60 z-10" />
 
             <Image
               src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80&w=1200"
@@ -115,7 +115,7 @@ export default function Home() {
             </div>
           </div>
           <div className="relative min-h-96 md:min-h-screen w-full">
-            <div className="absolute inset-0 bg-black/40 z-10" />
+            <div className="absolute inset-0 bg-black/60 z-10" />
 
             <Image
               src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&q=80&w=1200"
