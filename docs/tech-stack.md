@@ -30,10 +30,10 @@
 |---|---|---|
 | Framework | **Next.js 14 (App Router)** | required |
 | Language | TypeScript | consistency with backend |
-| UI | **Tailwind CSS + shadcn/ui** | shadcn gives you pre-built accessible components (forms, dialogs, tables) so the dashboard doesn't eat your remaining hours; pure Tailwind alone would be slower |
+| UI | **Ant Design + Tailwind CSS** | Ant Design provides high-quality, pre-built, and accessible components (tables, forms, layouts, modals) out-of-the-box, ensuring rapid dashboard development. Tailwind will be used alongside it for custom styling. |
 | State/data | `@tanstack/react-query` | cart state, dashboard tables, filters — handles loading/error/cache without hand-rolled logic |
 | Forms | `react-hook-form` + Zod resolver | shares validation schemas with backend intent |
-| Carousel | `embla-carousel-react` (via shadcn) | hero banner, minimal setup |
+| Carousel | Ant Design native `<Carousel>` | Built-in component in Ant Design, eliminating the need for an external library. |
 
 ## Two apps: customer site vs. management dashboard
 
