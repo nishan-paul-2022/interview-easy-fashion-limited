@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState, useMemo } from 'react';
 
 import { Icon } from '@/components/atoms/Icon';
 import { Dropdown } from '@/components/molecules/Dropdown';
@@ -36,9 +36,12 @@ function ProductsContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState(MOCK_PRODUCTS);
 
-  const categoryParams = searchParams.get('category')?.split(',') || [];
-  const sizeParams = searchParams.get('size')?.split(',') || [];
-  const styleParams = searchParams.get('style')?.split(',') || [];
+  const categoryParams = useMemo(
+    () => searchParams.get('category')?.split(',') || [],
+    [searchParams],
+  );
+  const sizeParams = useMemo(() => searchParams.get('size')?.split(',') || [], [searchParams]);
+  const styleParams = useMemo(() => searchParams.get('style')?.split(',') || [], [searchParams]);
   const searchQuery = searchParams.get('q') || '';
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
