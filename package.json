@@ -1,0 +1,13 @@
+{
+  "name": "easy-fashion-limited",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Root dev tooling",
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "eslint": "^10.8.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
+    "prettier": "^3.9.6"
+  }
+}
