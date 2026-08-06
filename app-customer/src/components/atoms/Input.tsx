@@ -7,10 +7,14 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   helperText?: string;
   leftIcon?: IconName;
   rightIcon?: IconName;
+  rightElement?: React.ReactNode;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, leftIcon, rightIcon, className = '', ...props }, ref) => {
+  (
+    { label, error, helperText, leftIcon, rightIcon, rightElement, className = '', ...props },
+    ref,
+  ) => {
     const hasError = !!error;
 
     return (
@@ -27,7 +31,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className={`
               w-full bg-surface text-text rounded-lg py-2
               ${leftIcon ? 'pl-10' : 'pl-4'}
-              ${rightIcon ? 'pr-10' : 'pr-4'}
+              ${rightIcon || rightElement ? 'pr-10' : 'pr-4'}
               border ${hasError ? 'border-error' : 'border-transparent'}
               focus:outline-none focus:ring-2 focus:ring-accent
               disabled:opacity-50 disabled:cursor-not-allowed
@@ -38,11 +42,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               .replace(/\s+/g, ' ')}
             {...props}
           />
-          {rightIcon && (
+          {rightElement ? (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+              {rightElement}
+            </div>
+          ) : rightIcon ? (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
               <Icon name={rightIcon} size={20} />
             </div>
-          )}
+          ) : null}
         </div>
         {error && <span className="text-sm text-error">{error}</span>}
         {!error && helperText && <span className="text-sm text-muted">{helperText}</span>}
