@@ -42,7 +42,7 @@ export const Sidebar = () => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen bg-surface border-r border-muted/20 transition-all duration-300 z-40 flex flex-col ${
+      className={`sticky top-0 h-screen bg-surface border-r border-muted/20 transition-all duration-300 z-40 flex flex-col shrink-0 ${
         isCollapsed ? 'w-[64px]' : 'w-[240px]'
       }`}
     >
