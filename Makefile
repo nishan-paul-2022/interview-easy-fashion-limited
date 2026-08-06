@@ -25,6 +25,12 @@ lint-fix:
 	@if [ -f app-customer/package.json ]; then npm run lint:fix --prefix app-customer --if-present; fi
 	@if [ -f app-management/package.json ]; then npm run lint:fix --prefix app-management --if-present; fi
 
+## Run TypeScript type checking in all apps
+typecheck:
+	@if [ -f app-backend/package.json ]; then npm run typecheck --prefix app-backend --if-present; fi
+	@if [ -f app-customer/package.json ]; then npm run typecheck --prefix app-customer --if-present; fi
+	@if [ -f app-management/package.json ]; then npm run typecheck --prefix app-management --if-present; fi
+
 ## Format code in all apps
 format:
 	npm run format
