@@ -1,4 +1,5 @@
 # 👗 Easy Fashion Limited
+
 ## Software Engineer Technical Assessment — Software Requirements Specification
 
 ---
@@ -28,13 +29,16 @@ This assessment evaluates:
 ## 🛠️ 2. Preferred Technology Stack
 
 ### ⚙️ Backend
+
 - **Runtime:** Node.js
-- **Framework:** Express.js *or* NestJS
+- **Framework:** Express.js _or_ NestJS
 
 ### 🗄️ Database
-- PostgreSQL *or* MongoDB (Mongoose)
+
+- PostgreSQL _or_ MongoDB (Mongoose)
 
 ### 🔗 Database Access (ORM / Query Builder — choose any)
+
 - Sequelize
 - TypeORM
 - Prisma
@@ -42,14 +46,16 @@ This assessment evaluates:
 - Mongoose
 
 ### 💻 Frontend
+
 - **Framework:** Next.js
 
 ### 🎨 UI Framework (choose any)
+
 - Tailwind CSS
 - Ant Design
 - Material UI
 - Bootstrap
-- *Or any modern CSS framework*
+- _Or any modern CSS framework_
 
 ---
 
@@ -67,20 +73,22 @@ The project consists of **two applications**:
 ### 🏠 4.1 Home Page
 
 #### ✨ Hero Section
+
 - Modern, responsive design
 - Animated banner or carousel
 - Fashion promotional banners
 - Smooth animations
 
 #### 📊 Summary Section
+
 Display attractive summary cards showing:
 
-| Metric | Description |
-|---|---|
+| Metric              | Description                     |
+| ------------------- | ------------------------------- |
 | 🗂️ Total Categories | Count of all product categories |
-| 👕 Total Products | Count of all products |
-| 📏 Available Sizes | Count of all sizes |
-| 🎭 Available Styles | Count of all styles |
+| 👕 Total Products   | Count of all products           |
+| 📏 Available Sizes  | Count of all sizes              |
+| 🎭 Available Styles | Count of all styles             |
 
 ---
 
@@ -89,21 +97,24 @@ Display attractive summary cards showing:
 Display products in a **responsive card view**.
 
 > Each product card should include:
+>
 > - 🖼️ Product Image
 > - 🏷️ Product Name
 > - 🗂️ Category
 > - 🎭 Style
 > - 📏 Available Sizes
 > - 💰 Price
-> - ➕ *Add to Cart* button
+> - ➕ _Add to Cart_ button
 
 #### 🔍 Product Filtering
+
 Allow filtering by:
+
 - Category
 - Size
 - Style
 
-*Products should update **dynamically** based on selected filters.*
+_Products should update **dynamically** based on selected filters._
 
 ---
 
@@ -171,10 +182,11 @@ Allow users to register using:
 
 - Full Name
 - Email Address
-- Phone Number *(optional)*
+- Phone Number _(optional)_
 - Password
 
 **Requirements:**
+
 - ✅ Email must be unique
 - 🔒 Passwords must be securely hashed using **bcrypt**
 - ✅ Validate all input fields
@@ -186,10 +198,12 @@ Allow users to register using:
 Users should log in using **email and password**.
 
 After successful login, generate:
+
 - 🎫 JWT Access Token
 - 🔁 JWT Refresh Token
 
 **Requirements:**
+
 - 🔒 Store Refresh Token securely (hashed if persisted)
 - ⏳ Implement Access Token expiration
 - ⏳ Implement Refresh Token expiration
@@ -197,12 +211,12 @@ After successful login, generate:
 
 #### 🔌 Required Authentication APIs
 
-| Endpoint Purpose | Description |
-|---|---|
-| Register | Create a new user |
-| Login | Authenticate & issue tokens |
-| Refresh Token | Issue new access token |
-| Logout | Invalidate session |
+| Endpoint Purpose         | Description                    |
+| ------------------------ | ------------------------------ |
+| Register                 | Create a new user              |
+| Login                    | Authenticate & issue tokens    |
+| Refresh Token            | Issue new access token         |
+| Logout                   | Invalidate session             |
 | Get Current User Profile | Return authenticated user data |
 
 ---
@@ -215,6 +229,7 @@ Implement **OAuth Login** using:
 - 🔵 Facebook
 
 **Requirements:**
+
 - ♻️ Existing users should be logged in automatically
 - 🆕 New users should be created automatically
 - 🎫 Return JWT Access Token and Refresh Token after successful authentication
@@ -228,6 +243,7 @@ Implement **OAuth Login** using:
 - The system must contain **one default Super Admin account** seeded directly into the database.
 
 **The Super Admin must be able to:**
+
 - 🔑 Login
 - ➕ Create Dashboard Users
 - 📋 View User List
@@ -243,6 +259,7 @@ Implement **OAuth Login** using:
 Implement **Role-Based Access Control (RBAC)**.
 
 #### 🎭 Roles
+
 1. 👑 Super Admin
 2. 🛠️ Admin
 3. 📋 Manager
@@ -250,27 +267,27 @@ Implement **Role-Based Access Control (RBAC)**.
 
 #### 🔑 Permissions Matrix
 
-| Permission | 👑 Super Admin | 🛠️ Admin | 📋 Manager | 🙋 Customer |
-|---|:---:|:---:|:---:|:---:|
-| Full System Access | ✅ | ❌ | ❌ | ❌ |
-| Manage Dashboard Users | ✅ | ❌ | ❌ | ❌ |
-| Assign Roles & Permissions | ✅ | ❌ | ❌ | ❌ |
-| Manage Products | ✅ | ✅ | ❌ | ❌ |
-| Manage Categories | ✅ | ✅ | ❌ | ❌ |
-| Manage Sizes | ✅ | ✅ | ❌ | ❌ |
-| Manage Styles | ✅ | ✅ | ❌ | ❌ |
-| View Users | ✅ | ✅ | ❌ | ❌ |
-| Manage Orders | ✅ | ✅ | ✅ | ❌ |
-| Update Order Status | ✅ | ❌ | ✅ | ❌ |
-| View Dashboard Reports | ✅ | ❌ | ❌ | ❌ |
-| View Dashboard | ✅ | ✅ | ✅ | ❌ |
-| View Products | ✅ | ✅ | ✅ | ✅ |
-| Register / Login | ✅ | ✅ | ✅ | ✅ |
-| Browse Products | ✅ | ✅ | ✅ | ✅ |
-| Add to Cart | ❌ | ❌ | ❌ | ✅ |
-| Place Orders | ❌ | ❌ | ❌ | ✅ |
-| View Own Orders | ❌ | ❌ | ❌ | ✅ |
-| Update Own Profile | ❌ | ❌ | ❌ | ✅ |
+| Permission                 | 👑 Super Admin | 🛠️ Admin | 📋 Manager | 🙋 Customer |
+| -------------------------- | :------------: | :------: | :--------: | :---------: |
+| Full System Access         |       ✅       |    ❌    |     ❌     |     ❌      |
+| Manage Dashboard Users     |       ✅       |    ❌    |     ❌     |     ❌      |
+| Assign Roles & Permissions |       ✅       |    ❌    |     ❌     |     ❌      |
+| Manage Products            |       ✅       |    ✅    |     ❌     |     ❌      |
+| Manage Categories          |       ✅       |    ✅    |     ❌     |     ❌      |
+| Manage Sizes               |       ✅       |    ✅    |     ❌     |     ❌      |
+| Manage Styles              |       ✅       |    ✅    |     ❌     |     ❌      |
+| View Users                 |       ✅       |    ✅    |     ❌     |     ❌      |
+| Manage Orders              |       ✅       |    ✅    |     ✅     |     ❌      |
+| Update Order Status        |       ✅       |    ❌    |     ✅     |     ❌      |
+| View Dashboard Reports     |       ✅       |    ❌    |     ❌     |     ❌      |
+| View Dashboard             |       ✅       |    ✅    |     ✅     |     ❌      |
+| View Products              |       ✅       |    ✅    |     ✅     |     ✅      |
+| Register / Login           |       ✅       |    ✅    |     ✅     |     ✅      |
+| Browse Products            |       ✅       |    ✅    |     ✅     |     ✅      |
+| Add to Cart                |       ❌       |    ❌    |     ❌     |     ✅      |
+| Place Orders               |       ❌       |    ❌    |     ❌     |     ✅      |
+| View Own Orders            |       ❌       |    ❌    |     ❌     |     ✅      |
+| Update Own Profile         |       ❌       |    ❌    |     ❌     |     ✅      |
 
 > 🔒 **All dashboard APIs must be protected using JWT Authentication and Role Guards.**
 
@@ -282,7 +299,7 @@ Implement **Role-Based Access Control (RBAC)**.
 
 - 🎫 JWT Authentication
 - 🔒 Password Hashing (bcrypt)
-- 🔄 Refresh Token Rotation *(Bonus)*
+- 🔄 Refresh Token Rotation _(Bonus)_
 - 🚧 Route Guards / Middleware
 - 🛡️ Protected APIs
 - 📟 Proper HTTP Status Codes
@@ -292,6 +309,7 @@ Implement **Role-Based Access Control (RBAC)**.
 - 🔑 Environment Variables for Secrets
 
 #### 🌟 Bonus Security Features
+
 - 📧 Email Verification
 - 🔓 Forgot Password
 - 🔁 Reset Password
@@ -306,22 +324,25 @@ Implement **Role-Based Access Control (RBAC)**.
 
 Display dashboard summary cards:
 
-| Metric | Icon |
-|---|:---:|
-| Total Users | 👥 |
-| Total Categories | 🗂️ |
-| Total Products | 👕 |
-| Total Orders | 📦 |
+| Metric           | Icon |
+| ---------------- | :--: |
+| Total Users      |  👥  |
+| Total Categories |  🗂️  |
+| Total Products   |  👕  |
+| Total Orders     |  📦  |
 
 ---
 
 ### 🗂️ 5.7 Category Management
+
 > Implement **full CRUD** operations (Create, Read, Update, Delete).
 
 ### 👕 5.8 Product Management
+
 > Implement **full CRUD** operations.
 
 Each product should contain:
+
 - Product Name
 - Category
 - Style
@@ -331,14 +352,17 @@ Each product should contain:
 - Multiple Product Images
 
 ### 📏 5.9 Size Management
+
 > Implement **full CRUD** operations.
 
 ### 🎭 5.10 Style Management
+
 > Implement **full CRUD** operations.
 
 ### 📦 5.11 Order Management
 
 Display:
+
 - 👤 Customer Information
 - 🛍️ Ordered Products
 - 🔢 Quantity
@@ -350,6 +374,7 @@ Display:
 ### 👥 5.12 User Management
 
 Display:
+
 - 📋 User List
 - 👁️ User Details
 
@@ -392,15 +417,15 @@ Design a **normalized relational database** including the following entities:
 
 Evaluation will consider:
 
-| Category | Aspects |
-|---|---|
-| 🏗️ Architecture | Clean Architecture, Modular Design, Folder Structure |
-| ♻️ Design | Reusable Components, SOLID Principles, Clean Code |
-| 🔌 API | API Design |
-| 🛡️ Security | Security Best Practices |
-| ⚡ Performance | Optimization & Efficiency |
-| 📱 UI | Responsive UI |
-| 🗃️ Version Control | Git Commit History |
+| Category           | Aspects                                              |
+| ------------------ | ---------------------------------------------------- |
+| 🏗️ Architecture    | Clean Architecture, Modular Design, Folder Structure |
+| ♻️ Design          | Reusable Components, SOLID Principles, Clean Code    |
+| 🔌 API             | API Design                                           |
+| 🛡️ Security        | Security Best Practices                              |
+| ⚡ Performance     | Optimization & Efficiency                            |
+| 📱 UI              | Responsive UI                                        |
+| 🗃️ Version Control | Git Commit History                                   |
 
 ---
 

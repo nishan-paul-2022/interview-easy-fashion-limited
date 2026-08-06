@@ -26,4 +26,3 @@ To run the monorepo locally, you will eventually install dependencies, configure
 This repository uses a shared ESLint and Prettier configuration at the root level to maintain code quality and consistent formatting across the monorepo.
 
 Each sub-app (`app-backend`, `app-customer`, `app-management`) will extend this root `eslint.config.js` config and inherit the `.prettierrc` rules.
-

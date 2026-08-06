@@ -12,8 +12,8 @@ module.exports = [
       '**/coverage/**',
       '**/*.log',
       '**/.DS_Store',
-      'eslint.config.js'
-    ]
+      'eslint.config.js',
+    ],
   },
   {
     files: ['**/*.{js,mjs,cjs,jsx,ts,tsx}'],
@@ -21,12 +21,12 @@ module.exports = [
       parser: tsParser,
       parserOptions: {
         ecmaVersion: 'latest',
-        sourceType: 'module'
-      }
+        sourceType: 'module',
+      },
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
-      'import': importPlugin
+      import: importPlugin,
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
@@ -35,10 +35,10 @@ module.exports = [
         {
           groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
           alphabetize: { order: 'asc', caseInsensitive: true },
-        }
+        },
       ],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      ...prettierConfig.rules
-    }
-  }
+      ...prettierConfig.rules,
+    },
+  },
 ];

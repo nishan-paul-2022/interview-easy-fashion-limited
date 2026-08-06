@@ -4,36 +4,36 @@
 
 ## Backend
 
-| Layer | Choice | Why |
-|---|---|---|
-| Runtime | Node.js (v20 LTS) | required |
-| Framework | **NestJS** | your call — do use its module structure for real (AuthModule, UsersModule, ProductsModule, OrdersModule, etc.), since that structure is exactly what "clean architecture" scoring rewards. Just don't over-engineer with CQRS/microservices patterns — plain Nest modules + services + guards is enough. |
-| Language | TypeScript | native to Nest |
-| Validation | **class-validator + class-transformer** (Nest's native pairing, via `ValidationPipe`) | zero extra wiring vs Zod in Nest; use Zod only if you already have a shared-schema reason to |
-| Auth | `@nestjs/jwt` + `@nestjs/passport` + `bcrypt` | JWT access/refresh, Nest's idiomatic auth setup, Guards map directly to your RBAC matrix |
-| OAuth | `passport-google-oauth20`, `passport-facebook` as Nest strategies | plugs straight into `@nestjs/passport` |
-| File uploads | `@nestjs/platform-express` Multer integration → **Cloudinary** (free tier) | product images need real URLs; local disk won't survive VPS redeploys cleanly |
-| Rate limiting | `@nestjs/throttler` | bonus requirement, built for Nest |
-| ORM | see below | |
+| Layer         | Choice                                                                                | Why                                                                                                                                                                                                                                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime       | Node.js (v20 LTS)                                                                     | required                                                                                                                                                                                                                                                                                                 |
+| Framework     | **NestJS**                                                                            | your call — do use its module structure for real (AuthModule, UsersModule, ProductsModule, OrdersModule, etc.), since that structure is exactly what "clean architecture" scoring rewards. Just don't over-engineer with CQRS/microservices patterns — plain Nest modules + services + guards is enough. |
+| Language      | TypeScript                                                                            | native to Nest                                                                                                                                                                                                                                                                                           |
+| Validation    | **class-validator + class-transformer** (Nest's native pairing, via `ValidationPipe`) | zero extra wiring vs Zod in Nest; use Zod only if you already have a shared-schema reason to                                                                                                                                                                                                             |
+| Auth          | `@nestjs/jwt` + `@nestjs/passport` + `bcrypt`                                         | JWT access/refresh, Nest's idiomatic auth setup, Guards map directly to your RBAC matrix                                                                                                                                                                                                                 |
+| OAuth         | `passport-google-oauth20`, `passport-facebook` as Nest strategies                     | plugs straight into `@nestjs/passport`                                                                                                                                                                                                                                                                   |
+| File uploads  | `@nestjs/platform-express` Multer integration → **Cloudinary** (free tier)            | product images need real URLs; local disk won't survive VPS redeploys cleanly                                                                                                                                                                                                                            |
+| Rate limiting | `@nestjs/throttler`                                                                   | bonus requirement, built for Nest                                                                                                                                                                                                                                                                        |
+| ORM           | see below                                                                             |                                                                                                                                                                                                                                                                                                          |
 
 ## Database
 
-| Layer | Choice | Why |
-|---|---|---|
-| DB | **PostgreSQL** | confirmed — relational fits the entity list (Users/Roles/Products/Orders/OrderItems) far better than Mongo; FK constraints are explicitly required |
-| ORM | **Prisma** (used inside Nest via a `PrismaService`, not `@nestjs/typeorm`) | still faster migration + seed workflow than TypeORM even inside Nest — `prisma migrate dev` and `prisma db seed` (for the mandatory Super Admin) are less code than TypeORM entities/migrations. Nest doesn't require TypeORM; Prisma integrates as a regular injectable service. |
-| Hosting | Postgres container on your Contabo VPS | see deployment section below |
+| Layer   | Choice                                                                     | Why                                                                                                                                                                                                                                                                               |
+| ------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DB      | **PostgreSQL**                                                             | confirmed — relational fits the entity list (Users/Roles/Products/Orders/OrderItems) far better than Mongo; FK constraints are explicitly required                                                                                                                                |
+| ORM     | **Prisma** (used inside Nest via a `PrismaService`, not `@nestjs/typeorm`) | still faster migration + seed workflow than TypeORM even inside Nest — `prisma migrate dev` and `prisma db seed` (for the mandatory Super Admin) are less code than TypeORM entities/migrations. Nest doesn't require TypeORM; Prisma integrates as a regular injectable service. |
+| Hosting | Postgres container on your Contabo VPS                                     | see deployment section below                                                                                                                                                                                                                                                      |
 
 ## Frontend
 
-| Layer | Choice | Why |
-|---|---|---|
-| Framework | **Next.js 14 (App Router)** | required |
-| Language | TypeScript | consistency with backend |
-| UI | **Ant Design + Tailwind CSS** | Ant Design provides high-quality, pre-built, and accessible components (tables, forms, layouts, modals) out-of-the-box, ensuring rapid dashboard development. Tailwind will be used alongside it for custom styling. |
-| State/data | `@tanstack/react-query` | cart state, dashboard tables, filters — handles loading/error/cache without hand-rolled logic |
-| Forms | `react-hook-form` + Zod resolver | shares validation schemas with backend intent |
-| Carousel | Ant Design native `<Carousel>` | Built-in component in Ant Design, eliminating the need for an external library. |
+| Layer      | Choice                           | Why                                                                                                                                                                                                                  |
+| ---------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework  | **Next.js 14 (App Router)**      | required                                                                                                                                                                                                             |
+| Language   | TypeScript                       | consistency with backend                                                                                                                                                                                             |
+| UI         | **Ant Design + Tailwind CSS**    | Ant Design provides high-quality, pre-built, and accessible components (tables, forms, layouts, modals) out-of-the-box, ensuring rapid dashboard development. Tailwind will be used alongside it for custom styling. |
+| State/data | `@tanstack/react-query`          | cart state, dashboard tables, filters — handles loading/error/cache without hand-rolled logic                                                                                                                        |
+| Forms      | `react-hook-form` + Zod resolver | shares validation schemas with backend intent                                                                                                                                                                        |
+| Carousel   | Ant Design native `<Carousel>`   | Built-in component in Ant Design, eliminating the need for an external library.                                                                                                                                      |
 
 ## Two apps: customer site vs. management dashboard
 
