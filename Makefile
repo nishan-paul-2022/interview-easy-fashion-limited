@@ -14,28 +14,28 @@ dev:
 ## Lint all apps
 lint:
 	npm run lint
-	@if [ -f app-backend/package.json ]; then npm run lint --prefix app-backend; fi
-	@if [ -f app-customer/package.json ]; then npm run lint --prefix app-customer; fi
-	@if [ -f app-management/package.json ]; then npm run lint --prefix app-management; fi
+	@if [ -f app-backend/package.json ]; then npm run lint --prefix app-backend --if-present; fi
+	@if [ -f app-customer/package.json ]; then npm run lint --prefix app-customer --if-present; fi
+	@if [ -f app-management/package.json ]; then npm run lint --prefix app-management --if-present; fi
 
 ## Format code in all apps
 format:
 	npm run format
-	@if [ -f app-backend/package.json ]; then npm run format --prefix app-backend; fi
-	@if [ -f app-customer/package.json ]; then npm run format --prefix app-customer; fi
-	@if [ -f app-management/package.json ]; then npm run format --prefix app-management; fi
+	@if [ -f app-backend/package.json ]; then npm run format --prefix app-backend --if-present; fi
+	@if [ -f app-customer/package.json ]; then npm run format --prefix app-customer --if-present; fi
+	@if [ -f app-management/package.json ]; then npm run format --prefix app-management --if-present; fi
 
 ## Run tests in all apps
 test:
-	@if [ -f app-backend/package.json ]; then npm run test --prefix app-backend; fi
-	@if [ -f app-customer/package.json ]; then npm run test --prefix app-customer; fi
-	@if [ -f app-management/package.json ]; then npm run test --prefix app-management; fi
+	@if [ -f app-backend/package.json ]; then npm run test --prefix app-backend --if-present; fi
+	@if [ -f app-customer/package.json ]; then npm run test --prefix app-customer --if-present; fi
+	@if [ -f app-management/package.json ]; then npm run test --prefix app-management --if-present; fi
 
 ## Build all apps
 build:
-	@if [ -f app-backend/package.json ]; then npm run build --prefix app-backend; fi
-	@if [ -f app-customer/package.json ]; then npm run build --prefix app-customer; fi
-	@if [ -f app-management/package.json ]; then npm run build --prefix app-management; fi
+	@if [ -f app-backend/package.json ]; then npm run build --prefix app-backend --if-present; fi
+	@if [ -f app-customer/package.json ]; then npm run build --prefix app-customer --if-present; fi
+	@if [ -f app-management/package.json ]; then npm run build --prefix app-management --if-present; fi
 
 ## Start Docker containers
 docker-up:
