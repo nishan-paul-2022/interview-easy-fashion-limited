@@ -21,6 +21,7 @@ import {
   CheckCircle,
   AlertTriangle,
   X,
+  Upload,
 } from 'lucide-react';
 
 const icons = {
@@ -46,6 +47,7 @@ const icons = {
   CheckCircle,
   AlertTriangle,
   X,
+  Upload,
 };
 
 export type IconName = keyof typeof icons;

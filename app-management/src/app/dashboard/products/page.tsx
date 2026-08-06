@@ -114,7 +114,7 @@ export default function ProductListPage() {
   }, [searchQuery, selectedCategory, selectedStyle]);
 
   const handleAddClick = () => {
-    router.push('/dashboard/products/create');
+    router.push('/dashboard/products/new');
   };
 
   const handleEditClick = (product: Product) => {
