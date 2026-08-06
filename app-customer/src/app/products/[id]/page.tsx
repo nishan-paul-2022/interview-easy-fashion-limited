@@ -9,6 +9,7 @@ import { Button } from '../../../components/atoms/Button';
 import { Icon } from '../../../components/atoms/Icon';
 import { ImageGallery } from '../../../components/molecules/ImageGallery';
 import { useToast } from '../../../components/molecules/Toast';
+import { useCart } from '../../../context/CartContext';
 
 // Mock product fetching
 const getMockProduct = (id: string) => {
@@ -33,6 +34,7 @@ const getMockProduct = (id: string) => {
 export default function ProductDetailsPage({ params }: { params: { id: string } }) {
   const product = getMockProduct(params.id);
   const { success } = useToast();
+  const { dispatch } = useCart();
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -51,6 +53,19 @@ export default function ProductDetailsPage({ params }: { params: { id: string } 
       return;
     }
     setShowSizeError(false);
+
+    dispatch({
+      type: 'ADD_ITEM',
+      payload: {
+        id: `${product.id}-${selectedSize}`,
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        size: selectedSize,
+        quantity,
+        imageUrl: product.images[0],
+      },
+    });
 
     // Mock add to cart success
     success(`Added ${quantity}x ${product.name} (Size: ${selectedSize}) to cart`);
