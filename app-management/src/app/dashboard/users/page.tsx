@@ -89,7 +89,7 @@ export default function UserManagementPage() {
   }, [searchQuery, selectedRole]);
 
   const handleAddClick = () => {
-    router.push('/dashboard/users/create');
+    router.push('/dashboard/users/new');
   };
 
   const handleViewClick = (user: User) => {
