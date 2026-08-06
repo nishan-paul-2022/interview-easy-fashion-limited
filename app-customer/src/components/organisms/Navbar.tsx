@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
-import { Avatar } from '../atoms/Avatar';
-import { Badge } from '../atoms/Badge';
-import { Icon } from '../atoms/Icon';
-import { Dropdown } from '../molecules/Dropdown';
-import { SearchBar } from '../molecules/SearchBar';
+import { Avatar } from '@/components/atoms/Avatar';
+import { Badge } from '@/components/atoms/Badge';
+import { Icon } from '@/components/atoms/Icon';
+import { Dropdown } from '@/components/molecules/Dropdown';
+import { SearchBar } from '@/components/molecules/SearchBar';
 
 export const Navbar = () => {
   const router = useRouter();

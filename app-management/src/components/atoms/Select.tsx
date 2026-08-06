@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon } from './Icon';
+
+import { Icon } from '@/components/atoms/Icon';
 
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;

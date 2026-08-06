@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import React from 'react';
-import { Badge } from '../atoms/Badge';
-import { Button } from '../atoms/Button';
+import { Badge } from '@/components/atoms/Badge';
+import { Button } from '@/components/atoms/Button';
 
 export interface ProductCardProps {
   id?: string;

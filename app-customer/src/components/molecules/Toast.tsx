@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { Icon } from '../atoms/Icon';
+import { Icon } from '@/components/atoms/Icon';
 
 export type ToastVariant = 'success' | 'error';
 

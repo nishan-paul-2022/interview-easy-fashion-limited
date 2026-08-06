@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Icon } from '../atoms/Icon';
+import { Icon } from '@/components/atoms/Icon';
 
 export interface ModalProps {
   isOpen: boolean;

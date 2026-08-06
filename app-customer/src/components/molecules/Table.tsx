@@ -1,6 +1,7 @@
 import React from 'react';
-import { TableSkeleton } from './Skeleton';
-import { Icon } from '../atoms/Icon';
+
+import { Icon } from '@/components/atoms/Icon';
+import { TableSkeleton } from '@/components/molecules/Skeleton';
 
 export const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className = '', children, ...props }, ref) => (

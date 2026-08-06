@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon, IconName } from './Icon';
+
+import { Icon, IconName } from '@/components/atoms/Icon';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;

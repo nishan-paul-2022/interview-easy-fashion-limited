@@ -3,13 +3,13 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { Suspense, useEffect, useState } from 'react';
 
-import { Icon } from '../../components/atoms/Icon';
-import { Dropdown } from '../../components/molecules/Dropdown';
-import { EmptyState } from '../../components/molecules/EmptyState';
-import { Pagination } from '../../components/molecules/Pagination';
-import { ProductCard } from '../../components/molecules/ProductCard';
-import { SearchBar } from '../../components/molecules/SearchBar';
-import { ProductGridSkeleton } from '../../components/molecules/Skeleton';
+import { Icon } from '@/components/atoms/Icon';
+import { Dropdown } from '@/components/molecules/Dropdown';
+import { EmptyState } from '@/components/molecules/EmptyState';
+import { Pagination } from '@/components/molecules/Pagination';
+import { ProductCard } from '@/components/molecules/ProductCard';
+import { SearchBar } from '@/components/molecules/SearchBar';
+import { ProductGridSkeleton } from '@/components/molecules/Skeleton';
 
 const MOCK_IMAGES = [
   'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600',

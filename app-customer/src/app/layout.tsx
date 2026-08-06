@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
-import { ToastProvider } from '../components/molecules/Toast';
-import { Footer } from '../components/organisms/Footer';
-import { Navbar } from '../components/organisms/Navbar';
-import { CartProvider } from '../context/CartContext';
+import { ToastProvider } from '@/components/molecules/Toast';
+import { Footer } from '@/components/organisms/Footer';
+import { Navbar } from '@/components/organisms/Navbar';
+import { CartProvider } from '@/context/CartContext';
 
 import './globals.css';
 

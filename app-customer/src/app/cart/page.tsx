@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-import { Button } from '../../components/atoms/Button';
-import { Icon } from '../../components/atoms/Icon';
-import { EmptyState } from '../../components/molecules/EmptyState';
-import { useCart } from '../../context/CartContext';
+import { Button } from '@/components/atoms/Button';
+import { Icon } from '@/components/atoms/Icon';
+import { EmptyState } from '@/components/molecules/EmptyState';
+import { useCart } from '@/context/CartContext';
 
 export default function CartPage() {
   const { state, dispatch, subtotal } = useCart();

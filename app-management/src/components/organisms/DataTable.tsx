@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { EmptyState, EmptyStateProps } from '../molecules/EmptyState';
-import { Pagination, PaginationProps } from '../molecules/Pagination';
+import { EmptyState, EmptyStateProps } from '@/components/molecules/EmptyState';
+import { Pagination, PaginationProps } from '@/components/molecules/Pagination';
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableLoading,
   TableRow,
-} from '../molecules/Table';
+} from '@/components/molecules/Table';
 
 export interface DataTableColumn<T> {
   key: string | keyof T;

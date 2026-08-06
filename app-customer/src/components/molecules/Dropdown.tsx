@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Icon } from '../atoms/Icon';
+import { Icon } from '@/components/atoms/Icon';
 
 export interface DropdownOption {
   label: string;

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useState } from 'react';
-import { Icon, IconName } from '../atoms/Icon';
+import { Icon, IconName } from '@/components/atoms/Icon';
 
 interface NavItem {
   label: string;

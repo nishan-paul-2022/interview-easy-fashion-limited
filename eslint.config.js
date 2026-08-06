@@ -41,6 +41,21 @@ module.exports = [
       '@typescript-eslint/no-explicit-any': 'error',
       curly: ['error', 'all'],
       'no-empty': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['../*'],
+              message: 'Usage of relative parent imports is not allowed. Please use path aliases (e.g., @/) instead.',
+            },
+            {
+              group: ['./*', '!./globals.css'],
+              message: 'Usage of relative sibling imports is not allowed. Please use path aliases (e.g., @/) instead.',
+            },
+          ],
+        },
+      ],
       ...prettierConfig.rules,
     },
   },

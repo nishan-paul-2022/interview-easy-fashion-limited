@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon, IconName } from './Icon';
+
+import { Icon, IconName } from '@/components/atoms/Icon';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success';

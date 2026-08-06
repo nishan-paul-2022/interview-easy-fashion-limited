@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from '../atoms/Button';
-import { Icon, IconName } from '../atoms/Icon';
+import { Button } from '@/components/atoms/Button';
+import { Icon, IconName } from '@/components/atoms/Icon';
 
 export interface EmptyStateProps {
   icon: IconName;

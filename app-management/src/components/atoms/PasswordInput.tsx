@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Icon } from './Icon';
+
+import { Icon } from '@/components/atoms/Icon';
 
 export interface PasswordInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;

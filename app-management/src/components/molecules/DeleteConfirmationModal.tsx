@@ -1,7 +1,8 @@
 import React from 'react';
-import { Modal } from './Modal';
-import { Button } from '../atoms/Button';
-import { Icon } from '../atoms/Icon';
+
+import { Button } from '@/components/atoms/Button';
+import { Icon } from '@/components/atoms/Icon';
+import { Modal } from '@/components/molecules/Modal';
 
 export interface DeleteConfirmationModalProps {
   isOpen: boolean;

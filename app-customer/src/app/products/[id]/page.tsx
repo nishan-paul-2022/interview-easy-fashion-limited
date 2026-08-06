@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import React, { useState } from 'react';
 
-import { Badge } from '../../../components/atoms/Badge';
-import { Button } from '../../../components/atoms/Button';
-import { Icon } from '../../../components/atoms/Icon';
-import { ImageGallery } from '../../../components/molecules/ImageGallery';
-import { useToast } from '../../../components/molecules/Toast';
-import { useCart } from '../../../context/CartContext';
+import { Badge } from '@/components/atoms/Badge';
+import { Button } from '@/components/atoms/Button';
+import { Icon } from '@/components/atoms/Icon';
+import { ImageGallery } from '@/components/molecules/ImageGallery';
+import { useToast } from '@/components/molecules/Toast';
+import { useCart } from '@/context/CartContext';
 
 // Mock product fetching
 const getMockProduct = (id: string) => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { Icon } from '../atoms/Icon';
-import { Input } from '../atoms/Input';
+import { Icon } from '@/components/atoms/Icon';
+import { Input } from '@/components/atoms/Input';
 
 export interface SearchBarProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,

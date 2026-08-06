@@ -3,9 +3,9 @@
 import { Carousel } from 'antd';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '../components/atoms/Button';
-import { Icon } from '../components/atoms/Icon';
-import { ProductCard } from '../components/molecules/ProductCard';
+import { Button } from '@/components/atoms/Button';
+import { Icon } from '@/components/atoms/Icon';
+import { ProductCard } from '@/components/molecules/ProductCard';
 
 export default function Home() {
   const stats = [
