@@ -1,3 +1,6 @@
+'use client';
+
+import Image from 'next/image';
 import React, { useState } from 'react';
 
 export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -34,10 +37,12 @@ export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
         {...props}
       >
         {src && !imageError ? (
-          <img
+          <Image
             src={src}
             alt={alt}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            unoptimized
             onError={() => setImageError(true)}
           />
         ) : (
