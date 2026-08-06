@@ -6,10 +6,12 @@ import React from 'react';
 import { Avatar } from '@/components/atoms/Avatar';
 import { Icon } from '@/components/atoms/Icon';
 import { Dropdown } from '@/components/molecules/Dropdown';
+import { useSidebar } from '@/context/SidebarContext';
 
 export const Topbar = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const { setIsMobileOpen } = useSidebar();
 
   const getPageTitle = () => {
     if (!pathname || pathname === '/dashboard') return 'Dashboard';
@@ -36,8 +38,17 @@ export const Topbar = () => {
   ];
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 bg-surface border-b border-muted/20 shrink-0">
-      <h1 className="text-xl font-semibold text-text">{getPageTitle()}</h1>
+    <header className="h-16 flex items-center justify-between px-4 sm:px-6 bg-surface border-b border-muted/20 shrink-0 gap-4">
+      <div className="flex items-center gap-3 min-w-0">
+        <button
+          className="md:hidden text-muted hover:text-text transition-colors p-1 -ml-1 rounded-md hover:bg-muted/10 outline-none focus-visible:ring-2 focus-visible:ring-accent shrink-0"
+          onClick={() => setIsMobileOpen(true)}
+          aria-label="Open sidebar menu"
+        >
+          <Icon name="Menu" size={24} />
+        </button>
+        <h1 className="text-lg sm:text-xl font-semibold text-text truncate">{getPageTitle()}</h1>
+      </div>
 
       <div className="flex items-center gap-6">
         <button

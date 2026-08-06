@@ -6,7 +6,11 @@ import { TableSkeleton } from '@/components/molecules/Skeleton';
 export const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className = '', children, ...props }, ref) => (
     <div className="w-full overflow-x-auto rounded-lg border border-muted/20 bg-surface">
-      <table ref={ref} className={`w-full text-sm text-left text-text ${className}`} {...props}>
+      <table
+        ref={ref}
+        className={`w-full min-w-[800px] text-sm text-left text-text ${className}`}
+        {...props}
+      >
         {children}
       </table>
     </div>

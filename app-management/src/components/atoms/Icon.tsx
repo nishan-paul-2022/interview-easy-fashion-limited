@@ -22,6 +22,7 @@ import {
   AlertTriangle,
   X,
   Upload,
+  Menu,
 } from 'lucide-react';
 
 const icons = {
@@ -48,6 +49,7 @@ const icons = {
   AlertTriangle,
   X,
   Upload,
+  Menu,
 };
 
 export type IconName = keyof typeof icons;

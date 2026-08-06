@@ -10,7 +10,7 @@ export const Toggle = React.forwardRef<HTMLInputElement, ToggleProps>(
   ({ label, className = '', ...props }, ref) => {
     return (
       <label
-        className={`inline-flex items-center gap-3 cursor-pointer ${props.disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+        className={`inline-flex items-center gap-3 cursor-pointer min-h-[44px] ${props.disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
       >
         {label && <span className="text-sm font-medium text-text select-none">{label}</span>}
         <div className="relative flex items-center">

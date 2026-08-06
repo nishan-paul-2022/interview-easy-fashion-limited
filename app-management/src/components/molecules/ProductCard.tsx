@@ -53,13 +53,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         <h3 className="text-text font-medium text-lg leading-tight mb-2 line-clamp-2">{name}</h3>
 
-        <div className="mt-auto pt-4 flex items-center justify-between">
+        <div className="mt-auto pt-4 flex flex-col xl:flex-row xl:items-center justify-between gap-3 xl:gap-2">
           <span className="text-xl font-bold text-accent">${price.toFixed(2)}</span>
           <Button
             variant="success"
             size="sm"
             onClick={() => onAddToCart?.(id)}
             leftIcon="ShoppingBag"
+            className="w-full xl:w-auto justify-center"
           >
             Add to Cart
           </Button>

@@ -30,7 +30,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             className={`
-              w-full bg-surface text-text rounded-lg py-2
+              w-full bg-surface text-text rounded-lg py-2 min-h-[44px]
               ${leftIcon ? 'pl-10' : 'pl-4'}
               ${rightIcon || rightElement ? 'pr-10' : 'pr-4'}
               border ${hasError ? 'border-error' : 'border-transparent'}
