@@ -1,0 +1,116 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { Icon, IconName } from '../atoms/Icon';
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: IconName;
+}
+
+const navItems: NavItem[] = [
+  { label: 'Dashboard', href: '/dashboard', icon: 'LayoutDashboard' },
+  { label: 'Categories', href: '/dashboard/categories', icon: 'Folder' },
+  { label: 'Products', href: '/dashboard/products', icon: 'Package' },
+  { label: 'Sizes', href: '/dashboard/sizes', icon: 'Ruler' },
+  { label: 'Styles', href: '/dashboard/styles', icon: 'Palette' },
+  { label: 'Orders', href: '/dashboard/orders', icon: 'ShoppingBag' },
+  { label: 'Users', href: '/dashboard/users', icon: 'Users' },
+  { label: 'Settings', href: '/dashboard/settings', icon: 'Settings' },
+];
+
+export const Sidebar = () => {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const handleLogout = () => {
+    // Handle logout logic
+    console.log('Logging out...');
+    router.push('/login');
+  };
+
+  const isActive = (href: string) => {
+    if (href === '/dashboard') {
+      return pathname === '/dashboard';
+    }
+    return pathname?.startsWith(href) ?? false;
+  };
+
+  return (
+    <aside
+      className={`fixed top-0 left-0 h-screen bg-surface border-r border-muted/20 transition-all duration-300 z-40 flex flex-col ${
+        isCollapsed ? 'w-[64px]' : 'w-[240px]'
+      }`}
+    >
+      {/* Logo Area */}
+      <div
+        className={`h-16 flex items-center px-4 border-b border-muted/20 shrink-0 ${isCollapsed ? 'justify-center' : 'justify-between'}`}
+      >
+        {!isCollapsed && (
+          <Link
+            href="/dashboard"
+            className="text-accent font-bold text-xl tracking-tight truncate hover:opacity-80 transition-opacity"
+          >
+            EasyFashion
+          </Link>
+        )}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="text-muted hover:text-text transition-colors p-1.5 rounded-md hover:bg-muted/10 outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          <Icon name={isCollapsed ? 'ChevronRight' : 'ChevronLeft'} size={20} />
+        </button>
+      </div>
+
+      {/* Navigation Links */}
+      <nav className="flex-1 overflow-y-auto py-4 flex flex-col gap-1 px-2 scrollbar-thin">
+        {navItems.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-3 py-2.5 rounded-md transition-colors relative group outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                active ? 'text-accent bg-accent/10' : 'text-text hover:bg-muted/10'
+              } ${isCollapsed ? 'justify-center px-0' : 'px-3'}`}
+              title={isCollapsed ? item.label : undefined}
+            >
+              {active && (
+                <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-r-md" />
+              )}
+              <Icon
+                name={item.icon}
+                size={20}
+                className={
+                  active ? 'text-accent' : 'text-muted group-hover:text-text transition-colors'
+                }
+              />
+              {!isCollapsed && (
+                <span className="font-medium whitespace-nowrap truncate">{item.label}</span>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Logout Button */}
+      <div className="p-4 border-t border-muted/20 shrink-0">
+        <button
+          onClick={handleLogout}
+          className={`w-full flex items-center gap-3 py-2.5 rounded-md text-error hover:bg-error/10 transition-colors group outline-none focus-visible:ring-2 focus-visible:ring-error ${
+            isCollapsed ? 'justify-center px-0' : 'px-3'
+          }`}
+          title={isCollapsed ? 'Logout' : undefined}
+        >
+          <Icon name="LogOut" size={20} className="text-error" />
+          {!isCollapsed && <span className="font-medium whitespace-nowrap">Logout</span>}
+        </button>
+      </div>
+    </aside>
+  );
+};
