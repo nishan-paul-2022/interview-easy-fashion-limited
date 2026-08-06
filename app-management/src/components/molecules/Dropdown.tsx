@@ -87,7 +87,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       {isOpen && (
         <div
           className={`
-            absolute z-50 mt-2 min-w-[200px] bg-surface border border-muted/30 
+            absolute z-50 mt-2 min-w-48 bg-surface border border-muted/30 
             rounded-lg shadow-lg overflow-hidden flex flex-col max-h-60 overflow-y-auto
             ${align === 'right' ? 'right-0' : 'left-0'}
           `

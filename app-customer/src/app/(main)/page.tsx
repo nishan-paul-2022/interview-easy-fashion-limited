@@ -90,7 +90,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="w-full rounded-lg overflow-hidden relative">
         <Carousel autoplay effect="fade">
-          <div className="relative h-[400px] md:h-[500px] w-full">
+          <div className="relative min-h-96 md:min-h-screen w-full">
             <div className="absolute inset-0 bg-black/40 z-10" />
 
             <Image
@@ -114,7 +114,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="relative h-[400px] md:h-[500px] w-full">
+          <div className="relative min-h-96 md:min-h-screen w-full">
             <div className="absolute inset-0 bg-black/40 z-10" />
 
             <Image

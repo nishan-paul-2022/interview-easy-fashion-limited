@@ -150,7 +150,7 @@ export default function UserManagementPage() {
       {/* Header and Actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-          <div className="w-full sm:w-[320px]">
+          <div className="w-full sm:w-80">
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}

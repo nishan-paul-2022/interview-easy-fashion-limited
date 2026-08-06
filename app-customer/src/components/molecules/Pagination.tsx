@@ -70,7 +70,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             aria-current={isCurrentPage ? 'page' : undefined}
             className={`
               min-w-[36px] h-9 px-2 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-accent
-              ${isCurrentPage ? 'bg-accent text-[#111827]' : 'text-text hover:bg-surface'}
+              ${isCurrentPage ? 'bg-accent text-bg' : 'text-text hover:bg-surface'}
             `
               .trim()
               .replace(/\s+/g, ' ')}

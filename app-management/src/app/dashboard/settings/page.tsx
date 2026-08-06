@@ -91,17 +91,17 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-4 rounded-lg border border-muted/10 bg-bg p-4">
               <div className="flex items-center justify-between py-2 border-b border-muted/10 last:border-0 last:pb-0">
                 <span className="text-sm font-medium text-muted">App Version</span>
-                <span className="font-mono text-sm text-text">v0.1.0-alpha</span>
+                <span className="text-sm font-medium text-text">v0.1.0-alpha</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-muted/10 last:border-0 last:pb-0">
                 <span className="text-sm font-medium text-muted">Environment</span>
-                <span className="font-mono text-sm text-text">
+                <span className="text-sm font-medium text-text">
                   {process.env.NODE_ENV === 'development' ? 'Development' : 'Production'}
                 </span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-muted/10 last:border-0 last:pb-0">
                 <span className="text-sm font-medium text-muted">Node Version</span>
-                <span className="font-mono text-sm text-text">v20.x LTS</span>
+                <span className="text-sm font-medium text-text">v20.x LTS</span>
               </div>
             </div>
           </div>

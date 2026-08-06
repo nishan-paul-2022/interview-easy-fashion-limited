@@ -14,8 +14,8 @@ export interface EmptyStateProps {
 
 export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description, action }) => {
   return (
-    <div className="flex min-h-[320px] w-full flex-col items-center justify-center rounded-xl border border-muted/20 bg-surface p-8 text-center shadow-sm">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted/10 text-muted">
+    <div className="flex min-h-80 w-full flex-col items-center justify-center rounded-xl border border-muted/20 bg-surface p-8 text-center shadow-sm">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10 text-accent">
         <Icon name={icon} size={32} />
       </div>
       <h3 className="mb-2 text-xl font-bold text-text">{title}</h3>

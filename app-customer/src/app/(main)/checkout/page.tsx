@@ -129,7 +129,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* Right Column: Order Summary */}
-        <div className="w-full flex-shrink-0 lg:w-96 xl:w-[420px]">
+        <div className="w-full flex-shrink-0 lg:w-96 xl:max-w-md">
           <div className="flex flex-col gap-6 rounded-xl border border-muted/20 bg-surface p-6 shadow-sm sticky top-24">
             <h2 className="text-xl font-bold text-text">Order Summary</h2>
 

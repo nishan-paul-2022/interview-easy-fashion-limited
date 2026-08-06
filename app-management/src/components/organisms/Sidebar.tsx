@@ -60,7 +60,7 @@ export const Sidebar = () => {
 
       <aside
         className={`fixed md:sticky top-0 h-screen bg-surface border-r border-muted/20 transition-all duration-300 z-50 flex flex-col shrink-0 ${
-          isCollapsed ? 'w-[64px]' : 'w-[240px]'
+          isCollapsed ? 'w-16' : 'w-60'
         } ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
       >
         {/* Logo Area */}
