@@ -1,4 +1,5 @@
 import React from 'react';
+import { TableSkeleton } from './Skeleton';
 import { Icon } from '../atoms/Icon';
 
 export const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
@@ -116,14 +117,15 @@ export const TableEmpty: React.FC<TableEmptyProps> = ({ children, colSpan }) => 
 );
 
 export interface TableLoadingProps {
-  children: React.ReactNode;
   colSpan: number;
+  rows?: number;
+  children?: React.ReactNode;
 }
 
-export const TableLoading: React.FC<TableLoadingProps> = ({ children, colSpan }) => (
+export const TableLoading: React.FC<TableLoadingProps> = ({ colSpan, rows = 5, children }) => (
   <tr>
-    <td colSpan={colSpan} className="p-4">
-      {children}
+    <td colSpan={colSpan} className="p-0">
+      {children || <TableSkeleton rows={rows} columns={colSpan} />}
     </td>
   </tr>
 );
