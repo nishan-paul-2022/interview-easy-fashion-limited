@@ -1,6 +1,7 @@
 'use client';
 
 import { Carousel } from 'antd';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '../components/atoms/Button';
 import { Icon } from '../components/atoms/Icon';
@@ -92,10 +93,11 @@ export default function Home() {
           <div className="relative h-[400px] md:h-[500px] w-full">
             <div className="absolute inset-0 bg-black/40 z-10" />
 
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80&w=1200"
               alt="Fashion 1"
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
@@ -115,10 +117,11 @@ export default function Home() {
           <div className="relative h-[400px] md:h-[500px] w-full">
             <div className="absolute inset-0 bg-black/40 z-10" />
 
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&q=80&w=1200"
               alt="Fashion 2"
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">Elevate Your Style</h1>
@@ -180,10 +183,11 @@ export default function Home() {
             >
               <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors z-10" />
 
-              <img
+              <Image
                 src={cat.image}
                 alt={cat.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 z-20 flex items-center justify-center">
                 <h3 className="text-2xl font-bold text-white tracking-wider">{cat.name}</h3>
