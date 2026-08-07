@@ -11,6 +11,7 @@ import {
 import { Provider, AuditAction } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { hashPassword } from '@/common/utils/hash.util';
+import { ChangePasswordDto } from '@/modules/auth/dto/change-password.dto';
 import { CreateUserDto } from '@/modules/auth/dto/create-user.dto';
 import { ForgotPasswordDto } from '@/modules/auth/dto/forgot-password.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
@@ -357,5 +358,27 @@ export class AuthService {
     userAgent?: string,
   ) {
     return this.oauthLogin(Provider.FACEBOOK, profile, ipAddress, userAgent);
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('User not found');
+
+    const isMatch = await bcrypt.compare(dto.currentPassword, user.passwordHash || '');
+    if (!isMatch) {
+      throw new BadRequestException('Invalid current password');
+    }
+
+    const newPasswordHash = await bcrypt.hash(dto.newPassword, 10);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        passwordHash: newPasswordHash,
+        refreshTokenHash: null,
+      },
+    });
+
+    return { message: 'Password changed successfully' };
   }
 }

@@ -16,6 +16,7 @@ import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthService } from '@/modules/auth/auth.service';
+import { ChangePasswordDto } from '@/modules/auth/dto/change-password.dto';
 import { CreateUserDto } from '@/modules/auth/dto/create-user.dto';
 import { ForgotPasswordDto } from '@/modules/auth/dto/forgot-password.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
@@ -142,5 +143,15 @@ export class AuthController {
   @Get('verify-email')
   verifyEmail(@Query() verifyEmailDto: VerifyEmailDto) {
     return this.authService.verifyEmail(verifyEmailDto);
+  }
+
+  @Post('change-password')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({ status: 200, description: 'Password successfully changed' })
+  @ApiResponse({ status: 400, description: 'Invalid current password' })
+  async changePassword(@CurrentUser() payload: { sub: string }, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(payload.sub, dto);
   }
 }
