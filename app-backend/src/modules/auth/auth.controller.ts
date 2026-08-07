@@ -16,7 +16,9 @@ import { Request } from 'express';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthService } from '@/modules/auth/auth.service';
 import { CreateUserDto } from '@/modules/auth/dto/create-user.dto';
+import { ForgotPasswordDto } from '@/modules/auth/dto/forgot-password.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
+import { ResetPasswordDto } from '@/modules/auth/dto/reset-password.dto';
 import { FacebookOauthGuard } from '@/modules/auth/guards/facebook-oauth.guard';
 import { GoogleOauthGuard } from '@/modules/auth/guards/google-oauth.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
@@ -123,5 +125,15 @@ export class AuthController {
       ip,
       userAgent,
     );
+  }
+
+  @Post('forgot-password')
+  forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto);
+  }
+
+  @Post('reset-password')
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

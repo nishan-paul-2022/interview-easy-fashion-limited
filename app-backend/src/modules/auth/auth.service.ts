@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import {
   Injectable,
   ConflictException,
@@ -5,20 +6,25 @@ import {
   ForbiddenException,
   HttpException,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { Provider, AuditAction } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { hashPassword } from '@/common/utils/hash.util';
 import { CreateUserDto } from '@/modules/auth/dto/create-user.dto';
+import { ForgotPasswordDto } from '@/modules/auth/dto/forgot-password.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
+import { ResetPasswordDto } from '@/modules/auth/dto/reset-password.dto';
 import { TokenService } from '@/modules/auth/token.service';
 import { UsersService } from '@/modules/users/users.service';
+import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly tokenService: TokenService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async register(dto: CreateUserDto) {
@@ -98,6 +104,90 @@ export class AuthService {
       refreshToken,
       user: result,
     };
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: forgotPasswordDto.email },
+    });
+
+    if (!user) {
+      return { message: 'If that email is registered, a password reset link was sent.' };
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = await bcrypt.hash(resetToken, 10);
+
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 15);
+
+    await this.prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+      },
+    });
+
+    const resetLink = `http://localhost:3015/reset-password?token=${resetToken}&email=${user.email}`;
+    console.log(`[DEV ONLY] Password reset link for ${user.email}: ${resetLink}`);
+    // TODO: wire real email provider
+
+    return { message: 'If that email is registered, a password reset link was sent.' };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const { email, token, newPassword } = resetPasswordDto;
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      include: { passwordResetTokens: { where: { used: false } } },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid token or expired');
+    }
+
+    let validTokenRecord = null;
+    for (const record of user.passwordResetTokens) {
+      if (record.expiresAt > new Date()) {
+        const isValid = await bcrypt.compare(token, record.tokenHash);
+        if (isValid) {
+          validTokenRecord = record;
+          break;
+        }
+      }
+    }
+
+    if (!validTokenRecord) {
+      throw new BadRequestException('Invalid token or expired');
+    }
+
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.passwordResetToken.update({
+        where: { id: validTokenRecord.id },
+        data: { used: true },
+      });
+
+      await tx.user.update({
+        where: { id: user.id },
+        data: {
+          passwordHash: newPasswordHash,
+          refreshTokenHash: null,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          userId: user.id,
+          action: 'PASSWORD_RESET',
+        },
+      });
+    });
+
+    return { message: 'Password reset successfully' };
   }
 
   async getMe(userId: string) {
