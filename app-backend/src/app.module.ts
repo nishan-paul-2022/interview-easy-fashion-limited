@@ -10,6 +10,7 @@ import { CategoriesModule } from '@/modules/categories/categories.module';
 import { CloudinaryModule } from '@/modules/cloudinary/cloudinary.module';
 import { ProductsModule } from '@/modules/products/products.module';
 import { SizesModule } from '@/modules/sizes/sizes.module';
+import { StatsModule } from '@/modules/stats/stats.module';
 import { StylesModule } from '@/modules/styles/styles.module';
 import { UsersModule } from '@/modules/users/users.module';
 import { PrismaModule } from '@/prisma/prisma.module';
@@ -40,6 +41,7 @@ import { PrismaModule } from '@/prisma/prisma.module';
     StylesModule,
     CloudinaryModule,
     ProductsModule,
+    StatsModule,
   ],
   controllers: [HealthController],
   providers: [
