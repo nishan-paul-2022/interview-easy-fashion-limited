@@ -9,8 +9,8 @@ on:
       - main
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Images
+  build-backend:
+    name: Build and Push Backend
     if: ${{ github.event.workflow_run.conclusion == 'success' && vars.ENABLE_DEPLOY == 'true' }}
     runs-on: ubuntu-latest
     permissions:
@@ -40,6 +40,28 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  build-customer:
+    name: Build and Push Customer App
+    if: ${{ github.event.workflow_run.conclusion == 'success' && vars.ENABLE_DEPLOY == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push Customer App
         uses: docker/build-push-action@v5
         with:
@@ -50,6 +72,28 @@ jobs:
             NEXT_PUBLIC_API_URL=https://api-easy.kaiofficial.xyz/api/v1
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  build-management:
+    name: Build and Push Management App
+    if: ${{ github.event.workflow_run.conclusion == 'success' && vars.ENABLE_DEPLOY == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Management App
         uses: docker/build-push-action@v5
@@ -64,7 +108,7 @@ jobs:
 
   deploy:
     name: Deploy to Production
-    needs: build-and-push
+    needs: [build-backend, build-customer, build-management]
     # Only run if CI was successful AND deployment is enabled for this environment
     if: ${{ github.event.workflow_run.conclusion == 'success' && vars.ENABLE_DEPLOY == 'true' }}
     runs-on: ubuntu-latest
