@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthService } from '@/modules/auth/auth.service';
@@ -48,5 +48,16 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid refresh token' })
   async refresh(@CurrentUser() payload: { sub: string; refreshToken: string }) {
     return this.authService.refresh(payload.sub, payload.refreshToken);
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiResponse({ status: 204, description: 'User successfully logged out' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async logout(@CurrentUser() payload: { sub: string }) {
+    await this.authService.logout(payload.sub);
   }
 }
