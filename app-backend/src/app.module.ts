@@ -6,6 +6,7 @@ import configuration from '@/config/configuration';
 import { envValidationSchema } from '@/config/env.validation';
 import { HealthController } from '@/health.controller';
 import { AuthModule } from '@/modules/auth/auth.module';
+import { CategoriesModule } from '@/modules/categories/categories.module';
 import { UsersModule } from '@/modules/users/users.module';
 import { PrismaModule } from '@/prisma/prisma.module';
 
@@ -30,6 +31,7 @@ import { PrismaModule } from '@/prisma/prisma.module';
     PrismaModule,
     UsersModule,
     AuthModule,
+    CategoriesModule,
   ],
   controllers: [HealthController],
   providers: [
