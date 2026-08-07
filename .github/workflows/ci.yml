@@ -20,7 +20,7 @@ jobs:
           node-version: 22
           cache: 'npm'
       - name: Install Root Dependencies
-        run: npm ci
+        run: npm install
       - name: Run ESLint
         run: make lint
       - name: Run Prettier Check
@@ -54,7 +54,7 @@ jobs:
           path: app-backend/node_modules
           key: ${{ runner.os }}-backend-${{ hashFiles('app-backend/package-lock.json') }}
       - name: Install Backend Dependencies
-        run: npm ci
+        run: npm install
         working-directory: ./app-backend
       - name: Generate Prisma Client
         working-directory: ./app-backend
@@ -104,7 +104,7 @@ jobs:
           path: app-customer/node_modules
           key: ${{ runner.os }}-customer-${{ hashFiles('app-customer/package-lock.json') }}
       - name: Install Customer Dependencies
-        run: npm ci
+        run: npm install
         working-directory: ./app-customer
       - name: Run Customer Tests
         working-directory: ./app-customer
@@ -124,7 +124,7 @@ jobs:
           path: app-management/node_modules
           key: ${{ runner.os }}-management-${{ hashFiles('app-management/package-lock.json') }}
       - name: Install Management Dependencies
-        run: npm ci
+        run: npm install
         working-directory: ./app-management
       - name: Run Management Tests
         working-directory: ./app-management
@@ -145,7 +145,7 @@ jobs:
           path: app-customer/node_modules
           key: ${{ runner.os }}-customer-${{ hashFiles('app-customer/package-lock.json') }}
       - name: Install Customer Dependencies
-        run: npm ci
+        run: npm install
         working-directory: ./app-customer
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
@@ -176,7 +176,7 @@ jobs:
           path: app-management/node_modules
           key: ${{ runner.os }}-management-${{ hashFiles('app-management/package-lock.json') }}
       - name: Install Management Dependencies
-        run: npm ci
+        run: npm install
         working-directory: ./app-management
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
