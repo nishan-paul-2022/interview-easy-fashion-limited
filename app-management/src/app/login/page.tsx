@@ -1,16 +1,52 @@
 'use client';
 
-import React from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 
 import { Button } from '@/components/atoms/Button';
 import { Icon } from '@/components/atoms/Icon';
 import { Input } from '@/components/atoms/Input';
 import { PasswordInput } from '@/components/atoms/PasswordInput';
+import { useToast } from '@/components/molecules/Toast';
+import { useDashboardAuth, User } from '@/hooks/useDashboardAuth';
+import { apiClient } from '@/lib/api';
 
 export default function ManagementLoginPage() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+  const toast = useToast();
+  const { login } = useDashboardAuth();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Authentication logic will be wired up in Phase 12
+    setIsSubmitting(true);
+
+    try {
+      const response = await apiClient.post<{
+        accessToken: string;
+        refreshToken: string;
+        user: User;
+      }>('/auth/login', { email, password });
+
+      if (response.user.role === 'CUSTOMER') {
+        toast.error(
+          'Access Denied: You do not have permission to access the management dashboard.',
+        );
+        return;
+      }
+
+      login(response.user, response.accessToken, response.refreshToken);
+      toast.success('Successfully logged in!');
+      router.push('/dashboard');
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message || 'Login failed');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -26,11 +62,30 @@ export default function ManagementLoginPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <Input label="Email" type="email" placeholder="admin@example.com" required />
+        <Input
+          label="Email"
+          type="email"
+          placeholder="admin@example.com"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-        <PasswordInput label="Password" placeholder="Enter your password" required />
+        <PasswordInput
+          label="Password"
+          placeholder="Enter your password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-        <Button type="submit" variant="primary" size="lg" className="w-full mt-2">
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="w-full mt-2"
+          isLoading={isSubmitting}
+        >
           Login
         </Button>
       </form>
