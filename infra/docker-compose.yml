@@ -3,18 +3,41 @@ name: easy-fashion
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: easy_fashion_postgres
+    container_name: easy-fashion-postgres-prod
     env_file:
-      - ../.env
-    ports:
-      - '5432:5432'
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-easy-fashion}']
       interval: 10s
       timeout: 5s
       retries: 5
+
+  backend:
+    image: ghcr.io/nishan-paul-2022/easy-fashion-backend:latest
+    container_name: easy-fashion-backend-prod
+    env_file:
+      - .env
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  customer:
+    image: ghcr.io/nishan-paul-2022/easy-fashion-customer:latest
+    container_name: easy-fashion-customer-prod
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  management:
+    image: ghcr.io/nishan-paul-2022/easy-fashion-management:latest
+    container_name: easy-fashion-management-prod
+    env_file:
+      - .env
+    restart: unless-stopped
 
 volumes:
   postgres_data:
