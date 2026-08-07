@@ -1,54 +1,115 @@
 'use client';
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/atoms/Badge';
 import { Button } from '@/components/atoms/Button';
 import { Icon } from '@/components/atoms/Icon';
+import { EmptyState } from '@/components/molecules/EmptyState';
 import { ImageGallery } from '@/components/molecules/ImageGallery';
+import { Skeleton } from '@/components/molecules/Skeleton';
 import { useToast } from '@/components/molecules/Toast';
 import { useCart } from '@/context/CartContext';
+import { apiClient } from '@/lib/api';
 
-// Mock product fetching
-const getMockProduct = (id: string) => {
-  // In a real app we would fetch based on id. We use a static mock here.
-  return {
-    id,
-    name: 'Classic White Tee',
-    category: 'T-Shirts',
-    styleName: 'Casual',
-    description:
-      'Crafted from 100% organic cotton, this classic white tee offers a relaxed fit and unparalleled comfort. Perfect for everyday wear, it pairs effortlessly with any outfit. Pre-shrunk to maintain its shape wash after wash.',
-    price: 29.99,
-    sizes: ['S', 'M', 'L', 'XL'],
-    images: [
-      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1503341455253-b2e723bb3db8?auto=format&fit=crop&q=80&w=1200',
-    ],
-  };
-};
+interface ProductDetail {
+  id: string;
+  name: string;
+  description?: string;
+  price: number | string;
+  category?: { id: string | number; name: string };
+  style?: { id: string | number; name: string };
+  sizes?: { name: string }[];
+  images?: string[];
+}
 
 export default function ProductDetailsPage({ params }: { params: { id: string } }) {
-  const product = getMockProduct(params.id);
+  const router = useRouter();
   const { success } = useToast();
   const { dispatch } = useCart();
+
+  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showSizeError, setShowSizeError] = useState(false);
 
-  if (!product) {
-    notFound();
+  useEffect(() => {
+    let mounted = true;
+    async function fetchProduct() {
+      setIsLoading(true);
+      try {
+        const res = await apiClient.get<ProductDetail>(`/products/${params.id}`);
+        if (mounted) {
+          setProduct(res);
+        }
+      } catch {
+        if (mounted) {
+          setProduct(null);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+    fetchProduct();
+    return () => {
+      mounted = false;
+    };
+  }, [params.id]);
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8">
+        <Skeleton height={20} width={200} className="mb-4" />
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
+          <Skeleton height={500} width="100%" />
+          <div className="flex flex-col gap-6">
+            <Skeleton height={40} width="80%" />
+            <Skeleton height={30} width={100} />
+            <Skeleton height={150} width="100%" />
+            <Skeleton height={80} width="100%" />
+            <Skeleton height={50} width="100%" />
+          </div>
+        </div>
+      </div>
+    );
   }
+
+  if (!product) {
+    return (
+      <div className="py-20">
+        <EmptyState
+          icon="Package"
+          title="Product not found"
+          description="The product you are looking for does not exist or has been removed."
+          action={{
+            label: 'Back to Products',
+            onClick: () => router.push('/products'),
+          }}
+        />
+      </div>
+    );
+  }
+
+  const categoryName = product.category?.name || 'Uncategorized';
+  const styleName = product.style?.name || 'Standard';
+  const sizeNames = product.sizes?.map((s) => s.name) || [];
+  const imageUrls = product.images?.length
+    ? product.images
+    : [
+        'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=1200',
+      ];
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => setQuantity((prev) => Math.max(1, prev - 1));
 
   const handleAddToCart = () => {
-    if (!selectedSize) {
+    if (sizeNames.length > 0 && !selectedSize) {
       setShowSizeError(true);
       return;
     }
@@ -57,18 +118,19 @@ export default function ProductDetailsPage({ params }: { params: { id: string } 
     dispatch({
       type: 'ADD_ITEM',
       payload: {
-        id: `${product.id}-${selectedSize}`,
+        id: selectedSize ? `${product.id}-${selectedSize}` : product.id,
         productId: product.id,
         name: product.name,
-        price: product.price,
-        size: selectedSize,
+        price: Number(product.price) || 0,
+        size: selectedSize || 'OS',
         quantity,
-        imageUrl: product.images[0],
+        imageUrl: imageUrls[0],
       },
     });
 
-    // Mock add to cart success
-    success(`Added ${quantity}x ${product.name} (Size: ${selectedSize}) to cart`);
+    success(
+      `Added ${quantity}x ${product.name} ${selectedSize ? `(Size: ${selectedSize})` : ''} to cart`,
+    );
   };
 
   return (
@@ -80,10 +142,10 @@ export default function ProductDetailsPage({ params }: { params: { id: string } 
         </Link>
         <Icon name="ChevronRight" size={16} />
         <Link
-          href={`/products?category=${product.category}`}
+          href={`/products?categoryId=${product.category?.id || ''}`}
           className="hover:text-accent transition-colors"
         >
-          {product.category}
+          {categoryName}
         </Link>
         <Icon name="ChevronRight" size={16} />
         <span className="text-text font-medium">{product.name}</span>
@@ -92,18 +154,20 @@ export default function ProductDetailsPage({ params }: { params: { id: string } 
       <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
         {/* Left Column: Image Gallery */}
         <div>
-          <ImageGallery images={product.images} />
+          <ImageGallery images={imageUrls} />
         </div>
 
         {/* Right Column: Product Info */}
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <Badge variant="info" label={product.category} />
-              <Badge variant="neutral" label={product.styleName} />
+              <Badge variant="info" label={categoryName} />
+              <Badge variant="neutral" label={styleName} />
             </div>
             <h1 className="text-3xl font-bold text-text md:text-4xl">{product.name}</h1>
-            <p className="text-2xl font-semibold text-accent">${product.price.toFixed(2)}</p>
+            <p className="text-2xl font-semibold text-accent">
+              ${Number(product.price || 0).toFixed(2)}
+            </p>
           </div>
 
           <div className="h-px w-full bg-muted/20" />
@@ -111,42 +175,47 @@ export default function ProductDetailsPage({ params }: { params: { id: string } 
           {/* Description */}
           <div className="flex flex-col gap-2">
             <h3 className="font-semibold text-text">Description</h3>
-            <p className="text-muted leading-relaxed">{product.description}</p>
+            <p className="text-muted leading-relaxed whitespace-pre-wrap">
+              {product.description || 'No description available.'}
+            </p>
           </div>
 
           <div className="h-px w-full bg-muted/20" />
 
           {/* Size Selection */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-text">
-                Select Size <span className="text-error">*</span>
-              </h3>
+          {sizeNames.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-text">
+                  Select Size <span className="text-error">*</span>
+                </h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {sizeNames.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => {
+                      setSelectedSize(size);
+                      setShowSizeError(false);
+                    }}
+                    className={`flex h-12 min-w-12 px-3 items-center justify-center rounded-lg border font-medium transition-all ${
+                      selectedSize === size
+                        ? 'border-accent bg-accent text-white'
+                        : 'border-muted/30 bg-surface text-text hover:border-accent'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+              {showSizeError && (
+                <p className="text-sm text-error flex items-center gap-1 mt-1">
+                  <Icon name="AlertTriangle" size={14} /> Please select a size before adding to
+                  cart.
+                </p>
+              )}
             </div>
-            <div className="flex flex-wrap gap-3">
-              {product.sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => {
-                    setSelectedSize(size);
-                    setShowSizeError(false);
-                  }}
-                  className={`flex h-12 w-12 items-center justify-center rounded-lg border font-medium transition-all ${
-                    selectedSize === size
-                      ? 'border-accent bg-accent text-white'
-                      : 'border-muted/30 bg-surface text-text hover:border-accent'
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-            {showSizeError && (
-              <p className="text-sm text-error flex items-center gap-1 mt-1">
-                <Icon name="AlertTriangle" size={14} /> Please select a size before adding to cart.
-              </p>
-            )}
-          </div>
+          )}
 
           {/* Quantity and Add to Cart */}
           <div className="flex flex-col gap-4 sm:flex-row mt-4">
