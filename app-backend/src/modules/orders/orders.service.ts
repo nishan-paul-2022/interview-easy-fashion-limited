@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { PaginationQueryDto } from '@/common/dto/pagination-query.dto';
 import { CreateOrderDto } from '@/modules/orders/dto/create-order.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 
@@ -6,7 +7,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createOrderDto: CreateOrderDto, userId: number | null) {
+  async create(createOrderDto: CreateOrderDto, userId: string | null) {
     if (!createOrderDto.items || createOrderDto.items.length === 0) {
       throw new BadRequestException('Order must contain at least one item');
     }
@@ -32,12 +33,14 @@ export class OrdersService {
       if (unitPrice === undefined) {
         throw new BadRequestException(`Product ID ${item.productId} is invalid`);
       }
-      totalAmount += unitPrice * item.quantity;
+      const subtotal = unitPrice * item.quantity;
+      totalAmount += subtotal;
 
       return {
         productId: item.productId,
         quantity: item.quantity,
         unitPrice,
+        subtotal,
       };
     });
 
@@ -54,6 +57,7 @@ export class OrdersService {
               productId: item.productId,
               quantity: item.quantity,
               unitPrice: item.unitPrice,
+              subtotal: item.subtotal,
             })),
           },
         },
@@ -68,5 +72,34 @@ export class OrdersService {
 
       return order;
     });
+  }
+
+  async findMyOrders(userId: string, query: PaginationQueryDto) {
+    const { page = 1, limit = 10 } = query;
+    const skip = (page - 1) * limit;
+
+    const [total, data] = await Promise.all([
+      this.prisma.order.count({ where: { userId } }),
+      this.prisma.order.findMany({
+        where: { userId },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          orderItems: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }
