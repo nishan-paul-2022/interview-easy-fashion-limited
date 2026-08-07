@@ -97,3 +97,11 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## DTO Conventions
+
+This project strictly follows these standard Data Transfer Object (DTO) conventions:
+
+- `Create[Entity]Dto`: Used for `POST` requests to create new resources (e.g., `CreateProductDto`).
+- `Update[Entity]Dto`: Used for `PATCH`/`PUT` requests. This should extend `PartialType(Create[Entity]Dto)` to make all properties optional (e.g., `UpdateProductDto extends PartialType(CreateProductDto)`).
+- `[Entity]ResponseDto`: Used to format/serialize the outgoing response, typically removing sensitive fields like passwords or standardizing shape.
