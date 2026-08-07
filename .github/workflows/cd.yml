@@ -1,0 +1,37 @@
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    # Only run if CI was successful AND deployment is enabled for this environment
+    if: ${{ github.event.workflow_run.conclusion == 'success' && vars.ENABLE_DEPLOY == 'true' }}
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/easy-fashion
+            git pull origin main
+            docker compose -f infra/docker-compose.yml pull
+            docker compose -f infra/docker-compose.yml exec -T backend npx prisma migrate deploy
+            docker compose -f infra/docker-compose.yml up -d --remove-orphans
+            
+      - name: Health Check
+        run: |
+          echo "Waiting 10 seconds for services to fully initialize..."
+          sleep 10
+          curl --fail https://api-easy.kaiofficial.xyz/api/v1/health
