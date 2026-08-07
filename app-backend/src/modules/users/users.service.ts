@@ -13,6 +13,13 @@ export class UsersService {
     });
   }
 
+  async findById(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: { role: true },
+    });
+  }
+
   async create(dto: Prisma.UserCreateInput) {
     return this.prisma.user.create({
       data: dto,

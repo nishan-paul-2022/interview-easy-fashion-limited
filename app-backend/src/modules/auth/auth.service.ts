@@ -79,4 +79,14 @@ export class AuthService {
       user: result,
     };
   }
+
+  async getMe(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash: _ph, refreshTokenHash: _rf, ...result } = user;
+    return result;
+  }
 }
