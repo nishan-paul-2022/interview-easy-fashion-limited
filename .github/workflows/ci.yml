@@ -10,34 +10,19 @@ on:
       - main
 
 jobs:
-  lint-and-format:
+  lint:
     name: Lint & Format
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            app-backend/node_modules
-            app-customer/node_modules
-            app-management/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Install Dependencies
-        run: make install
-
+          cache: 'npm'
+      - name: Install Root Dependencies
+        run: npm ci
       - name: Run ESLint
         run: make lint
-
       - name: Run Prettier Check
         run: npx prettier --check .
 
@@ -59,35 +44,26 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Cache node_modules
+      - name: Cache backend node_modules
         uses: actions/cache@v4
         with:
-          path: |
-            node_modules
-            app-backend/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Install Dependencies
-        run: make install
-
+          path: app-backend/node_modules
+          key: ${{ runner.os }}-backend-${{ hashFiles('app-backend/package-lock.json') }}
+      - name: Install Backend Dependencies
+        run: npm ci
+        working-directory: ./app-backend
       - name: Generate Prisma Client
         working-directory: ./app-backend
         run: npx prisma generate
-
       - name: Run Prisma Migrations
         working-directory: ./app-backend
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/easy-fashion-test
         run: npx prisma migrate deploy
-
       - name: Run Backend Tests
         working-directory: ./app-backend
         env:
@@ -114,109 +90,104 @@ jobs:
           THROTTLE_LIMIT: 100
         run: npm run test && npm run test:e2e
 
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-coverage
-          path: app-backend/coverage/
-
-  test-frontend:
-    name: Test Frontend
+  test-customer:
+    name: Test Customer App
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Cache node_modules
+      - name: Cache customer node_modules
         uses: actions/cache@v4
         with:
-          path: |
-            node_modules
-            app-customer/node_modules
-            app-management/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Cache Next.js build
-        uses: actions/cache@v4
-        with:
-          path: |
-            app-customer/.next/cache
-            app-management/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
-
-      - name: Install Dependencies
-        run: make install
-
-      - name: Run Customer App Tests
+          path: app-customer/node_modules
+          key: ${{ runner.os }}-customer-${{ hashFiles('app-customer/package-lock.json') }}
+      - name: Install Customer Dependencies
+        run: npm ci
+        working-directory: ./app-customer
+      - name: Run Customer Tests
         working-directory: ./app-customer
         run: npm run test
 
-      - name: Run Management App Tests
+  test-management:
+    name: Test Management App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache management node_modules
+        uses: actions/cache@v4
+        with:
+          path: app-management/node_modules
+          key: ${{ runner.os }}-management-${{ hashFiles('app-management/package-lock.json') }}
+      - name: Install Management Dependencies
+        run: npm ci
+        working-directory: ./app-management
+      - name: Run Management Tests
         working-directory: ./app-management
         run: npm run test
 
-  e2e:
-    name: E2E Playwright Tests
+  e2e-customer:
+    name: E2E Customer
     runs-on: ubuntu-latest
-    needs: [test-backend, test-frontend]
+    needs: [test-backend, test-customer]
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Cache node_modules
+      - name: Cache customer node_modules
         uses: actions/cache@v4
         with:
-          path: |
-            node_modules
-            app-backend/node_modules
-            app-customer/node_modules
-            app-management/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Cache Next.js build
-        uses: actions/cache@v4
-        with:
-          path: |
-            app-customer/.next/cache
-            app-management/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
-
-      - name: Install Dependencies
-        run: make install
-
+          path: app-customer/node_modules
+          key: ${{ runner.os }}-customer-${{ hashFiles('app-customer/package-lock.json') }}
+      - name: Install Customer Dependencies
+        run: npm ci
+        working-directory: ./app-customer
       - name: Install Playwright Browsers
-        run: |
-          cd app-customer && npx playwright install --with-deps
-          cd ../app-management && npx playwright install --with-deps
-
-      - name: Run Playwright Tests (Customer)
+        run: npx playwright install --with-deps
+        working-directory: ./app-customer
+      - name: Run Playwright Tests
         working-directory: ./app-customer
         run: npm run test:e2e
-
-      - name: Run Playwright Tests (Management)
-        working-directory: ./app-management
-        run: npm run test:e2e
-
-      - name: Upload Playwright Report
+      - name: Upload Report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: |
-            app-customer/playwright-report/
-            app-management/playwright-report/
+          name: playwright-report-customer
+          path: app-customer/playwright-report/
+          retention-days: 7
+
+  e2e-management:
+    name: E2E Management
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-management]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache management node_modules
+        uses: actions/cache@v4
+        with:
+          path: app-management/node_modules
+          key: ${{ runner.os }}-management-${{ hashFiles('app-management/package-lock.json') }}
+      - name: Install Management Dependencies
+        run: npm ci
+        working-directory: ./app-management
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        working-directory: ./app-management
+      - name: Run Playwright Tests
+        working-directory: ./app-management
+        run: npm run test:e2e
+      - name: Upload Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-management
+          path: app-management/playwright-report/
           retention-days: 7
