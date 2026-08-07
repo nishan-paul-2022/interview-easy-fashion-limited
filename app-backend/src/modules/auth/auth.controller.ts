@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Post, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, HttpCode, HttpStatus, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthService } from '@/modules/auth/auth.service';
 import { CreateUserDto } from '@/modules/auth/dto/create-user.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
+import { GoogleOauthGuard } from '@/modules/auth/guards/google-oauth.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { JwtRefreshGuard } from '@/modules/auth/guards/jwt-refresh.guard';
 
@@ -59,5 +61,21 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async logout(@CurrentUser() payload: { sub: string }) {
     await this.authService.logout(payload.sub);
+  }
+
+  @Get('google')
+  @UseGuards(GoogleOauthGuard)
+  @ApiOperation({ summary: 'Initiate Google OAuth flow' })
+  async googleAuth() {
+    // Passport redirects automatically
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleOauthGuard)
+  @ApiOperation({ summary: 'Google OAuth callback' })
+  async googleAuthCallback(@Req() req: Request) {
+    return this.authService.googleLogin(
+      req.user as { providerId: string; email: string; fullName: string },
+    );
   }
 }

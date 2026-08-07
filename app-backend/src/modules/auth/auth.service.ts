@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { Provider } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { hashPassword } from '@/common/utils/hash.util';
 import { CreateUserDto } from '@/modules/auth/dto/create-user.dto';
@@ -120,5 +121,47 @@ export class AuthService {
 
   async logout(userId: string) {
     await this.usersService.updateRefreshTokenHash(userId, null);
+  }
+
+  async googleLogin(profile: { providerId: string; email: string; fullName: string }) {
+    if (!profile.email) {
+      throw new UnauthorizedException('No email provided by Google');
+    }
+
+    let user = await this.usersService.findByProviderId(Provider.GOOGLE, profile.providerId);
+
+    if (!user) {
+      user = await this.usersService.findByEmail(profile.email);
+      if (!user) {
+        const createdUser = await this.usersService.create({
+          fullName: profile.fullName,
+          email: profile.email,
+          provider: Provider.GOOGLE,
+          providerId: profile.providerId,
+          role: { connect: { name: 'CUSTOMER' } },
+        });
+        user = await this.usersService.findById(createdUser.id);
+      } else {
+        await this.usersService.update(user.id, {
+          provider: Provider.GOOGLE,
+          providerId: profile.providerId,
+        });
+        user = await this.usersService.findById(user.id);
+      }
+    }
+
+    const accessToken = this.tokenService.generateAccessToken(user!);
+    const newRefreshToken = this.tokenService.generateRefreshToken(user!);
+
+    const newRefreshTokenHash = await hashPassword(newRefreshToken);
+    await this.usersService.updateRefreshTokenHash(user!.id, newRefreshTokenHash);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash: _ph, refreshTokenHash: _rf, ...result } = user!;
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+      user: result,
+    };
   }
 }
