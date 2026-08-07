@@ -8,6 +8,7 @@ import { HealthController } from '@/health.controller';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { CategoriesModule } from '@/modules/categories/categories.module';
 import { CloudinaryModule } from '@/modules/cloudinary/cloudinary.module';
+import { DashboardModule } from '@/modules/dashboard/dashboard.module';
 import { OrdersModule } from '@/modules/orders/orders.module';
 import { ProductsModule } from '@/modules/products/products.module';
 import { SizesModule } from '@/modules/sizes/sizes.module';
@@ -44,6 +45,7 @@ import { PrismaModule } from '@/prisma/prisma.module';
     ProductsModule,
     StatsModule,
     OrdersModule,
+    DashboardModule,
   ],
   controllers: [HealthController],
   providers: [
