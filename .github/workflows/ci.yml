@@ -95,6 +95,23 @@ jobs:
           JWT_SECRET: test-secret
           JWT_ACCESS_SECRET: test-secret
           JWT_REFRESH_SECRET: test-secret
+          JWT_ACCESS_EXPIRES_IN: 15m
+          JWT_REFRESH_EXPIRES_IN: 7d
+          GOOGLE_CLIENT_ID: test
+          GOOGLE_CLIENT_SECRET: test
+          GOOGLE_REDIRECT_URI: test
+          FACEBOOK_CLIENT_ID: test
+          FACEBOOK_CLIENT_SECRET: test
+          FACEBOOK_CALLBACK_URL: test
+          CLOUDINARY_CLOUD_NAME: test
+          CLOUDINARY_API_KEY: test
+          CLOUDINARY_API_SECRET: test
+          CORS_ORIGIN_CUSTOMER: http://localhost:3013
+          CORS_ORIGIN_MANAGEMENT: http://localhost:3014
+          SUPER_ADMIN_EMAIL: test@test.com
+          SUPER_ADMIN_PASSWORD: test
+          THROTTLE_TTL: 60
+          THROTTLE_LIMIT: 100
         run: npm run test && npm run test:e2e
 
       - name: Upload Coverage Report
