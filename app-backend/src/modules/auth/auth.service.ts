@@ -123,12 +123,15 @@ export class AuthService {
     await this.usersService.updateRefreshTokenHash(userId, null);
   }
 
-  async googleLogin(profile: { providerId: string; email: string; fullName: string }) {
+  async oauthLogin(
+    provider: Provider,
+    profile: { providerId: string; email: string; fullName: string },
+  ) {
     if (!profile.email) {
-      throw new UnauthorizedException('No email provided by Google');
+      throw new UnauthorizedException(`No email provided by ${provider}`);
     }
 
-    let user = await this.usersService.findByProviderId(Provider.GOOGLE, profile.providerId);
+    let user = await this.usersService.findByProviderId(provider, profile.providerId);
 
     if (!user) {
       user = await this.usersService.findByEmail(profile.email);
@@ -136,14 +139,14 @@ export class AuthService {
         const createdUser = await this.usersService.create({
           fullName: profile.fullName,
           email: profile.email,
-          provider: Provider.GOOGLE,
+          provider: provider,
           providerId: profile.providerId,
           role: { connect: { name: 'CUSTOMER' } },
         });
         user = await this.usersService.findById(createdUser.id);
       } else {
         await this.usersService.update(user.id, {
-          provider: Provider.GOOGLE,
+          provider: provider,
           providerId: profile.providerId,
         });
         user = await this.usersService.findById(user.id);
@@ -163,5 +166,13 @@ export class AuthService {
       refreshToken: newRefreshToken,
       user: result,
     };
+  }
+
+  async googleLogin(profile: { providerId: string; email: string; fullName: string }) {
+    return this.oauthLogin(Provider.GOOGLE, profile);
+  }
+
+  async facebookLogin(profile: { providerId: string; email: string; fullName: string }) {
+    return this.oauthLogin(Provider.FACEBOOK, profile);
   }
 }

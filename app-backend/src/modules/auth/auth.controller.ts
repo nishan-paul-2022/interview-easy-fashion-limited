@@ -5,6 +5,7 @@ import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthService } from '@/modules/auth/auth.service';
 import { CreateUserDto } from '@/modules/auth/dto/create-user.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
+import { FacebookOauthGuard } from '@/modules/auth/guards/facebook-oauth.guard';
 import { GoogleOauthGuard } from '@/modules/auth/guards/google-oauth.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { JwtRefreshGuard } from '@/modules/auth/guards/jwt-refresh.guard';
@@ -75,6 +76,22 @@ export class AuthController {
   @ApiOperation({ summary: 'Google OAuth callback' })
   async googleAuthCallback(@Req() req: Request) {
     return this.authService.googleLogin(
+      req.user as { providerId: string; email: string; fullName: string },
+    );
+  }
+
+  @Get('facebook')
+  @UseGuards(FacebookOauthGuard)
+  @ApiOperation({ summary: 'Initiate Facebook OAuth flow' })
+  async facebookAuth() {
+    // Passport redirects automatically
+  }
+
+  @Get('facebook/callback')
+  @UseGuards(FacebookOauthGuard)
+  @ApiOperation({ summary: 'Facebook OAuth callback' })
+  async facebookAuthCallback(@Req() req: Request) {
+    return this.authService.facebookLogin(
       req.user as { providerId: string; email: string; fullName: string },
     );
   }
