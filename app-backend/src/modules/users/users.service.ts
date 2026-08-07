@@ -9,12 +9,20 @@ export class UsersService {
   async findByEmail(email: string) {
     return this.prisma.user.findUnique({
       where: { email },
+      include: { role: true },
     });
   }
 
   async create(dto: Prisma.UserCreateInput) {
     return this.prisma.user.create({
       data: dto,
+    });
+  }
+
+  async updateRefreshTokenHash(id: string, hash: string | null) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { refreshTokenHash: hash },
     });
   }
 }
