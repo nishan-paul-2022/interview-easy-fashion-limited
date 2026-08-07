@@ -12,7 +12,7 @@ CREATE TABLE "Role" (
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" TEXT NOT NULL,
+    "id" UUID NOT NULL,
     "fullName" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT,
