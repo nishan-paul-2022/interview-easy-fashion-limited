@@ -9,7 +9,7 @@ install:
 
 ## Concurrently run all three dev servers
 dev:
-	npx --yes concurrently "npm run dev --prefix app-backend --if-present" "npm run dev --prefix app-customer --if-present" "npm run dev --prefix app-management --if-present"
+	npx dotenv-cli -e .env -- npx --yes concurrently "cross-env PORT=\$$BACKEND_PORT npm run dev --prefix app-backend --if-present" "cross-env PORT=\$$CUSTOMER_PORT npm run dev --prefix app-customer --if-present" "cross-env PORT=\$$MANAGEMENT_PORT npm run dev --prefix app-management --if-present"
 
 ## Lint all apps
 lint:

@@ -5,7 +5,7 @@ services:
     image: postgres:16-alpine
     container_name: easy_fashion_postgres
     env_file:
-      - ../app-backend/.env
+      - ../.env
     ports:
       - '5432:5432'
     volumes:
