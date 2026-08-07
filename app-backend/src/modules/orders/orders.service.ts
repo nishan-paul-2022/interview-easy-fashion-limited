@@ -1,6 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { OrderStatus, Prisma } from '@prisma/client';
 import { PaginationQueryDto } from '@/common/dto/pagination-query.dto';
 import { CreateOrderDto } from '@/modules/orders/dto/create-order.dto';
+import { OrderQueryDto } from '@/modules/orders/dto/order-query.dto';
+import { UpdateOrderStatusDto } from '@/modules/orders/dto/update-order-status.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
@@ -101,5 +104,106 @@ export class OrdersService {
       page,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  async findAll(query: OrderQueryDto) {
+    const { page = 1, limit = 10, status } = query;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.OrderWhereInput = {};
+    if (status) {
+      where.status = status;
+    }
+
+    const [total, data] = await Promise.all([
+      this.prisma.order.count({ where }),
+      this.prisma.order.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              fullName: true,
+            },
+          },
+          orderItems: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findOne(id: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+          },
+        },
+        orderItems: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${id} not found`);
+    }
+
+    return order;
+  }
+
+  async updateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto) {
+    const order = await this.findOne(id);
+    const newStatus = updateOrderStatusDto.status;
+
+    // Validate state transition
+    const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
+      PENDING: ['PROCESSING', 'CANCELLED'],
+      PROCESSING: ['SHIPPED', 'CANCELLED'],
+      SHIPPED: ['DELIVERED', 'CANCELLED'],
+      DELIVERED: [],
+      CANCELLED: [],
+    };
+
+    if (!allowedTransitions[order.status].includes(newStatus)) {
+      throw new BadRequestException(
+        `Cannot transition order status from ${order.status} to ${newStatus}`,
+      );
+    }
+
+    return this.prisma.order.update({
+      where: { id },
+      data: { status: newStatus },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+          },
+        },
+      },
+    });
   }
 }
