@@ -63,7 +63,20 @@ export class AuthService {
 
     const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash || '');
     if (!isPasswordValid) {
+      const updatedUser = await this.usersService.incrementFailedLoginAttempts(user.id);
+      if (updatedUser.failedLoginAttempts >= 5) {
+        const lockTime = new Date(Date.now() + 15 * 60 * 1000);
+        await this.usersService.lockUser(user.id, lockTime);
+        throw new HttpException(
+          { message: 'Account locked due to too many failed attempts', lockedUntil: lockTime },
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
       throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (user.failedLoginAttempts > 0) {
+      await this.usersService.resetFailedLoginAttempts(user.id);
     }
 
     const accessToken = this.tokenService.generateAccessToken(user);

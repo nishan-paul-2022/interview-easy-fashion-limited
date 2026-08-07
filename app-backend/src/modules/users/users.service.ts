@@ -46,4 +46,25 @@ export class UsersService {
       data: { refreshTokenHash: hash },
     });
   }
+
+  async incrementFailedLoginAttempts(id: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { failedLoginAttempts: { increment: 1 } },
+    });
+  }
+
+  async lockUser(id: string, lockUntil: Date) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { lockedUntil: lockUntil },
+    });
+  }
+
+  async resetFailedLoginAttempts(id: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { failedLoginAttempts: 0, lockedUntil: null },
+    });
+  }
 }
