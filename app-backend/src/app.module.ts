@@ -7,6 +7,7 @@ import { envValidationSchema } from '@/config/env.validation';
 import { HealthController } from '@/health.controller';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { CategoriesModule } from '@/modules/categories/categories.module';
+import { SizesModule } from '@/modules/sizes/sizes.module';
 import { UsersModule } from '@/modules/users/users.module';
 import { PrismaModule } from '@/prisma/prisma.module';
 
@@ -32,6 +33,7 @@ import { PrismaModule } from '@/prisma/prisma.module';
     UsersModule,
     AuthModule,
     CategoriesModule,
+    SizesModule,
   ],
   controllers: [HealthController],
   providers: [
