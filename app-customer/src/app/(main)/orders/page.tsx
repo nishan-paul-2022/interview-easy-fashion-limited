@@ -1,68 +1,41 @@
 'use client';
 
-import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/atoms/Badge';
+import { AuthGuard } from '@/components/molecules/AuthGuard';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
+import { apiClient } from '@/lib/api';
 
-type OrderStatus = 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+
+interface OrderItem {
+  id: string;
+  quantity: number;
+}
 
 interface Order {
   id: string;
-  date: string;
-  itemsCount: number;
-  amount: number;
+  createdAt: string;
+  items: OrderItem[];
+  totalAmount: number;
   status: OrderStatus;
 }
 
-const MOCK_ORDERS: Order[] = [
-  {
-    id: 'ORD-8F92-4C1A',
-    date: '2023-10-15',
-    itemsCount: 3,
-    amount: 120.93,
-    status: 'Processing',
-  },
-  {
-    id: 'ORD-3B21-9E4D',
-    date: '2023-09-22',
-    itemsCount: 1,
-    amount: 45.0,
-    status: 'Delivered',
-  },
-  {
-    id: 'ORD-1A77-5D9F',
-    date: '2023-08-05',
-    itemsCount: 2,
-    amount: 89.99,
-    status: 'Shipped',
-  },
-  {
-    id: 'ORD-9F44-2C1E',
-    date: '2023-07-11',
-    itemsCount: 5,
-    amount: 215.5,
-    status: 'Delivered',
-  },
-  {
-    id: 'ORD-5E22-8A4C',
-    date: '2023-06-30',
-    itemsCount: 1,
-    amount: 29.99,
-    status: 'Cancelled',
-  },
-];
+interface PaginatedOrders {
+  data: Order[];
+}
 
-const getStatusBadgeVariant = (status: OrderStatus) => {
-  switch (status) {
-    case 'Processing':
+const getStatusBadgeVariant = (status: string) => {
+  switch (status.toUpperCase()) {
+    case 'PENDING':
+    case 'PROCESSING':
       return 'warning';
-    case 'Shipped':
+    case 'SHIPPED':
       return 'info';
-    case 'Delivered':
+    case 'DELIVERED':
       return 'success';
-    case 'Cancelled':
+    case 'CANCELLED':
       return 'error';
     default:
       return 'neutral';
@@ -74,12 +47,23 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    // Mock API loading delay
-    const timer = setTimeout(() => {
-      setOrders(MOCK_ORDERS);
-      setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
+    let mounted = true;
+    async function fetchOrders() {
+      try {
+        const res = await apiClient.get<PaginatedOrders>('/orders/me', { limit: 50 });
+        if (mounted) {
+          setOrders(res.data || []);
+        }
+      } catch {
+        if (mounted) setOrders([]);
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    }
+    fetchOrders();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const columns: DataTableColumn<Order>[] = [
@@ -89,50 +73,53 @@ export default function OrdersPage() {
       render: (row) => <span className="font-medium text-text">{row.id}</span>,
     },
     {
-      key: 'date',
+      key: 'createdAt',
       header: 'Date',
-      render: (row) => <span className="text-muted">{row.date}</span>,
+      render: (row) => (
+        <span className="text-muted">{new Date(row.createdAt).toLocaleDateString()}</span>
+      ),
     },
     {
-      key: 'itemsCount',
+      key: 'items',
       header: 'Items',
-      render: (row) => <span className="text-muted">{row.itemsCount} items</span>,
+      render: (row) => <span className="text-muted">{row.items?.length || 0} items</span>,
     },
     {
-      key: 'amount',
+      key: 'totalAmount',
       header: 'Amount',
-      render: (row) => <span className="font-medium text-text">${row.amount.toFixed(2)}</span>,
+      render: (row) => (
+        <span className="font-medium text-text">${Number(row.totalAmount || 0).toFixed(2)}</span>
+      ),
     },
     {
       key: 'status',
       header: 'Status',
-      render: (row) => <Badge variant={getStatusBadgeVariant(row.status)} label={row.status} />,
+      render: (row) => (
+        <Badge variant={getStatusBadgeVariant(row.status || '')} label={row.status || 'UNKNOWN'} />
+      ),
     },
   ];
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8">
-      <h1 className="text-3xl font-bold text-text">My Orders</h1>
+    <AuthGuard>
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8">
+        <h1 className="text-3xl font-bold text-text">My Orders</h1>
 
-      <DataTable
-        columns={columns}
-        data={orders}
-        isLoading={isLoading}
-        emptyProps={{
-          title: 'No orders yet',
-          description: "You haven't placed any orders with us yet.",
-          icon: 'Package',
-          action: {
-            label: 'Start Shopping',
-            onClick: () => (window.location.href = '/products'),
-          },
-        }}
-        rowActions={() => (
-          <Link href="#" className="text-sm font-medium text-accent hover:underline">
-            View Details
-          </Link>
-        )}
-      />
-    </div>
+        <DataTable
+          columns={columns}
+          data={orders}
+          isLoading={isLoading}
+          emptyProps={{
+            title: 'No orders yet',
+            description: "You haven't placed any orders with us yet.",
+            icon: 'Package',
+            action: {
+              label: 'Start Shopping',
+              onClick: () => (window.location.href = '/products'),
+            },
+          }}
+        />
+      </div>
+    </AuthGuard>
   );
 }
