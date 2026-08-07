@@ -1,168 +1,185 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { Badge } from '@/components/atoms/Badge';
 import { Button } from '@/components/atoms/Button';
 import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal';
 import { Dropdown } from '@/components/molecules/Dropdown';
 import { SearchBar } from '@/components/molecules/SearchBar';
+import { useToast } from '@/components/molecules/Toast';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
+import { apiClient } from '@/lib/api';
 
-interface Product {
+interface ProductData {
   id: string;
-  image: string;
   name: string;
-  category: string;
-  style: string;
-  sizes: string[];
+  category?: { id: string; name: string };
+  style?: { id: string; name: string };
+  sizes?: { id: string; name: string }[];
   price: number;
-  status: 'ACTIVE' | 'DRAFT' | 'OUT_OF_STOCK';
+  status: string;
+  images?: string[];
+  [key: string]: unknown;
 }
 
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    image: 'https://via.placeholder.com/100',
-    name: 'Classic White T-Shirt',
-    category: 'Men',
-    style: 'Casual',
-    sizes: ['S', 'M', 'L', 'XL'],
-    price: 25.99,
-    status: 'ACTIVE',
-  },
-  {
-    id: '2',
-    image: 'https://via.placeholder.com/100',
-    name: 'Floral Summer Dress',
-    category: 'Women',
-    style: 'Bohemian',
-    sizes: ['XS', 'S', 'M'],
-    price: 49.5,
-    status: 'ACTIVE',
-  },
-  {
-    id: '3',
-    image: 'https://via.placeholder.com/100',
-    name: 'Kids Denim Jacket',
-    category: 'Kids',
-    style: 'Vintage',
-    sizes: ['4Y', '6Y', '8Y'],
-    price: 35.0,
-    status: 'OUT_OF_STOCK',
-  },
-  {
-    id: '4',
-    image: 'https://via.placeholder.com/100',
-    name: 'Leather Crossbody Bag',
-    category: 'Accessories',
-    style: 'Minimalist',
-    sizes: ['ONE SIZE'],
-    price: 89.99,
-    status: 'DRAFT',
-  },
-];
-
-const categoryOptions = [
-  { label: 'All Categories', value: 'all' },
-  { label: 'Men', value: 'Men' },
-  { label: 'Women', value: 'Women' },
-  { label: 'Kids', value: 'Kids' },
-  { label: 'Accessories', value: 'Accessories' },
-];
-
-const styleOptions = [
-  { label: 'All Styles', value: 'all' },
-  { label: 'Casual', value: 'Casual' },
-  { label: 'Bohemian', value: 'Bohemian' },
-  { label: 'Vintage', value: 'Vintage' },
-  { label: 'Minimalist', value: 'Minimalist' },
-];
-
-const getStatusBadge = (status: Product['status']) => {
-  switch (status) {
+const getStatusBadge = (status: string) => {
+  switch ((status || '').toUpperCase()) {
     case 'ACTIVE':
       return <Badge label="Active" variant="success" />;
     case 'DRAFT':
-      return <Badge label="Draft" variant="neutral" />;
+      return <Badge label="Draft" variant="warning" />;
     case 'OUT_OF_STOCK':
       return <Badge label="Out of Stock" variant="error" />;
     default:
-      return <Badge label={status} variant="neutral" />;
+      return <Badge label={status || 'Unknown'} variant="neutral" />;
   }
 };
 
 export default function ProductListPage() {
   const router = useRouter();
+  const toast = useToast();
+
+  const [products, setProducts] = useState<ProductData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  const [categories, setCategories] = useState<{ label: string; value: string }[]>([
+    { label: 'All Categories', value: 'all' },
+  ]);
+  const [styles, setStyles] = useState<{ label: string; value: string }[]>([
+    { label: 'All Styles', value: 'all' },
+  ]);
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedStyle, setSelectedStyle] = useState<string>('all');
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [productToDelete, setProductToDelete] = useState<ProductData | null>(null);
 
-  // Derived filtered data
-  const filteredProducts = useMemo(() => {
-    return mockProducts.filter((p) => {
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
-      const matchesStyle = selectedStyle === 'all' || p.style === selectedStyle;
-      return matchesSearch && matchesCategory && matchesStyle;
-    });
-  }, [searchQuery, selectedCategory, selectedStyle]);
+  useEffect(() => {
+    async function fetchFilters() {
+      try {
+        const [catRes, styleRes] = await Promise.all([
+          apiClient
+            .get<{ data: { id: string; name: string }[] }>('/categories', { limit: 100 })
+            .catch(() => ({ data: [] })),
+          apiClient
+            .get<{ data: { id: string; name: string }[] }>('/styles', { limit: 100 })
+            .catch(() => ({ data: [] })),
+        ]);
+
+        setCategories([
+          { label: 'All Categories', value: 'all' },
+          ...(catRes.data || []).map((c) => ({ label: c.name, value: c.id })),
+        ]);
+
+        setStyles([
+          { label: 'All Styles', value: 'all' },
+          ...(styleRes.data || []).map((s) => ({ label: s.name, value: s.id })),
+        ]);
+      } catch (e) {
+        console.error('Failed to load filters', e);
+      }
+    }
+    fetchFilters();
+  }, []);
+
+  const fetchProducts = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const params: Record<string, string> = { limit: '50' };
+      if (debouncedSearch) params.search = debouncedSearch;
+      if (selectedCategory !== 'all') params.categoryId = selectedCategory;
+      if (selectedStyle !== 'all') params.styleId = selectedStyle;
+
+      const res = await apiClient.get<{ data: ProductData[] }>('/products', params);
+      setProducts(res.data || []);
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      toast.error(err.message || 'Failed to fetch products');
+      setProducts([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [debouncedSearch, selectedCategory, selectedStyle, toast]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleAddClick = () => {
     router.push('/dashboard/products/new');
   };
 
-  const handleEditClick = (product: Product) => {
+  const handleEditClick = (product: ProductData) => {
     router.push(`/dashboard/products/${product.id}/edit`);
   };
 
-  const handleViewClick = (product: Product) => {
+  const handleViewClick = (product: ProductData) => {
     router.push(`/dashboard/products/${product.id}`);
   };
 
-  const handleDeleteClick = (product: Product) => {
+  const handleDeleteClick = (product: ProductData) => {
     setProductToDelete(product);
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    console.log('Deleting product:', productToDelete?.name);
-    setIsDeleteModalOpen(false);
-    setProductToDelete(null);
+  const handleConfirmDelete = async () => {
+    if (!productToDelete) return;
+    try {
+      await apiClient.delete(`/products/${productToDelete.id}`);
+      toast.success(`Product "${productToDelete.name}" deleted successfully.`);
+      setIsDeleteModalOpen(false);
+      setProductToDelete(null);
+      fetchProducts();
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      toast.error(err.message || 'Failed to delete product');
+    }
   };
 
-  const columns: DataTableColumn<Product>[] = [
+  const columns: DataTableColumn<ProductData>[] = [
     {
       key: 'image',
       header: 'Image',
-      render: (row) => (
-        <div className="h-12 w-12 overflow-hidden rounded-md border border-muted/20 bg-muted/10">
-          {/* Using img tag directly for mock placeholder without external domain config issues */}
-          <img
-            src={row.image}
-            alt={row.name}
-            className="h-full w-full object-cover"
-            loading="lazy"
-          />
-        </div>
-      ),
+      render: (row) => {
+        const imgUrl =
+          row.images?.[0] ||
+          'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=100';
+        return (
+          <div className="h-12 w-12 overflow-hidden rounded-md border border-muted/20 bg-muted/10">
+            <img
+              src={imgUrl}
+              alt={row.name}
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        );
+      },
     },
     { key: 'name', header: 'Name', sortable: true },
-    { key: 'category', header: 'Category', sortable: true },
-    { key: 'style', header: 'Style', sortable: true },
+    {
+      key: 'category',
+      header: 'Category',
+      render: (row) => <span>{row.category?.name || '-'}</span>,
+    },
+    { key: 'style', header: 'Style', render: (row) => <span>{row.style?.name || '-'}</span> },
     {
       key: 'sizes',
       header: 'Sizes',
       render: (row) => (
         <div className="flex flex-wrap gap-1">
-          {row.sizes.map((s) => (
-            <span key={s} className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 text-text">
-              {s}
+          {(row.sizes || []).map((s) => (
+            <span
+              key={s.id}
+              className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 text-text"
+            >
+              {s.name}
             </span>
           ))}
         </div>
@@ -171,8 +188,7 @@ export default function ProductListPage() {
     {
       key: 'price',
       header: 'Price',
-      sortable: true,
-      render: (row) => <span>${row.price.toFixed(2)}</span>,
+      render: (row) => <span>${Number(row.price || 0).toFixed(2)}</span>,
     },
     { key: 'status', header: 'Status', render: (row) => getStatusBadge(row.status) },
   ];
@@ -186,27 +202,27 @@ export default function ProductListPage() {
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
-              onSearch={(val) => console.log('Searching:', val)}
+              onSearch={setDebouncedSearch}
               placeholder="Search products..."
             />
           </div>
           <Dropdown
             trigger={
               <Button variant="outline" className="w-full sm:w-auto justify-between">
-                {categoryOptions.find((o) => o.value === selectedCategory)?.label}
+                {categories.find((o) => o.value === selectedCategory)?.label || 'All Categories'}
               </Button>
             }
-            options={categoryOptions}
+            options={categories}
             value={selectedCategory}
             onChange={(val) => setSelectedCategory(val as string)}
           />
           <Dropdown
             trigger={
               <Button variant="outline" className="w-full sm:w-auto justify-between">
-                {styleOptions.find((o) => o.value === selectedStyle)?.label}
+                {styles.find((o) => o.value === selectedStyle)?.label || 'All Styles'}
               </Button>
             }
-            options={styleOptions}
+            options={styles}
             value={selectedStyle}
             onChange={(val) => setSelectedStyle(val as string)}
           />
@@ -225,7 +241,8 @@ export default function ProductListPage() {
       {/* Data Table */}
       <DataTable
         columns={columns}
-        data={filteredProducts}
+        data={products}
+        isLoading={isLoading}
         emptyProps={{
           icon: 'Package',
           title: 'No products yet',
