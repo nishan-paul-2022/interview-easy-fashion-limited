@@ -19,8 +19,8 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-      - name: Install Root Dependencies
-        run: npm install
+      - name: Install All Dependencies
+        run: make install
       - name: Run ESLint
         run: make lint
       - name: Run Prettier Check
