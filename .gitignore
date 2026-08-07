@@ -35,3 +35,4 @@ coverage/
 
 # Project Specific
 docs/planning.md
+infra/scripts/
