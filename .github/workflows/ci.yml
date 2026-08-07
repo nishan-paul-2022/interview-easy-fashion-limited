@@ -10,8 +10,22 @@ on:
       - main
 
 jobs:
+  format:
+    name: Format Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - name: Install All Dependencies
+        run: make install
+      - name: Run Prettier Check
+        run: npx prettier --check .
+
   lint:
-    name: Lint & Format
+    name: Lint Code
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,8 +37,23 @@ jobs:
         run: make install
       - name: Run ESLint
         run: make lint
-      - name: Run Prettier Check
-        run: npx prettier --check .
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - name: Install All Dependencies
+        run: make install
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        working-directory: ./app-backend
+      - name: Run Typecheck
+        run: make typecheck
 
   test-backend:
     name: Test Backend
