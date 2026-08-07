@@ -1,91 +1,111 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { Button } from '@/components/atoms/Button';
-import { Input } from '@/components/atoms/Input';
 import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal';
-import { Modal } from '@/components/molecules/Modal';
+import { useToast } from '@/components/molecules/Toast';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
-
-interface Style {
-  id: string;
-  name: string;
-  createdDate: string;
-}
-
-const mockStyles: Style[] = [
-  { id: '1', name: 'Casual', createdDate: '2026-08-01' },
-  { id: '2', name: 'Bohemian', createdDate: '2026-08-02' },
-  { id: '3', name: 'Vintage', createdDate: '2026-08-03' },
-  { id: '4', name: 'Minimalist', createdDate: '2026-08-04' },
-  { id: '5', name: 'Streetwear', createdDate: '2026-08-05' },
-];
+import { SimpleEntityFormModal, SimpleEntity } from '@/components/organisms/SimpleEntityFormModal';
+import { apiClient } from '@/lib/api';
 
 export default function StyleManagementPage() {
-  const [styles] = useState<Style[]>(mockStyles);
+  const toast = useToast();
 
-  // Form Modal State
+  const [styles, setStyles] = useState<SimpleEntity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [styleToEdit, setStyleToEdit] = useState<Style | null>(null);
-  const [formName, setFormName] = useState('');
+  const [styleToEdit, setStyleToEdit] = useState<SimpleEntity | null>(null);
 
-  // Delete Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [styleToDelete, setStyleToDelete] = useState<Style | null>(null);
+  const [styleToDelete, setStyleToDelete] = useState<SimpleEntity | null>(null);
+
+  const fetchStyles = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await apiClient.get<{ data: SimpleEntity[] }>('/styles', { limit: 100 });
+      setStyles(res.data || []);
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      toast.error(err.message || 'Failed to fetch styles');
+      setStyles([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
-    if (isFormModalOpen) {
-      if (styleToEdit) {
-        setFormName(styleToEdit.name);
-      } else {
-        setFormName('');
-      }
-    }
-  }, [isFormModalOpen, styleToEdit]);
+    fetchStyles();
+  }, [fetchStyles]);
 
   const handleAddClick = () => {
     setStyleToEdit(null);
     setIsFormModalOpen(true);
   };
 
-  const handleEditClick = (style: Style) => {
+  const handleEditClick = (style: SimpleEntity) => {
     setStyleToEdit(style);
     setIsFormModalOpen(true);
   };
 
-  const handleDeleteClick = (style: Style) => {
+  const handleDeleteClick = (style: SimpleEntity) => {
     setStyleToDelete(style);
     setIsDeleteModalOpen(true);
   };
 
-  const handleSaveStyle = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Saving style:', formName);
-    setIsFormModalOpen(false);
+  const handleSaveStyle = async (data: { value: string }) => {
+    try {
+      if (styleToEdit) {
+        await apiClient.patch(`/styles/${styleToEdit.id}`, { name: data.value });
+        toast.success(`Style updated successfully.`);
+      } else {
+        await apiClient.post('/styles', { name: data.value });
+        toast.success(`Style created successfully.`);
+      }
+      setIsFormModalOpen(false);
+      setStyleToEdit(null);
+      fetchStyles();
+    } catch (e: unknown) {
+      const err = e as { message?: string | string[] };
+      let msg = 'An error occurred';
+      if (Array.isArray(err.message)) msg = err.message.join(', ');
+      else if (err.message) msg = err.message;
+      toast.error(msg);
+      throw e;
+    }
   };
 
-  const handleConfirmDelete = () => {
-    console.log('Deleting style:', styleToDelete?.name);
-    setIsDeleteModalOpen(false);
-    setStyleToDelete(null);
+  const handleConfirmDelete = async () => {
+    if (!styleToDelete) return;
+    try {
+      await apiClient.delete(`/styles/${styleToDelete.id}`);
+      toast.success(`Style deleted successfully.`);
+      setIsDeleteModalOpen(false);
+      setStyleToDelete(null);
+      fetchStyles();
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      toast.error(err.message || 'Failed to delete style');
+    }
   };
 
-  const columns: DataTableColumn<Style>[] = [
-    { key: 'name', header: 'Style Name', sortable: true },
-    { key: 'createdDate', header: 'Created Date', sortable: true },
+  const columns: DataTableColumn<SimpleEntity>[] = [
+    {
+      key: 'name',
+      header: 'Style Name',
+      sortable: true,
+      render: (row) => row.name || row.label || '-',
+    },
+    {
+      key: 'createdAt',
+      header: 'Created Date',
+      sortable: true,
+      render: (row) => (
+        <span>{row.createdAt ? new Date(String(row.createdAt)).toLocaleDateString() : '-'}</span>
+      ),
+    },
   ];
-
-  const formFooter = (
-    <>
-      <Button variant="ghost" onClick={() => setIsFormModalOpen(false)} type="button">
-        Cancel
-      </Button>
-      <Button variant="primary" onClick={handleSaveStyle} type="button">
-        Save Style
-      </Button>
-    </>
-  );
 
   return (
     <div className="flex w-full max-w-5xl flex-col gap-6 mx-auto">
@@ -104,6 +124,7 @@ export default function StyleManagementPage() {
       <DataTable
         columns={columns}
         data={styles}
+        isLoading={isLoading}
         emptyProps={{
           icon: 'Palette',
           title: 'No styles yet',
@@ -135,22 +156,19 @@ export default function StyleManagementPage() {
       />
 
       {/* Create / Edit Form Modal */}
-      <Modal
+      <SimpleEntityFormModal
         isOpen={isFormModalOpen}
-        onClose={() => setIsFormModalOpen(false)}
-        title={styleToEdit ? 'Edit Style' : 'Add Style'}
-        footer={formFooter}
-      >
-        <form onSubmit={handleSaveStyle} className="flex flex-col gap-4 py-2">
-          <Input
-            label="Style Name"
-            placeholder="e.g. Vintage, Casual, Minimalist"
-            value={formName}
-            onChange={(e) => setFormName(e.target.value)}
-            required
-          />
-        </form>
-      </Modal>
+        onClose={() => {
+          setIsFormModalOpen(false);
+          setStyleToEdit(null);
+        }}
+        entity={styleToEdit}
+        onSave={handleSaveStyle}
+        titleAdd="Add Style"
+        titleEdit="Edit Style"
+        inputLabel="Style Name"
+        inputPlaceholder="e.g. Vintage, Casual, Minimalist"
+      />
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
@@ -158,8 +176,9 @@ export default function StyleManagementPage() {
         title="Delete Style"
         description={
           <span>
-            Are you sure you want to delete the style <strong>{styleToDelete?.name}</strong>? This
-            action cannot be undone.
+            Are you sure you want to delete the style{' '}
+            <strong>{styleToDelete?.name || styleToDelete?.label}</strong>? This action cannot be
+            undone.
           </span>
         }
         onConfirm={handleConfirmDelete}

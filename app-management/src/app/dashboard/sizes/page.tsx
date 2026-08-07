@@ -1,92 +1,111 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { Button } from '@/components/atoms/Button';
-import { Input } from '@/components/atoms/Input';
 import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal';
-import { Modal } from '@/components/molecules/Modal';
+import { useToast } from '@/components/molecules/Toast';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
-
-interface Size {
-  id: string;
-  label: string;
-  createdDate: string;
-}
-
-const mockSizes: Size[] = [
-  { id: '1', label: 'XS', createdDate: '2026-08-01' },
-  { id: '2', label: 'S', createdDate: '2026-08-02' },
-  { id: '3', label: 'M', createdDate: '2026-08-03' },
-  { id: '4', label: 'L', createdDate: '2026-08-04' },
-  { id: '5', label: 'XL', createdDate: '2026-08-05' },
-  { id: '6', label: 'ONE SIZE', createdDate: '2026-08-06' },
-];
+import { SimpleEntityFormModal, SimpleEntity } from '@/components/organisms/SimpleEntityFormModal';
+import { apiClient } from '@/lib/api';
 
 export default function SizeManagementPage() {
-  const [sizes] = useState<Size[]>(mockSizes);
+  const toast = useToast();
 
-  // Form Modal State
+  const [sizes, setSizes] = useState<SimpleEntity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [sizeToEdit, setSizeToEdit] = useState<Size | null>(null);
-  const [formLabel, setFormLabel] = useState('');
+  const [sizeToEdit, setSizeToEdit] = useState<SimpleEntity | null>(null);
 
-  // Delete Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [sizeToDelete, setSizeToDelete] = useState<Size | null>(null);
+  const [sizeToDelete, setSizeToDelete] = useState<SimpleEntity | null>(null);
+
+  const fetchSizes = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await apiClient.get<{ data: SimpleEntity[] }>('/sizes', { limit: 100 });
+      setSizes(res.data || []);
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      toast.error(err.message || 'Failed to fetch sizes');
+      setSizes([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
-    if (isFormModalOpen) {
-      if (sizeToEdit) {
-        setFormLabel(sizeToEdit.label);
-      } else {
-        setFormLabel('');
-      }
-    }
-  }, [isFormModalOpen, sizeToEdit]);
+    fetchSizes();
+  }, [fetchSizes]);
 
   const handleAddClick = () => {
     setSizeToEdit(null);
     setIsFormModalOpen(true);
   };
 
-  const handleEditClick = (size: Size) => {
+  const handleEditClick = (size: SimpleEntity) => {
     setSizeToEdit(size);
     setIsFormModalOpen(true);
   };
 
-  const handleDeleteClick = (size: Size) => {
+  const handleDeleteClick = (size: SimpleEntity) => {
     setSizeToDelete(size);
     setIsDeleteModalOpen(true);
   };
 
-  const handleSaveSize = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Saving size:', formLabel);
-    setIsFormModalOpen(false);
+  const handleSaveSize = async (data: { value: string }) => {
+    try {
+      if (sizeToEdit) {
+        await apiClient.patch(`/sizes/${sizeToEdit.id}`, { label: data.value });
+        toast.success(`Size updated successfully.`);
+      } else {
+        await apiClient.post('/sizes', { label: data.value });
+        toast.success(`Size created successfully.`);
+      }
+      setIsFormModalOpen(false);
+      setSizeToEdit(null);
+      fetchSizes();
+    } catch (e: unknown) {
+      const err = e as { message?: string | string[] };
+      let msg = 'An error occurred';
+      if (Array.isArray(err.message)) msg = err.message.join(', ');
+      else if (err.message) msg = err.message;
+      toast.error(msg);
+      throw e;
+    }
   };
 
-  const handleConfirmDelete = () => {
-    console.log('Deleting size:', sizeToDelete?.label);
-    setIsDeleteModalOpen(false);
-    setSizeToDelete(null);
+  const handleConfirmDelete = async () => {
+    if (!sizeToDelete) return;
+    try {
+      await apiClient.delete(`/sizes/${sizeToDelete.id}`);
+      toast.success(`Size deleted successfully.`);
+      setIsDeleteModalOpen(false);
+      setSizeToDelete(null);
+      fetchSizes();
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      toast.error(err.message || 'Failed to delete size');
+    }
   };
 
-  const columns: DataTableColumn<Size>[] = [
-    { key: 'label', header: 'Size Label', sortable: true },
-    { key: 'createdDate', header: 'Created Date', sortable: true },
+  const columns: DataTableColumn<SimpleEntity>[] = [
+    {
+      key: 'label',
+      header: 'Size Label',
+      sortable: true,
+      render: (row) => row.label || row.name || '-',
+    },
+    {
+      key: 'createdAt',
+      header: 'Created Date',
+      sortable: true,
+      render: (row) => (
+        <span>{row.createdAt ? new Date(String(row.createdAt)).toLocaleDateString() : '-'}</span>
+      ),
+    },
   ];
-
-  const formFooter = (
-    <>
-      <Button variant="ghost" onClick={() => setIsFormModalOpen(false)} type="button">
-        Cancel
-      </Button>
-      <Button variant="primary" onClick={handleSaveSize} type="button">
-        Save Size
-      </Button>
-    </>
-  );
 
   return (
     <div className="flex w-full max-w-5xl flex-col gap-6 mx-auto">
@@ -105,6 +124,7 @@ export default function SizeManagementPage() {
       <DataTable
         columns={columns}
         data={sizes}
+        isLoading={isLoading}
         emptyProps={{
           icon: 'Ruler',
           title: 'No sizes yet',
@@ -136,22 +156,19 @@ export default function SizeManagementPage() {
       />
 
       {/* Create / Edit Form Modal */}
-      <Modal
+      <SimpleEntityFormModal
         isOpen={isFormModalOpen}
-        onClose={() => setIsFormModalOpen(false)}
-        title={sizeToEdit ? 'Edit Size' : 'Add Size'}
-        footer={formFooter}
-      >
-        <form onSubmit={handleSaveSize} className="flex flex-col gap-4 py-2">
-          <Input
-            label="Size Label"
-            placeholder="e.g. XXL, 10, ONE SIZE"
-            value={formLabel}
-            onChange={(e) => setFormLabel(e.target.value)}
-            required
-          />
-        </form>
-      </Modal>
+        onClose={() => {
+          setIsFormModalOpen(false);
+          setSizeToEdit(null);
+        }}
+        entity={sizeToEdit}
+        onSave={handleSaveSize}
+        titleAdd="Add Size"
+        titleEdit="Edit Size"
+        inputLabel="Size Label"
+        inputPlaceholder="e.g. XXL, 10, ONE SIZE"
+      />
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
@@ -159,8 +176,9 @@ export default function SizeManagementPage() {
         title="Delete Size"
         description={
           <span>
-            Are you sure you want to delete the size <strong>{sizeToDelete?.label}</strong>? This
-            action cannot be undone.
+            Are you sure you want to delete the size{' '}
+            <strong>{sizeToDelete?.label || sizeToDelete?.name}</strong>? This action cannot be
+            undone.
           </span>
         }
         onConfirm={handleConfirmDelete}
