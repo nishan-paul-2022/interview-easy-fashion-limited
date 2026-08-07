@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { Avatar } from '@/components/atoms/Avatar';
 import { Badge } from '@/components/atoms/Badge';
@@ -9,57 +9,18 @@ import { Button } from '@/components/atoms/Button';
 import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal';
 import { Dropdown } from '@/components/molecules/Dropdown';
 import { SearchBar } from '@/components/molecules/SearchBar';
+import { useToast } from '@/components/molecules/Toast';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
+import { apiClient } from '@/lib/api';
 
 interface User {
   id: string;
-  name: string;
+  fullName: string;
   email: string;
-  role: 'ADMIN' | 'MANAGER' | 'CUSTOMER';
-  status: 'ACTIVE' | 'INACTIVE';
-  avatarUrl?: string;
+  role: { id: number; name: string };
+  isActive: boolean;
 }
-
-const mockUsers: User[] = [
-  {
-    id: 'USR-001',
-    name: 'Alice Smith',
-    email: 'alice@example.com',
-    role: 'ADMIN',
-    status: 'ACTIVE',
-    avatarUrl: 'https://i.pravatar.cc/150?u=alice',
-  },
-  {
-    id: 'USR-002',
-    name: 'Bob Jones',
-    email: 'bob@example.com',
-    role: 'MANAGER',
-    status: 'ACTIVE',
-  },
-  {
-    id: 'USR-003',
-    name: 'Charlie Brown',
-    email: 'charlie@example.com',
-    role: 'CUSTOMER',
-    status: 'INACTIVE',
-    avatarUrl: 'https://i.pravatar.cc/150?u=charlie',
-  },
-  {
-    id: 'USR-004',
-    name: 'Diana Prince',
-    email: 'diana@example.com',
-    role: 'CUSTOMER',
-    status: 'ACTIVE',
-  },
-  {
-    id: 'USR-005',
-    name: 'Evan Wright',
-    email: 'evan@example.com',
-    role: 'MANAGER',
-    status: 'ACTIVE',
-    avatarUrl: 'https://i.pravatar.cc/150?u=evan',
-  },
-];
 
 const roleOptions = [
   { label: 'All Roles', value: 'all' },
@@ -70,23 +31,41 @@ const roleOptions = [
 
 export default function UserManagementPage() {
   const router = useRouter();
+  const toast = useToast();
+  const { user: currentUser } = useDashboardAuth();
+
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('all');
 
   // Deactivate Modal State
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [userToDeactivate, setUserToDeactivate] = useState<User | null>(null);
 
-  const filteredUsers = useMemo(() => {
-    return mockUsers.filter((user) => {
-      const matchesSearch =
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesRole = selectedRole === 'all' || user.role === selectedRole;
-      return matchesSearch && matchesRole;
-    });
-  }, [searchQuery, selectedRole]);
+  const fetchUsers = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const params: Record<string, string> = { limit: '50' };
+      if (debouncedSearch) params.search = debouncedSearch;
+      if (selectedRole !== 'all') params.role = selectedRole;
+
+      const res = await apiClient.get<{ data: User[] }>('/users', params);
+      setUsers(res.data || []);
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      toast.error(err.message || 'Failed to fetch users');
+      setUsers([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [debouncedSearch, selectedRole, toast]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleAddClick = () => {
     router.push('/dashboard/users/new');
@@ -96,30 +75,39 @@ export default function UserManagementPage() {
     router.push(`/dashboard/users/${user.id}`);
   };
 
-  const handleEditClick = (user: User) => {
-    router.push(`/dashboard/users/${user.id}/edit`);
-  };
-
   const handleDeactivateClick = (user: User) => {
+    if (user.id === currentUser?.id) {
+      toast.error('You cannot deactivate your own account.');
+      return;
+    }
     setUserToDeactivate(user);
     setIsDeactivateModalOpen(true);
   };
 
-  const handleConfirmDeactivate = () => {
-    console.log('Deactivating user:', userToDeactivate?.name);
-    setIsDeactivateModalOpen(false);
-    setUserToDeactivate(null);
+  const handleConfirmDeactivate = async () => {
+    if (!userToDeactivate) return;
+    try {
+      const newStatus = !userToDeactivate.isActive;
+      await apiClient.patch(`/users/${userToDeactivate.id}/status`, { isActive: newStatus });
+      toast.success(`User ${newStatus ? 'activated' : 'deactivated'} successfully.`);
+      setIsDeactivateModalOpen(false);
+      setUserToDeactivate(null);
+      fetchUsers();
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      toast.error(err.message || 'Failed to update user status');
+    }
   };
 
   const columns: DataTableColumn<User>[] = [
     {
-      key: 'name',
+      key: 'fullName',
       header: 'Name',
       sortable: true,
       render: (row) => (
         <div className="flex items-center gap-3">
-          <Avatar src={row.avatarUrl} alt={row.name} size="sm" name={row.name} />
-          <span className="font-medium text-text">{row.name}</span>
+          <Avatar alt={row.fullName} size="sm" name={row.fullName} />
+          <span className="font-medium text-text">{row.fullName}</span>
         </div>
       ),
     },
@@ -130,8 +118,10 @@ export default function UserManagementPage() {
       sortable: true,
       render: (row) => (
         <Badge
-          label={row.role}
-          variant={row.role === 'ADMIN' ? 'error' : row.role === 'MANAGER' ? 'info' : 'neutral'}
+          label={row.role?.name || 'N/A'}
+          variant={
+            row.role?.name === 'ADMIN' ? 'error' : row.role?.name === 'MANAGER' ? 'info' : 'neutral'
+          }
         />
       ),
     },
@@ -140,7 +130,10 @@ export default function UserManagementPage() {
       header: 'Status',
       sortable: true,
       render: (row) => (
-        <Badge label={row.status} variant={row.status === 'ACTIVE' ? 'success' : 'neutral'} />
+        <Badge
+          label={row.isActive ? 'ACTIVE' : 'INACTIVE'}
+          variant={row.isActive ? 'success' : 'neutral'}
+        />
       ),
     },
   ];
@@ -154,7 +147,7 @@ export default function UserManagementPage() {
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
-              onSearch={(val) => console.log('Searching users:', val)}
+              onSearch={setDebouncedSearch}
               placeholder="Search by Name or Email..."
             />
           </div>
@@ -177,48 +170,53 @@ export default function UserManagementPage() {
       {/* Data Table */}
       <DataTable
         columns={columns}
-        data={filteredUsers}
+        data={users}
+        isLoading={isLoading}
         emptyProps={{
           icon: 'Users',
           title: 'No users found',
           description: 'Try adjusting your search or filter to find what you are looking for.',
         }}
-        rowActions={(row) => (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon="Eye"
-              onClick={() => handleViewClick(row)}
-              aria-label="View user"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon="Pencil"
-              onClick={() => handleEditClick(row)}
-              aria-label="Edit user"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon="Minus"
-              className="text-error hover:bg-error/10 hover:text-error"
-              onClick={() => handleDeactivateClick(row)}
-              aria-label="Deactivate user"
-            />
-          </>
-        )}
+        rowActions={(row) => {
+          const isSelf = row.id === currentUser?.id;
+          return (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                leftIcon="Eye"
+                onClick={() => handleViewClick(row)}
+                aria-label="View user"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                leftIcon={row.isActive ? 'Minus' : 'CheckCircle'}
+                className={
+                  row.isActive
+                    ? 'text-error hover:bg-error/10 hover:text-error'
+                    : 'text-success hover:bg-success/10 hover:text-success'
+                }
+                onClick={() => handleDeactivateClick(row)}
+                aria-label={row.isActive ? 'Deactivate user' : 'Activate user'}
+                disabled={isSelf}
+              />
+            </>
+          );
+        }}
       />
 
-      {/* Deactivate Confirmation Modal */}
+      {/* Deactivate/Activate Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={isDeactivateModalOpen}
-        title="Deactivate User"
+        title={userToDeactivate?.isActive ? 'Deactivate User' : 'Activate User'}
         description={
           <span>
-            Are you sure you want to deactivate <strong>{userToDeactivate?.name}</strong>? They will
-            no longer be able to log in.
+            Are you sure you want to {userToDeactivate?.isActive ? 'deactivate' : 'activate'}{' '}
+            <strong>{userToDeactivate?.fullName}</strong>?{' '}
+            {userToDeactivate?.isActive
+              ? 'They will no longer be able to log in to the dashboard.'
+              : 'They will be able to log in to the dashboard again.'}
           </span>
         }
         onConfirm={handleConfirmDeactivate}

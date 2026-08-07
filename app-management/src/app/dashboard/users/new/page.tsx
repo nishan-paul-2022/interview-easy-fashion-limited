@@ -8,6 +8,8 @@ import { Input } from '@/components/atoms/Input';
 import { PasswordInput } from '@/components/atoms/PasswordInput';
 import { Toggle } from '@/components/atoms/Toggle';
 import { Dropdown } from '@/components/molecules/Dropdown';
+import { useToast } from '@/components/molecules/Toast';
+import { apiClient } from '@/lib/api';
 
 const roleOptions = [
   { label: 'Admin', value: 'ADMIN' },
@@ -16,6 +18,7 @@ const roleOptions = [
 
 export default function CreateUserPage() {
   const router = useRouter();
+  const toast = useToast();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -25,23 +28,37 @@ export default function CreateUserPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert("Passwords don't match");
+      toast.error("Passwords don't match");
       return;
     }
 
-    console.log('Saving user...', {
-      fullName,
-      email,
-      phone,
-      role,
-      isActive,
-      password,
-    });
-    router.push('/dashboard/users');
+    setIsSubmitting(true);
+    try {
+      await apiClient.post('/users', {
+        fullName,
+        email,
+        phone: phone || undefined,
+        role,
+        isActive,
+        password,
+      });
+      toast.success('User created successfully');
+      router.push('/dashboard/users');
+    } catch (e: unknown) {
+      const err = e as { message?: string | string[] };
+      let msg = 'Failed to create user';
+      if (Array.isArray(err.message)) msg = err.message.join(', ');
+      else if (err.message) msg = err.message;
+      toast.error(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -94,7 +111,7 @@ export default function CreateUserPage() {
               <label className="text-sm font-medium text-text">Role</label>
               <Dropdown
                 trigger={
-                  <Button variant="outline" className="w-full justify-between">
+                  <Button variant="outline" className="w-full justify-between" type="button">
                     {roleOptions.find((o) => o.value === role)?.label || 'Select Role'}
                   </Button>
                 }
@@ -137,10 +154,15 @@ export default function CreateUserPage() {
 
         {/* Footer Actions */}
         <div className="mt-4 flex items-center justify-end gap-4 border-t border-muted/20 pt-6">
-          <Button variant="ghost" onClick={() => router.push('/dashboard/users')} type="button">
+          <Button
+            variant="ghost"
+            onClick={() => router.push('/dashboard/users')}
+            type="button"
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
-          <Button variant="primary" type="submit">
+          <Button variant="primary" type="submit" isLoading={isSubmitting}>
             Save User
           </Button>
         </div>
