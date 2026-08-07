@@ -5,7 +5,7 @@ services:
     image: postgres:16-alpine
     container_name: easy-fashion-postgres-prod
     env_file:
-      - .env
+      - ../.env
     volumes:
       - /var/lib/easy-fashion/postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
     image: ghcr.io/nishan-paul-2022/easy-fashion-backend:latest
     container_name: easy-fashion-backend-prod
     env_file:
-      - .env
+      - ../.env
     ports:
       - '3015:3015'
     restart: unless-stopped
@@ -32,7 +32,7 @@ services:
     image: ghcr.io/nishan-paul-2022/easy-fashion-customer:latest
     container_name: easy-fashion-customer-prod
     env_file:
-      - .env
+      - ../.env
     ports:
       - '3013:3000'
     restart: unless-stopped
@@ -41,7 +41,7 @@ services:
     image: ghcr.io/nishan-paul-2022/easy-fashion-management:latest
     container_name: easy-fashion-management-prod
     env_file:
-      - .env
+      - ../.env
     ports:
       - '3014:3000'
     restart: unless-stopped
