@@ -1,49 +1,75 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { Badge } from '@/components/atoms/Badge';
 import { Button } from '@/components/atoms/Button';
 import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmationModal';
 import { SearchBar } from '@/components/molecules/SearchBar';
+import { useToast } from '@/components/molecules/Toast';
 import { Category, CategoryFormModal } from '@/components/organisms/CategoryFormModal';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
+import { useDebounce } from '@/hooks/useDebounce';
+import { apiClient } from '@/lib/api';
 
-const mockCategories: Category[] = [
-  { id: '1', name: 'Men', productsCount: 120, createdDate: '2026-08-01', status: 'ACTIVE' },
-  { id: '2', name: 'Women', productsCount: 185, createdDate: '2026-08-02', status: 'ACTIVE' },
-  { id: '3', name: 'Kids', productsCount: 45, createdDate: '2026-08-03', status: 'INACTIVE' },
-  { id: '4', name: 'Accessories', productsCount: 89, createdDate: '2026-08-04', status: 'ACTIVE' },
-  { id: '5', name: 'Shoes', productsCount: 60, createdDate: '2026-08-05', status: 'ACTIVE' },
-];
+interface PaginatedCategories {
+  data: Category[];
+}
 
 export default function CategoryListPage() {
+  const toast = useToast();
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
 
-  // Filter categories based on search query
-  const filteredCategories = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return mockCategories;
+  const fetchCategories = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const queryParams: Record<string, string> = { limit: '100' };
+      if (debouncedSearch) {
+        queryParams.search = debouncedSearch;
+      }
+      const res = await apiClient.get<PaginatedCategories>('/categories', queryParams);
+      setCategories(res.data || []);
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      toast.error(err.message || 'Failed to fetch categories');
+      setCategories([]);
+    } finally {
+      setIsLoading(false);
     }
-    const lowerQuery = searchQuery.toLowerCase();
-    return mockCategories.filter((cat) => cat.name.toLowerCase().includes(lowerQuery));
-  }, [searchQuery]);
+  }, [debouncedSearch, toast]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const handleDeleteClick = (category: Category) => {
     setCategoryToDelete(category);
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    // Implement delete logic here in Phase 12
-    console.log('Deleting category:', categoryToDelete?.name);
-    setIsDeleteModalOpen(false);
-    setCategoryToDelete(null);
+  const handleConfirmDelete = async () => {
+    if (!categoryToDelete) return;
+    try {
+      await apiClient.delete(`/categories/${categoryToDelete.id}`);
+      toast.success(`Category "${categoryToDelete.name}" deleted successfully.`);
+      setIsDeleteModalOpen(false);
+      setCategoryToDelete(null);
+      fetchCategories();
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      toast.error(err.message || 'Failed to delete category');
+    }
   };
 
   const handleEditClick = (category: Category) => {
@@ -56,36 +82,65 @@ export default function CategoryListPage() {
     setIsFormModalOpen(true);
   };
 
-  const handleFormSave = (data: Partial<Category>) => {
-    // Logic goes here
-    console.log('Saved category data:', data);
+  const handleFormSave = async (data: Partial<Category>) => {
+    try {
+      if (categoryToEdit) {
+        await apiClient.patch(`/categories/${categoryToEdit.id}`, data);
+        toast.success(`Category updated successfully.`);
+      } else {
+        await apiClient.post('/categories', data);
+        toast.success(`Category created successfully.`);
+      }
+      setIsFormModalOpen(false);
+      setCategoryToEdit(null);
+      fetchCategories();
+    } catch (e: unknown) {
+      const err = e as { message?: string | string[] };
+      let msg = 'An error occurred';
+      if (Array.isArray(err.message)) {
+        msg = err.message.join(', ');
+      } else if (err.message) {
+        msg = err.message;
+      }
+      toast.error(msg);
+      throw e; // re-throw so the modal form can catch it if needed (but we show toast anyway)
+    }
   };
 
   const columns: DataTableColumn<Category>[] = [
     { key: 'name', header: 'Name', sortable: true },
-    { key: 'productsCount', header: 'Products Count', sortable: true },
-    { key: 'createdDate', header: 'Created Date', sortable: true },
+    {
+      key: 'productsCount',
+      header: 'Products Count',
+      render: (row) => <span>{row._count?.products || 0}</span>,
+    },
+    {
+      key: 'createdAt',
+      header: 'Created Date',
+      render: (row) => (
+        <span>{row.createdAt ? new Date(row.createdAt).toLocaleDateString() : '-'}</span>
+      ),
+    },
     {
       key: 'status',
       header: 'Status',
       render: (row) => (
         <Badge
-          label={row.status === 'ACTIVE' ? 'Active' : 'Inactive'}
-          variant={row.status === 'ACTIVE' ? 'success' : 'neutral'}
+          label={row.isActive ? 'Active' : 'Inactive'}
+          variant={row.isActive ? 'success' : 'neutral'}
         />
       ),
     },
   ];
 
   return (
-    <div className="flex w-full flex-col gap-6">
+    <div className="flex w-full flex-col gap-6 pb-10">
       {/* Topbar Actions */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="w-full max-w-sm">
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
-            onSearch={(val) => console.log('Searching:', val)}
             placeholder="Search categories..."
           />
         </div>
@@ -97,7 +152,8 @@ export default function CategoryListPage() {
       {/* Data Table */}
       <DataTable
         columns={columns}
-        data={filteredCategories}
+        data={categories}
+        isLoading={isLoading}
         emptyProps={{
           icon: 'Folder',
           title: 'No categories yet',

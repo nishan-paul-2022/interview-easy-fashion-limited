@@ -11,17 +11,17 @@ import { Modal } from '@/components/molecules/Modal';
 export interface Category {
   id: string;
   name: string;
-  productsCount: number;
-  createdDate: string;
-  status: 'ACTIVE' | 'INACTIVE';
+  isActive: boolean;
   description?: string;
+  createdAt?: string;
+  _count?: { products?: number };
 }
 
 export interface CategoryFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   category?: Category | null;
-  onSave?: (data: Partial<Category>) => void;
+  onSave?: (data: Partial<Category>) => Promise<void> | void;
 }
 
 export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
@@ -33,13 +33,14 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isActive, setIsActive] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       if (category) {
-        setName(category.name);
+        setName(category.name || '');
         setDescription(category.description || '');
-        setIsActive(category.status === 'ACTIVE');
+        setIsActive(category.isActive !== false); // default to true if undefined
       } else {
         setName('');
         setDescription('');
@@ -48,26 +49,35 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
     }
   }, [isOpen, category]);
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) {
       e.preventDefault();
     }
     if (onSave) {
-      onSave({
-        name,
-        description,
-        status: isActive ? 'ACTIVE' : 'INACTIVE',
-      });
+      setIsSubmitting(true);
+      try {
+        await onSave({
+          name,
+          description,
+          isActive,
+        });
+        onClose();
+      } catch {
+        // Parent component handles errors (toast)
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      onClose();
     }
-    onClose();
   };
 
   const footer = (
     <>
-      <Button variant="ghost" onClick={onClose} type="button">
+      <Button variant="ghost" onClick={onClose} type="button" disabled={isSubmitting}>
         Cancel
       </Button>
-      <Button variant="primary" onClick={handleSubmit} type="button">
+      <Button variant="primary" onClick={handleSubmit} type="button" isLoading={isSubmitting}>
         Save
       </Button>
     </>
