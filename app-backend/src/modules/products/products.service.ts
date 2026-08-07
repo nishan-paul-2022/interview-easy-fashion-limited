@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { CloudinaryService } from '@/modules/cloudinary/cloudinary.service';
 import { CreateProductDto } from '@/modules/products/dto/create-product.dto';
+import { ProductQueryDto } from '@/modules/products/dto/product-query.dto';
 import { UpdateProductDto } from '@/modules/products/dto/update-product.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 
@@ -58,6 +60,50 @@ export class ProductsService {
         },
       });
     });
+  }
+
+  async findAll(query: ProductQueryDto) {
+    const { page = 1, limit = 10, search, categoryId, styleId, sizeId } = query;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.ProductWhereInput = {};
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+    if (styleId) {
+      where.styleId = styleId;
+    }
+    if (sizeId) {
+      where.productSizes = {
+        some: { sizeId },
+      };
+    }
+
+    const [total, data] = await Promise.all([
+      this.prisma.product.count({ where }),
+      this.prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          images: true,
+          productSizes: { include: { size: true } },
+          category: true,
+          style: true,
+        },
+      }),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: number) {

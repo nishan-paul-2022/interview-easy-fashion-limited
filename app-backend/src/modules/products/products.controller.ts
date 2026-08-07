@@ -11,6 +11,7 @@ import {
   UploadedFiles,
   ParseIntPipe,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiConsumes } from '@nestjs/swagger';
 import { Roles } from '@/common/decorators/roles.decorator';
@@ -19,6 +20,7 @@ import { RolesGuard } from '@/common/guards/roles.guard';
 import { FilesInterceptor } from '@/common/interceptors/files.interceptor';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { CreateProductDto } from '@/modules/products/dto/create-product.dto';
+import { ProductQueryDto } from '@/modules/products/dto/product-query.dto';
 import { UpdateProductDto } from '@/modules/products/dto/update-product.dto';
 import { ProductsService } from '@/modules/products/products.service';
 
@@ -41,6 +43,11 @@ export class ProductsController {
       throw new BadRequestException('At least one image is required');
     }
     return this.productsService.create(createProductDto, files);
+  }
+
+  @Get()
+  findAll(@Query() query: ProductQueryDto) {
+    return this.productsService.findAll(query);
   }
 
   @Get(':id')
