@@ -5,4 +5,4 @@ set -e
 npx prisma migrate deploy
 
 # Start the application
-exec node dist/main.js
+exec node dist/src/main.js
