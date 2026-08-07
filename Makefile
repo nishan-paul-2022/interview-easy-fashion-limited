@@ -50,17 +50,21 @@ build:
 	@if [ -f app-customer/package.json ]; then npm run build --prefix app-customer --if-present; fi
 	@if [ -f app-management/package.json ]; then npm run build --prefix app-management --if-present; fi
 
-## Start Docker containers
-docker-up:
-	docker compose -f infra/docker-compose.yml up -d
+## Start local dev Docker containers
+docker-dev-up:
+	docker compose -f infra/docker-compose.dev.yml up -d
 
-## Stop Docker containers
-docker-down:
-	docker compose -f infra/docker-compose.yml down
+## Start production Docker containers
+docker-prod-up:
+	docker compose -f infra/docker-compose.prod.yml up -d
+
+## Stop production Docker containers
+docker-prod-down:
+	docker compose -f infra/docker-compose.prod.yml down
 
 ## View Docker logs
 docker-logs:
-	docker compose -f infra/docker-compose.yml logs -f
+	docker compose -f infra/docker-compose.dev.yml logs -f
 
 ## Remove node_modules, dist, .next across all apps
 clean:
