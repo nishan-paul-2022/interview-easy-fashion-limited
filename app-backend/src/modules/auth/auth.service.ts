@@ -6,7 +6,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Provider } from '@prisma/client';
+import { Provider, AuditAction } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { hashPassword } from '@/common/utils/hash.util';
 import { CreateUserDto } from '@/modules/auth/dto/create-user.dto';
@@ -44,13 +44,15 @@ export class AuthService {
     return result;
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, ipAddress?: string, userAgent?: string) {
     const user = await this.usersService.findByEmail(dto.email);
     if (!user) {
+      await this.usersService.logAudit(null, AuditAction.LOGIN_FAILURE, ipAddress, userAgent);
       throw new UnauthorizedException('Invalid credentials');
     }
 
     if (user.lockedUntil && user.lockedUntil > new Date()) {
+      await this.usersService.logAudit(user.id, AuditAction.LOGIN_FAILURE, ipAddress, userAgent);
       throw new HttpException(
         { message: 'Account locked', lockedUntil: user.lockedUntil },
         HttpStatus.TOO_MANY_REQUESTS,
@@ -58,11 +60,13 @@ export class AuthService {
     }
 
     if (!user.isActive) {
+      await this.usersService.logAudit(user.id, AuditAction.LOGIN_FAILURE, ipAddress, userAgent);
       throw new ForbiddenException('Account is inactive');
     }
 
     const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash || '');
     if (!isPasswordValid) {
+      await this.usersService.logAudit(user.id, AuditAction.LOGIN_FAILURE, ipAddress, userAgent);
       const updatedUser = await this.usersService.incrementFailedLoginAttempts(user.id);
       if (updatedUser.failedLoginAttempts >= 5) {
         const lockTime = new Date(Date.now() + 15 * 60 * 1000);
@@ -84,6 +88,8 @@ export class AuthService {
 
     const refreshTokenHash = await hashPassword(refreshToken);
     await this.usersService.updateRefreshTokenHash(user.id, refreshTokenHash);
+
+    await this.usersService.logAudit(user.id, AuditAction.LOGIN_SUCCESS, ipAddress, userAgent);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _passwordHash, refreshTokenHash: _rfHash, ...result } = user;
@@ -132,15 +138,19 @@ export class AuthService {
     };
   }
 
-  async logout(userId: string) {
+  async logout(userId: string, ipAddress?: string, userAgent?: string) {
     await this.usersService.updateRefreshTokenHash(userId, null);
+    await this.usersService.logAudit(userId, AuditAction.LOGOUT, ipAddress, userAgent);
   }
 
   async oauthLogin(
     provider: Provider,
     profile: { providerId: string; email: string; fullName: string },
+    ipAddress?: string,
+    userAgent?: string,
   ) {
     if (!profile.email) {
+      await this.usersService.logAudit(null, AuditAction.LOGIN_FAILURE, ipAddress, userAgent);
       throw new UnauthorizedException(`No email provided by ${provider}`);
     }
 
@@ -172,6 +182,8 @@ export class AuthService {
     const newRefreshTokenHash = await hashPassword(newRefreshToken);
     await this.usersService.updateRefreshTokenHash(user!.id, newRefreshTokenHash);
 
+    await this.usersService.logAudit(user!.id, AuditAction.LOGIN_SUCCESS, ipAddress, userAgent);
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _ph, refreshTokenHash: _rf, ...result } = user!;
     return {
@@ -181,11 +193,19 @@ export class AuthService {
     };
   }
 
-  async googleLogin(profile: { providerId: string; email: string; fullName: string }) {
-    return this.oauthLogin(Provider.GOOGLE, profile);
+  async googleLogin(
+    profile: { providerId: string; email: string; fullName: string },
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
+    return this.oauthLogin(Provider.GOOGLE, profile, ipAddress, userAgent);
   }
 
-  async facebookLogin(profile: { providerId: string; email: string; fullName: string }) {
-    return this.oauthLogin(Provider.FACEBOOK, profile);
+  async facebookLogin(
+    profile: { providerId: string; email: string; fullName: string },
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
+    return this.oauthLogin(Provider.FACEBOOK, profile, ipAddress, userAgent);
   }
 }

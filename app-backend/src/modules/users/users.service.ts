@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Provider } from '@prisma/client';
+import { Prisma, Provider, AuditAction } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
@@ -65,6 +65,22 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id },
       data: { failedLoginAttempts: 0, lockedUntil: null },
+    });
+  }
+
+  async logAudit(
+    userId: string | null,
+    action: AuditAction,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
+    return this.prisma.auditLog.create({
+      data: {
+        userId,
+        action,
+        ipAddress,
+        userAgent,
+      },
     });
   }
 }

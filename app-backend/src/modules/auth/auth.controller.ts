@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, UseGuards, HttpCode, HttpStatus, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  Req,
+  Ip,
+  Headers,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
@@ -31,8 +42,8 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @ApiResponse({ status: 403, description: 'Account is inactive' })
   @ApiResponse({ status: 429, description: 'Account locked' })
-  async login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  async login(@Body() dto: LoginDto, @Ip() ip: string, @Headers('user-agent') userAgent: string) {
+    return this.authService.login(dto, ip, userAgent);
   }
 
   @Get('me')
@@ -62,8 +73,12 @@ export class AuthController {
   @ApiOperation({ summary: 'Logout user' })
   @ApiResponse({ status: 204, description: 'User successfully logged out' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async logout(@CurrentUser() payload: { sub: string }) {
-    await this.authService.logout(payload.sub);
+  async logout(
+    @CurrentUser() payload: { sub: string },
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
+  ) {
+    await this.authService.logout(payload.sub, ip, userAgent);
   }
 
   @Get('google')
@@ -76,9 +91,15 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   @ApiOperation({ summary: 'Google OAuth callback' })
-  async googleAuthCallback(@Req() req: Request) {
+  async googleAuthCallback(
+    @Req() req: Request,
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
+  ) {
     return this.authService.googleLogin(
       req.user as { providerId: string; email: string; fullName: string },
+      ip,
+      userAgent,
     );
   }
 
@@ -92,9 +113,15 @@ export class AuthController {
   @Get('facebook/callback')
   @UseGuards(FacebookOauthGuard)
   @ApiOperation({ summary: 'Facebook OAuth callback' })
-  async facebookAuthCallback(@Req() req: Request) {
+  async facebookAuthCallback(
+    @Req() req: Request,
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
+  ) {
     return this.authService.facebookLogin(
       req.user as { providerId: string; email: string; fullName: string },
+      ip,
+      userAgent,
     );
   }
 }
