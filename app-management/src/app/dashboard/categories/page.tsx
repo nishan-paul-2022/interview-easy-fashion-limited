@@ -9,7 +9,6 @@ import { SearchBar } from '@/components/molecules/SearchBar';
 import { useToast } from '@/components/molecules/Toast';
 import { Category, CategoryFormModal } from '@/components/organisms/CategoryFormModal';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
-import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/api';
 
 interface PaginatedCategories {
@@ -23,7 +22,7 @@ export default function CategoryListPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearch = useDebounce(searchQuery, 300);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
@@ -141,6 +140,7 @@ export default function CategoryListPage() {
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
+            onSearch={setDebouncedSearch}
             placeholder="Search categories..."
           />
         </div>
