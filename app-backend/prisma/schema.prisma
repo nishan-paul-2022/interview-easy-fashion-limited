@@ -39,3 +39,66 @@ model User {
   @@index([email])
   @@index([roleId])
 }
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Size {
+  id           Int           @id @default(autoincrement())
+  label        String        @unique
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  productSizes ProductSize[]
+}
+
+model Style {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Product {
+  id           Int            @id @default(autoincrement())
+  name         String
+  description  String
+  price        Decimal        @db.Decimal(10,2)
+  categoryId   Int
+  category     Category       @relation(fields: [categoryId], references: [id])
+  styleId      Int
+  style        Style          @relation(fields: [styleId], references: [id])
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  images       ProductImage[]
+  productSizes ProductSize[]
+
+  @@index([categoryId])
+  @@index([styleId])
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  url       String
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ProductSize {
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  sizeId    Int
+  size      Size    @relation(fields: [sizeId], references: [id])
+
+  @@id([productId, sizeId])
+}
