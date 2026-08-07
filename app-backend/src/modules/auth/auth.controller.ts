@@ -5,6 +5,7 @@ import { AuthService } from '@/modules/auth/auth.service';
 import { CreateUserDto } from '@/modules/auth/dto/create-user.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { JwtRefreshGuard } from '@/modules/auth/guards/jwt-refresh.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -37,5 +38,15 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getMe(@CurrentUser() payload: { sub: string }) {
     return this.authService.getMe(payload.sub);
+  }
+
+  @Post('refresh')
+  @UseGuards(JwtRefreshGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiResponse({ status: 200, description: 'Tokens successfully refreshed' })
+  @ApiResponse({ status: 401, description: 'Invalid refresh token' })
+  async refresh(@CurrentUser() payload: { sub: string; refreshToken: string }) {
+    return this.authService.refresh(payload.sub, payload.refreshToken);
   }
 }

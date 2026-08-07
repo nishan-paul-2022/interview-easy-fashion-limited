@@ -89,4 +89,32 @@ export class AuthService {
     const { passwordHash: _ph, refreshTokenHash: _rf, ...result } = user;
     return result;
   }
+
+  async refresh(userId: string, refreshToken: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (!user.refreshTokenHash) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const isMatch = await bcrypt.compare(refreshToken, user.refreshTokenHash);
+    if (!isMatch) {
+      await this.usersService.updateRefreshTokenHash(user.id, null);
+      throw new UnauthorizedException('Invalid refresh token (reuse detected)');
+    }
+
+    const accessToken = this.tokenService.generateAccessToken(user);
+    const newRefreshToken = this.tokenService.generateRefreshToken(user);
+
+    const newRefreshTokenHash = await hashPassword(newRefreshToken);
+    await this.usersService.updateRefreshTokenHash(user.id, newRefreshTokenHash);
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+    };
+  }
 }
