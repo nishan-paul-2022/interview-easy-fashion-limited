@@ -15,6 +15,7 @@ import { CreateUserDto } from '@/modules/auth/dto/create-user.dto';
 import { ForgotPasswordDto } from '@/modules/auth/dto/forgot-password.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { ResetPasswordDto } from '@/modules/auth/dto/reset-password.dto';
+import { VerifyEmailDto } from '@/modules/auth/dto/verify-email.dto';
 import { TokenService } from '@/modules/auth/token.service';
 import { UsersService } from '@/modules/users/users.service';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -44,6 +45,23 @@ export class AuthService {
         connect: { name: 'CUSTOMER' },
       },
     });
+
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyTokenHash = await bcrypt.hash(verifyToken, 10);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 1);
+
+    await this.prisma.emailVerificationToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: verifyTokenHash,
+        expiresAt,
+      },
+    });
+
+    const verifyLink = `http://localhost:3015/verify-email?token=${verifyToken}&email=${user.email}`;
+    console.log(`[DEV ONLY] Email verification link for ${user.email}: ${verifyLink}`);
+    // TODO: wire real email provider
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash, ...result } = user;
@@ -188,6 +206,48 @@ export class AuthService {
     });
 
     return { message: 'Password reset successfully' };
+  }
+
+  async verifyEmail(verifyEmailDto: VerifyEmailDto) {
+    const { email, token } = verifyEmailDto;
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      include: { emailVerificationTokens: { where: { used: false } } },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid token or expired');
+    }
+
+    let validTokenRecord = null;
+    for (const record of user.emailVerificationTokens) {
+      if (record.expiresAt > new Date()) {
+        const isValid = await bcrypt.compare(token, record.tokenHash);
+        if (isValid) {
+          validTokenRecord = record;
+          break;
+        }
+      }
+    }
+
+    if (!validTokenRecord) {
+      throw new BadRequestException('Invalid token or expired');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.emailVerificationToken.update({
+        where: { id: validTokenRecord.id },
+        data: { used: true },
+      });
+
+      await tx.user.update({
+        where: { id: user.id },
+        data: { emailVerifiedAt: new Date() },
+      });
+    });
+
+    return { message: 'Email verified successfully' };
   }
 
   async getMe(userId: string) {

@@ -105,3 +105,7 @@ This project strictly follows these standard Data Transfer Object (DTO) conventi
 - `Create[Entity]Dto`: Used for `POST` requests to create new resources (e.g., `CreateProductDto`).
 - `Update[Entity]Dto`: Used for `PATCH`/`PUT` requests. This should extend `PartialType(Create[Entity]Dto)` to make all properties optional (e.g., `UpdateProductDto extends PartialType(CreateProductDto)`).
 - `[Entity]ResponseDto`: Used to format/serialize the outgoing response, typically removing sensitive fields like passwords or standardizing shape.
+
+## Auth Flow
+
+Per the System Requirements (SRS), email verification generates an `EmailVerificationToken`. Unverified accounts are **flagged only — not blocked from login**. We do not enforce `emailVerifiedAt != null` on login or token generation.

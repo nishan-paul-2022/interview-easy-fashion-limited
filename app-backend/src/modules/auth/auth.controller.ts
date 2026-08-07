@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -19,6 +20,7 @@ import { CreateUserDto } from '@/modules/auth/dto/create-user.dto';
 import { ForgotPasswordDto } from '@/modules/auth/dto/forgot-password.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { ResetPasswordDto } from '@/modules/auth/dto/reset-password.dto';
+import { VerifyEmailDto } from '@/modules/auth/dto/verify-email.dto';
 import { FacebookOauthGuard } from '@/modules/auth/guards/facebook-oauth.guard';
 import { GoogleOauthGuard } from '@/modules/auth/guards/google-oauth.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
@@ -135,5 +137,10 @@ export class AuthController {
   @Post('reset-password')
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
+  }
+
+  @Get('verify-email')
+  verifyEmail(@Query() verifyEmailDto: VerifyEmailDto) {
+    return this.authService.verifyEmail(verifyEmailDto);
   }
 }
