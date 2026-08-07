@@ -9,6 +9,8 @@ import * as z from 'zod';
 import { Button } from '@/components/atoms/Button';
 import { Icon } from '@/components/atoms/Icon';
 import { Input } from '@/components/atoms/Input';
+import { useToast } from '@/components/molecules/Toast';
+import { apiClient } from '@/lib/api';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -17,6 +19,7 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
+  const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');
@@ -31,12 +34,16 @@ export default function ForgotPasswordPage() {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsSubmitting(true);
-    // Mock API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setSubmittedEmail(data.email);
-    setIsSubmitted(true);
-    setIsSubmitting(false);
+    try {
+      await apiClient.post('/auth/forgot-password', { email: data.email });
+      setSubmittedEmail(data.email);
+      setIsSubmitted(true);
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message || 'Failed to send reset link');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {

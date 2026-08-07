@@ -11,6 +11,7 @@ import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
 import { PasswordInput } from '@/components/atoms/PasswordInput';
 import { useToast } from '@/components/molecules/Toast';
+import { apiClient } from '@/lib/api';
 
 const registerSchema = z
   .object({
@@ -35,20 +36,40 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsSubmitting(true);
-    // Mock authentication/registration
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Assume success for demo
-    setIsSubmitting(false);
-    toast.success('Account created successfully!');
-    router.push('/profile');
+    try {
+      await apiClient.post('/auth/register', {
+        fullName: data.name,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+      });
+      toast.success('Account created successfully!');
+      router.push('/login');
+    } catch (error) {
+      const err = error as Error;
+      const errorMsg = err.message || 'Registration failed';
+      toast.error(errorMsg);
+      const lowerMsg = errorMsg.toLowerCase();
+      if (lowerMsg.includes('email')) {
+        setError('email', { message: errorMsg });
+      }
+      if (lowerMsg.includes('name') || lowerMsg.includes('full')) {
+        setError('name', { message: errorMsg });
+      }
+      if (lowerMsg.includes('password')) {
+        setError('password', { message: errorMsg });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

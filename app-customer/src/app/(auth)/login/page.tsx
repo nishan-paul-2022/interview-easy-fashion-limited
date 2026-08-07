@@ -11,6 +11,8 @@ import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
 import { PasswordInput } from '@/components/atoms/PasswordInput';
 import { useToast } from '@/components/molecules/Toast';
+import { useAuth, User } from '@/hooks/useAuth';
+import { apiClient } from '@/lib/api';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -22,6 +24,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const toast = useToast();
+  const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -32,15 +35,23 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true);
-    // Mock authentication
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Assume success for demo
-    setIsSubmitting(false);
-    toast.success('Successfully logged in!');
-    router.push('/profile');
+    try {
+      const response = await apiClient.post<{
+        accessToken: string;
+        refreshToken: string;
+        user: User;
+      }>('/auth/login', data);
+      login(response.user, response.accessToken, response.refreshToken);
+      toast.success('Successfully logged in!');
+      router.push('/');
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message || 'Login failed');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -97,10 +108,26 @@ export default function LoginPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Button variant="outline" type="button" className="w-full" leftIcon="Package">
+        <Button
+          variant="outline"
+          type="button"
+          className="w-full"
+          leftIcon="Package"
+          onClick={() => {
+            window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+          }}
+        >
           Google
         </Button>
-        <Button variant="outline" type="button" className="w-full" leftIcon="Users">
+        <Button
+          variant="outline"
+          type="button"
+          className="w-full"
+          leftIcon="Users"
+          onClick={() => {
+            window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`;
+          }}
+        >
           Facebook
         </Button>
       </div>
