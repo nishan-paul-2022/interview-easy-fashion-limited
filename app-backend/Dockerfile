@@ -20,11 +20,15 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Install production dependencies
+# Install production dependencies and generate Prisma Client
 COPY package*.json ./
 COPY prisma ./prisma/
 COPY prisma.config.ts ./
 RUN npm install --omit=dev
+
+# Copy generated Prisma Client from builder
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 # Copy compiled output
 COPY --from=builder /app/dist ./dist
