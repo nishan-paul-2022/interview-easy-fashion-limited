@@ -9,7 +9,8 @@ import { AllExceptionsFilter } from '@/common/filters/all-exceptions.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api');
+  const apiVersion = process.env.API_VERSION || 'v1';
+  app.setGlobalPrefix(`api/${apiVersion}`);
   app.use(helmet());
 
   const configService = app.get(ConfigService);
@@ -47,7 +48,7 @@ async function bootstrap() {
     .addTag('orders')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup(`api/${apiVersion}/docs`, app, document);
 
   const port = process.env.BACKEND_PORT as string;
   await app.listen(port);
