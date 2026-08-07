@@ -41,6 +41,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({ status: 200, description: 'User successfully logged in' })
@@ -62,6 +63,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtRefreshGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Refresh access token' })
