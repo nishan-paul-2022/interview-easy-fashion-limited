@@ -34,5 +34,4 @@ coverage/
 .vscode/
 
 # Project Specific
-docs/planning.md
-infra/scripts/
+scripts/
