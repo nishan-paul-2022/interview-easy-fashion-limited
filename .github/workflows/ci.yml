@@ -78,6 +78,10 @@ jobs:
       - name: Install Dependencies
         run: make install
 
+      - name: Generate Prisma Client
+        working-directory: ./app-backend
+        run: npx prisma generate
+
       - name: Run Prisma Migrations
         working-directory: ./app-backend
         env:
