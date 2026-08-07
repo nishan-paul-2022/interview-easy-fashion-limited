@@ -80,7 +80,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: 'infra/docker-compose.yml'
+          source: 'infra/docker-compose.yml,infra/nginx'
           target: '/var/www/easy-fashion'
 
       - name: Deploy to VPS via SSH
@@ -90,10 +90,24 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            # Login to GHCR
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Pull latest images and restart containers
             cd /var/www/easy-fashion
             docker compose -f infra/docker-compose.yml pull
-            docker compose -f infra/docker-compose.yml exec -T backend npx prisma migrate deploy
             docker compose -f infra/docker-compose.yml up -d --remove-orphans
+
+            # Run DB migrations
+            sleep 5
+            docker compose -f infra/docker-compose.yml exec -T backend npx prisma migrate deploy
+
+            # Copy Nginx configs and reload
+            cp -r infra/nginx/* /etc/nginx/sites-available/
+            for f in /etc/nginx/sites-available/easy-fashion /etc/nginx/sites-available/admin-easy-fashion /etc/nginx/sites-available/api-easy-fashion; do
+              ln -sf $f /etc/nginx/sites-enabled/$(basename $f)
+            done
+            nginx -t && systemctl reload nginx
 
       - name: Health Check
         run: |

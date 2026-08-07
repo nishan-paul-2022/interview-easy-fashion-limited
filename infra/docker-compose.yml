@@ -7,11 +7,10 @@ services:
     env_file:
       - .env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - /var/lib/easy-fashion/postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test:
-        ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-easy-fashion}']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-easy-fashion}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,6 +20,8 @@ services:
     container_name: easy-fashion-backend-prod
     env_file:
       - .env
+    ports:
+      - '3015:3015'
     restart: unless-stopped
     depends_on:
       postgres:
@@ -31,6 +32,8 @@ services:
     container_name: easy-fashion-customer-prod
     env_file:
       - .env
+    ports:
+      - '3013:3000'
     restart: unless-stopped
 
   management:
@@ -38,7 +41,10 @@ services:
     container_name: easy-fashion-management-prod
     env_file:
       - .env
+    ports:
+      - '3014:3000'
     restart: unless-stopped
 
 volumes:
   postgres_data:
+
