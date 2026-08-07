@@ -7,26 +7,30 @@ import { Icon } from '@/components/atoms/Icon';
 import { Dropdown } from '@/components/molecules/Dropdown';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { Pagination } from '@/components/molecules/Pagination';
-import { ProductCard } from '@/components/molecules/ProductCard';
+import { ProductCardProps, ProductCard } from '@/components/molecules/ProductCard';
 import { SearchBar } from '@/components/molecules/SearchBar';
 import { ProductGridSkeleton } from '@/components/molecules/Skeleton';
+import { apiClient } from '@/lib/api';
 
-const MOCK_IMAGES = [
-  'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600',
-  'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?auto=format&fit=crop&q=80&w=600',
-  'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&q=80&w=600',
-  'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&q=80&w=600',
-];
+interface FilterOptionResponse {
+  id: string | number;
+  name: string;
+}
 
-const MOCK_PRODUCTS = Array.from({ length: 24 }).map((_, i) => ({
-  id: `prd_${i}`,
-  name: `Premium Product ${i + 1}`,
-  category: ['Shirts', 'Pants', 'Jackets', 'Accessories'][i % 4],
-  styleName: ['Casual', 'Formal', 'Streetwear', 'Athletic'][i % 4],
-  sizes: ['S', 'M', 'L', 'XL'].slice(0, (i % 3) + 2),
-  price: 29.99 + i * 5.5,
-  imageUrl: MOCK_IMAGES[i % MOCK_IMAGES.length],
-}));
+interface ProductResponse {
+  id: string;
+  name: string;
+  price: number | string;
+  category?: { name: string };
+  style?: { name: string };
+  sizes?: { name: string }[];
+  images?: string[];
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
+  meta?: { total: number; lastPage: number };
+}
 
 function ProductsContent() {
   const router = useRouter();
@@ -34,45 +38,108 @@ function ProductsContent() {
   const searchParams = useSearchParams();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [products, setProducts] = useState(MOCK_PRODUCTS);
+  const [products, setProducts] = useState<ProductCardProps[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const [filterOptions, setFilterOptions] = useState<{
+    category: { label: string; value: string }[];
+    size: { label: string; value: string }[];
+    style: { label: string; value: string }[];
+  }>({
+    category: [],
+    size: [],
+    style: [],
+  });
 
   const categoryParams = useMemo(
-    () => searchParams.get('category')?.split(',') || [],
+    () => searchParams.get('categoryId')?.split(',') || [],
     [searchParams],
   );
-  const sizeParams = useMemo(() => searchParams.get('size')?.split(',') || [], [searchParams]);
-  const styleParams = useMemo(() => searchParams.get('style')?.split(',') || [], [searchParams]);
-  const searchQuery = searchParams.get('q') || '';
+  const sizeParams = useMemo(() => searchParams.get('sizeId')?.split(',') || [], [searchParams]);
+  const styleParams = useMemo(() => searchParams.get('styleId')?.split(',') || [], [searchParams]);
+  const searchQuery = searchParams.get('search') || '';
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '12', 10);
 
   const [searchValue, setSearchValue] = useState(searchQuery);
 
   useEffect(() => {
-    // Mock loading delay
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      // Filter logic
-      let filtered = MOCK_PRODUCTS;
+    async function fetchFilters() {
+      try {
+        const [categoriesRes, stylesRes, sizesRes] = await Promise.all([
+          apiClient
+            .get<PaginatedResponse<FilterOptionResponse>>('/categories')
+            .catch(() => ({ data: [] })),
+          apiClient
+            .get<PaginatedResponse<FilterOptionResponse>>('/styles')
+            .catch(() => ({ data: [] })),
+          apiClient
+            .get<PaginatedResponse<FilterOptionResponse>>('/sizes')
+            .catch(() => ({ data: [] })),
+        ]);
 
-      if (categoryParams.length) {
-        filtered = filtered.filter((p) => categoryParams.includes(p.category));
+        setFilterOptions({
+          category: (categoriesRes?.data || []).map((c) => ({
+            label: c.name,
+            value: String(c.id),
+          })),
+          style: (stylesRes?.data || []).map((s) => ({ label: s.name, value: String(s.id) })),
+          size: (sizesRes?.data || []).map((s) => ({ label: s.name, value: String(s.id) })),
+        });
+      } catch {
+        console.error('Failed to fetch filter options');
       }
-      if (sizeParams.length) {
-        filtered = filtered.filter((p) => p.sizes.some((s) => sizeParams.includes(s)));
-      }
-      if (styleParams.length) {
-        filtered = filtered.filter((p) => styleParams.includes(p.styleName));
-      }
-      if (searchQuery) {
-        filtered = filtered.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
-      }
+    }
+    fetchFilters();
+  }, []);
 
-      setProducts(filtered);
-      setIsLoading(false);
-    }, 600);
+  useEffect(() => {
+    let mounted = true;
 
-    return () => clearTimeout(timer);
-  }, [searchParams, categoryParams, sizeParams, styleParams, searchQuery]);
+    async function fetchProducts() {
+      setIsLoading(true);
+      try {
+        const params: Record<string, string | number> = {
+          page: currentPage,
+          limit,
+        };
+        if (searchQuery) params.search = searchQuery;
+        if (categoryParams.length) params.categoryId = categoryParams.join(',');
+        if (styleParams.length) params.styleId = styleParams.join(',');
+        if (sizeParams.length) params.sizeId = sizeParams.join(',');
+
+        const res = await apiClient.get<PaginatedResponse<ProductResponse>>('/products', params);
+
+        if (mounted) {
+          const formattedProducts: ProductCardProps[] = (res?.data || []).map((p) => ({
+            id: p.id,
+            name: p.name,
+            category: p.category?.name || 'Uncategorized',
+            styleName: p.style?.name || 'Standard',
+            sizes: p.sizes?.map((s) => s.name) || [],
+            price: Number(p.price) || 0,
+            imageUrl:
+              p.images?.[0] ||
+              'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
+          }));
+          setProducts(formattedProducts);
+          setTotalPages(res?.meta?.lastPage || Math.ceil((res?.meta?.total || 0) / limit) || 1);
+        }
+      } catch {
+        if (mounted) {
+          setProducts([]);
+          setTotalPages(1);
+        }
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    }
+
+    fetchProducts();
+    return () => {
+      mounted = false;
+    };
+  }, [searchQuery, categoryParams, sizeParams, styleParams, currentPage, limit]);
 
   const updateQueryString = (name: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -81,7 +148,6 @@ function ProductsContent() {
     } else {
       params.delete(name);
     }
-    // Reset page when filtering
     if (name !== 'page') params.delete('page');
 
     router.push(`${pathname}?${params.toString()}`);
@@ -90,35 +156,6 @@ function ProductsContent() {
   const handleFilterChange = (key: string) => (val: string | string[]) => {
     const valueStr = Array.isArray(val) ? val.join(',') : val;
     updateQueryString(key, valueStr);
-  };
-
-  // Pagination logic
-  const itemsPerPage = 12;
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const currentProducts = products.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
-
-  const filterOptions = {
-    category: [
-      { label: 'Shirts', value: 'Shirts' },
-      { label: 'Pants', value: 'Pants' },
-      { label: 'Jackets', value: 'Jackets' },
-      { label: 'Accessories', value: 'Accessories' },
-    ],
-    size: [
-      { label: 'S', value: 'S' },
-      { label: 'M', value: 'M' },
-      { label: 'L', value: 'L' },
-      { label: 'XL', value: 'XL' },
-    ],
-    style: [
-      { label: 'Casual', value: 'Casual' },
-      { label: 'Formal', value: 'Formal' },
-      { label: 'Streetwear', value: 'Streetwear' },
-      { label: 'Athletic', value: 'Athletic' },
-    ],
   };
 
   const DropdownTrigger = ({ label, activeCount }: { label: string; activeCount: number }) => (
@@ -135,7 +172,6 @@ function ProductsContent() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 md:flex-row">
-      {/* Sidebar Filters - Desktop */}
       <aside className="hidden w-64 shrink-0 flex-col gap-6 md:flex">
         <h2 className="text-xl font-bold text-text">Filters</h2>
 
@@ -151,7 +187,7 @@ function ProductsContent() {
                   const newParams = e.target.checked
                     ? [...categoryParams, opt.value]
                     : categoryParams.filter((c) => c !== opt.value);
-                  handleFilterChange('category')(newParams);
+                  handleFilterChange('categoryId')(newParams);
                 }}
               />
               <span className="text-sm text-muted hover:text-text">{opt.label}</span>
@@ -171,7 +207,7 @@ function ProductsContent() {
                   const newParams = e.target.checked
                     ? [...sizeParams, opt.value]
                     : sizeParams.filter((c) => c !== opt.value);
-                  handleFilterChange('size')(newParams);
+                  handleFilterChange('sizeId')(newParams);
                 }}
               />
               <span className="text-sm text-muted hover:text-text">{opt.label}</span>
@@ -191,7 +227,7 @@ function ProductsContent() {
                   const newParams = e.target.checked
                     ? [...styleParams, opt.value]
                     : styleParams.filter((c) => c !== opt.value);
-                  handleFilterChange('style')(newParams);
+                  handleFilterChange('styleId')(newParams);
                 }}
               />
               <span className="text-sm text-muted hover:text-text">{opt.label}</span>
@@ -200,7 +236,6 @@ function ProductsContent() {
         </div>
       </aside>
 
-      {/* Main Content */}
       <div className="flex flex-1 flex-col gap-6">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <h1 className="text-3xl font-bold text-text">Product Catalog</h1>
@@ -209,54 +244,55 @@ function ProductsContent() {
             <SearchBar
               value={searchValue}
               onChange={setSearchValue}
-              onSearch={(val) => updateQueryString('q', val)}
+              onSearch={(val) => updateQueryString('search', val)}
               placeholder="Search products..."
             />
           </div>
         </div>
 
-        {/* Mobile Filters (Dropdowns) */}
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide md:hidden">
           <Dropdown
             trigger={<DropdownTrigger label="Category" activeCount={categoryParams.length} />}
             options={filterOptions.category}
             multiple
             value={categoryParams}
-            onChange={handleFilterChange('category')}
+            onChange={handleFilterChange('categoryId')}
           />
           <Dropdown
             trigger={<DropdownTrigger label="Size" activeCount={sizeParams.length} />}
             options={filterOptions.size}
             multiple
             value={sizeParams}
-            onChange={handleFilterChange('size')}
+            onChange={handleFilterChange('sizeId')}
           />
           <Dropdown
             trigger={<DropdownTrigger label="Style" activeCount={styleParams.length} />}
             options={filterOptions.style}
             multiple
             value={styleParams}
-            onChange={handleFilterChange('style')}
+            onChange={handleFilterChange('styleId')}
           />
         </div>
 
         {isLoading ? (
           <ProductGridSkeleton />
-        ) : currentProducts.length > 0 ? (
+        ) : products.length > 0 ? (
           <>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
-              {currentProducts.map((product) => (
+              {products.map((product) => (
                 <ProductCard key={product.id} {...product} />
               ))}
             </div>
 
-            <div className="mt-8 flex justify-center">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={(page) => updateQueryString('page', page.toString())}
-              />
-            </div>
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={(page) => updateQueryString('page', page.toString())}
+                />
+              </div>
+            )}
           </>
         ) : (
           <EmptyState

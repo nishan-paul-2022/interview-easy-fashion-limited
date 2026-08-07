@@ -3,87 +3,126 @@
 import { Carousel } from 'antd';
 import Image from 'next/image';
 import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { Icon } from '@/components/atoms/Icon';
-import { ProductCard } from '@/components/molecules/ProductCard';
+import { ProductCardProps, ProductCard } from '@/components/molecules/ProductCard';
+import { ProductGridSkeleton } from '@/components/molecules/Skeleton';
+import { apiClient } from '@/lib/api';
+
+interface StatsResponse {
+  totalCategories?: number;
+  totalProducts?: number;
+  totalSizes?: number;
+  totalStyles?: number;
+}
+
+interface ProductResponse {
+  id: string;
+  name: string;
+  price: number | string;
+  category?: { name: string };
+  style?: { name: string };
+  sizes?: { name: string }[];
+  images?: string[];
+}
+
+interface CategoryResponse {
+  id: string | number;
+  name: string;
+  imageUrl?: string;
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
+}
+
+interface FormattedCategory {
+  name: string;
+  url: string;
+  image: string;
+}
 
 export default function Home() {
-  const stats = [
-    { title: 'Total Categories', value: '12', icon: 'Folder' as const },
-    { title: 'Total Products', value: '150+', icon: 'Package' as const },
-    { title: 'Available Sizes', value: '8', icon: 'Ruler' as const },
-    { title: 'Available Styles', value: '24', icon: 'Palette' as const },
-  ];
+  const [stats, setStats] = useState([
+    { title: 'Total Categories', value: '-', icon: 'Folder' as const },
+    { title: 'Total Products', value: '-', icon: 'Package' as const },
+    { title: 'Available Sizes', value: '-', icon: 'Ruler' as const },
+    { title: 'Available Styles', value: '-', icon: 'Palette' as const },
+  ]);
 
-  const featuredProducts = [
-    {
-      id: '1',
-      name: 'Classic White Tee',
-      category: 'T-Shirts',
-      styleName: 'Casual',
-      sizes: ['S', 'M', 'L'],
-      price: 29.99,
-      imageUrl:
-        'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600',
-    },
-    {
-      id: '2',
-      name: 'Denim Jacket',
-      category: 'Jackets',
-      styleName: 'Streetwear',
-      sizes: ['M', 'L', 'XL'],
-      price: 89.99,
-      imageUrl:
-        'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?auto=format&fit=crop&q=80&w=600',
-    },
-    {
-      id: '3',
-      name: 'Slim Fit Chinos',
-      category: 'Pants',
-      styleName: 'Smart Casual',
-      sizes: ['30', '32', '34'],
-      price: 59.99,
-      imageUrl:
-        'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&q=80&w=600',
-    },
-    {
-      id: '4',
-      name: 'Canvas Sneakers',
-      category: 'Shoes',
-      styleName: 'Casual',
-      sizes: ['8', '9', '10', '11'],
-      price: 45.0,
-      imageUrl:
-        'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&q=80&w=600',
-    },
-  ];
+  const [featuredProducts, setFeaturedProducts] = useState<ProductCardProps[]>([]);
+  const [categories, setCategories] = useState<FormattedCategory[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
-  const categories = [
-    {
-      name: 'Shirts',
-      url: '/products?category=Shirts',
-      image:
-        'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
-    },
-    {
-      name: 'Pants',
-      url: '/products?category=Pants',
-      image:
-        'https://images.unsplash.com/photo-1624378439575-d1ead6cb2d9e?auto=format&fit=crop&q=80&w=600',
-    },
-    {
-      name: 'Jackets',
-      url: '/products?category=Jackets',
-      image:
-        'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=600',
-    },
-    {
-      name: 'Accessories',
-      url: '/products?category=Accessories',
-      image:
-        'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&q=80&w=600',
-    },
-  ];
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [statsData, productsData, categoriesData] = await Promise.all([
+          apiClient.get<StatsResponse>('/stats/summary').catch(() => null),
+          apiClient
+            .get<PaginatedResponse<ProductResponse>>('/products', { limit: 6 })
+            .catch(() => ({ data: [] })),
+          apiClient
+            .get<PaginatedResponse<CategoryResponse>>('/categories')
+            .catch(() => ({ data: [] })),
+        ]);
+
+        if (statsData) {
+          setStats([
+            {
+              title: 'Total Categories',
+              value: String(statsData.totalCategories || 0),
+              icon: 'Folder',
+            },
+            {
+              title: 'Total Products',
+              value: String(statsData.totalProducts || 0),
+              icon: 'Package',
+            },
+            { title: 'Available Sizes', value: String(statsData.totalSizes || 0), icon: 'Ruler' },
+            {
+              title: 'Available Styles',
+              value: String(statsData.totalStyles || 0),
+              icon: 'Palette',
+            },
+          ]);
+        }
+
+        if (productsData?.data) {
+          const formattedProducts: ProductCardProps[] = productsData.data.map((p) => ({
+            id: p.id,
+            name: p.name,
+            category: p.category?.name || 'Uncategorized',
+            styleName: p.style?.name || 'Standard',
+            sizes: p.sizes?.map((s) => s.name) || [],
+            price: Number(p.price) || 0,
+            imageUrl:
+              p.images?.[0] ||
+              'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
+          }));
+          setFeaturedProducts(formattedProducts);
+        }
+
+        if (categoriesData?.data) {
+          const formattedCategories: FormattedCategory[] = categoriesData.data.map((c) => ({
+            name: c.name,
+            url: `/products?categoryId=${c.id}`,
+            image:
+              c.imageUrl ||
+              'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
+          }));
+          setCategories(formattedCategories);
+        }
+      } catch {
+        // Ignored empty catch to satisfy empty block rules without throwing
+        console.error('Failed to fetch home page data');
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   return (
     <div className="flex flex-col gap-12">
@@ -164,11 +203,15 @@ export default function Home() {
             View All
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
+        {isLoadingProducts ? (
+          <ProductGridSkeleton />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProducts.map((product) => (
+              <ProductCard key={product.id} {...product} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Categories Preview */}
