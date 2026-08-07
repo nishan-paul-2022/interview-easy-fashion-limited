@@ -2,7 +2,7 @@ name: CD Pipeline
 
 on:
   workflow_run:
-    workflows: ["CI Pipeline"]
+    workflows: ['CI Pipeline']
     types:
       - completed
     branches:
@@ -15,7 +15,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' && vars.ENABLE_DEPLOY == 'true' }}
     runs-on: ubuntu-latest
     environment: production
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -26,8 +26,8 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "infra/docker-compose.yml"
-          target: "/var/www/easy-fashion"
+          source: 'infra/docker-compose.yml'
+          target: '/var/www/easy-fashion'
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -40,7 +40,7 @@ jobs:
             docker compose -f infra/docker-compose.yml pull
             docker compose -f infra/docker-compose.yml exec -T backend npx prisma migrate deploy
             docker compose -f infra/docker-compose.yml up -d --remove-orphans
-            
+
       - name: Health Check
         run: |
           echo "Waiting 10 seconds for services to fully initialize..."

@@ -18,7 +18,9 @@ describe('CRUD Endpoints (e2e)', () => {
   let seedSizeId: number;
 
   beforeAll(async () => {
-    process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/easy_fashion_test';
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL must be defined for e2e tests');
+    }
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],

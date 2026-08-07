@@ -1,6 +1,6 @@
 export default () => ({
-  port: parseInt(process.env.BACKEND_PORT || '3015', 10),
-  nodeEnv: process.env.NODE_ENV || 'development',
+  port: parseInt(process.env.BACKEND_PORT as string, 10),
+  nodeEnv: process.env.NODE_ENV,
   database: {
     url: process.env.DATABASE_URL,
   },
@@ -32,8 +32,8 @@ export default () => ({
     managementOrigin: process.env.CORS_ORIGIN_MANAGEMENT,
   },
   throttle: {
-    ttl: parseInt(process.env.THROTTLE_TTL || '60', 10),
-    limit: parseInt(process.env.THROTTLE_LIMIT || '10', 10),
+    ttl: parseInt(process.env.THROTTLE_TTL as string, 10),
+    limit: parseInt(process.env.THROTTLE_LIMIT as string, 10),
   },
   superAdmin: {
     email: process.env.SUPER_ADMIN_EMAIL,

@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3015/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
 export const getAccessToken = (): string | null => {
   if (typeof window !== 'undefined') {
