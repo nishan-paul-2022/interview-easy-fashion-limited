@@ -61,7 +61,9 @@ export default function UserDetailsPage() {
   };
 
   const handleConfirmToggleStatus = async () => {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
     setIsUpdatingStatus(true);
     try {
       const newStatus = !user.isActive;
@@ -78,8 +80,12 @@ export default function UserDetailsPage() {
   };
 
   const handleChangeRole = async (newRoleName: string) => {
-    if (!user) return;
-    if (user.role.name === newRoleName) return;
+    if (!user) {
+      return;
+    }
+    if (user.role.name === newRoleName) {
+      return;
+    }
 
     setIsUpdatingRole(true);
     try {
@@ -103,7 +109,9 @@ export default function UserDetailsPage() {
     );
   }
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   const isUserActive = user.isActive;
   const isSelf = user.id === currentUser?.id;

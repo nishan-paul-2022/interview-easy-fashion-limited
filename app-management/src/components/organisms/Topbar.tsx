@@ -14,10 +14,14 @@ export const Topbar = () => {
   const { setIsMobileOpen } = useSidebar();
 
   const getPageTitle = () => {
-    if (!pathname || pathname === '/dashboard') return 'Dashboard';
+    if (!pathname || pathname === '/dashboard') {
+      return 'Dashboard';
+    }
     const parts = pathname.split('/').filter(Boolean);
     const lastPart = parts[parts.length - 1];
-    if (!lastPart) return 'Dashboard';
+    if (!lastPart) {
+      return 'Dashboard';
+    }
     return lastPart
       .split('-')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))

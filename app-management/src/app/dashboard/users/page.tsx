@@ -49,8 +49,12 @@ export default function UserManagementPage() {
     setIsLoading(true);
     try {
       const params: Record<string, string> = { limit: '50' };
-      if (debouncedSearch) params.search = debouncedSearch;
-      if (selectedRole !== 'all') params.role = selectedRole;
+      if (debouncedSearch) {
+        params.search = debouncedSearch;
+      }
+      if (selectedRole !== 'all') {
+        params.role = selectedRole;
+      }
 
       const res = await apiClient.get<{ data: User[] }>('/users', params);
       setUsers(res.data || []);
@@ -85,7 +89,9 @@ export default function UserManagementPage() {
   };
 
   const handleConfirmDeactivate = async () => {
-    if (!userToDeactivate) return;
+    if (!userToDeactivate) {
+      return;
+    }
     try {
       const newStatus = !userToDeactivate.isActive;
       await apiClient.patch(`/users/${userToDeactivate.id}/status`, { isActive: newStatus });

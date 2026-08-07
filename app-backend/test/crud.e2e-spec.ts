@@ -110,6 +110,16 @@ describe('CRUD Endpoints (e2e)', () => {
 
       const siz = await prisma.size.create({ data: { label: 'Seed Size' } });
       seedSizeId = siz.id;
+
+      await prisma.product.create({
+        data: {
+          name: 'Seed Product',
+          description: 'test',
+          price: 10.0,
+          categoryId: seedCategoryId,
+          styleId: seedStyleId,
+        },
+      });
     });
   });
 
@@ -173,7 +183,9 @@ describe('CRUD Endpoints (e2e)', () => {
           filename: 'test.jpg',
           contentType: 'image/jpeg',
         });
-      if (res.status !== 201) console.error(res.body);
+      if (res.status !== 201) {
+        console.error(res.body);
+      }
       expect(res.status).toBe(201);
 
       createdProductId = res.body.id;

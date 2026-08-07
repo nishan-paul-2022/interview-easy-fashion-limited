@@ -69,15 +69,20 @@ export default function StyleManagementPage() {
     } catch (e: unknown) {
       const err = e as { message?: string | string[] };
       let msg = 'An error occurred';
-      if (Array.isArray(err.message)) msg = err.message.join(', ');
-      else if (err.message) msg = err.message;
+      if (Array.isArray(err.message)) {
+        msg = err.message.join(', ');
+      } else if (err.message) {
+        msg = err.message;
+      }
       toast.error(msg);
       throw e;
     }
   };
 
   const handleConfirmDelete = async () => {
-    if (!styleToDelete) return;
+    if (!styleToDelete) {
+      return;
+    }
     try {
       await apiClient.delete(`/styles/${styleToDelete.id}`);
       toast.success(`Style deleted successfully.`);

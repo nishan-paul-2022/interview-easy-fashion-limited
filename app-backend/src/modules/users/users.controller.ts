@@ -55,7 +55,9 @@ export class UsersController {
   @Roles(RoleName.SUPER_ADMIN, RoleName.ADMIN)
   async findOne(@Param('id') id: string) {
     const user = await this.usersService.findByIdSafe(id);
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     return user;
   }
 
@@ -63,7 +65,9 @@ export class UsersController {
   @Roles(RoleName.SUPER_ADMIN)
   async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     const user = await this.usersService.findById(id);
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     return this.usersService.updateSafe(id, dto);
   }
 
@@ -78,7 +82,9 @@ export class UsersController {
       throw new ForbiddenException('Cannot change your own status');
     }
     const user = await this.usersService.findById(id);
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     return this.usersService.updateStatus(id, dto.isActive);
   }
 
@@ -93,7 +99,9 @@ export class UsersController {
       throw new ForbiddenException('Cannot change your own role');
     }
     const user = await this.usersService.findById(id);
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     return this.usersService.updateRole(id, dto.role);
   }
 }

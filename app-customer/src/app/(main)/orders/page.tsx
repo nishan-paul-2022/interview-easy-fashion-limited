@@ -55,9 +55,13 @@ export default function OrdersPage() {
           setOrders(res.data || []);
         }
       } catch {
-        if (mounted) setOrders([]);
+        if (mounted) {
+          setOrders([]);
+        }
       } finally {
-        if (mounted) setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     }
     fetchOrders();

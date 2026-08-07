@@ -82,9 +82,13 @@ export default function ProfilePage() {
 
           orders.forEach((o) => {
             const s = (o.status || '').toUpperCase();
-            if (s === 'PENDING' || s === 'PROCESSING') pending++;
-            else if (s === 'DELIVERED') delivered++;
-            else if (s === 'CANCELLED') cancelled++;
+            if (s === 'PENDING' || s === 'PROCESSING') {
+              pending++;
+            } else if (s === 'DELIVERED') {
+              delivered++;
+            } else if (s === 'CANCELLED') {
+              cancelled++;
+            }
           });
 
           setOrderStats({
@@ -97,7 +101,9 @@ export default function ProfilePage() {
       } catch {
         // Suppress initial load errors, let AuthGuard or empty states handle UI
       } finally {
-        if (mounted) setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     }
     fetchData();
@@ -117,7 +123,9 @@ export default function ProfilePage() {
   };
 
   const onSubmit = async (data: ProfileFormData) => {
-    if (!profile) return;
+    if (!profile) {
+      return;
+    }
     setIsSaving(true);
     try {
       const res = await apiClient.patch<ProfileData>(`/users/${profile.id}`, {
@@ -133,9 +141,13 @@ export default function ProfilePage() {
         err.message.forEach((msg: string) => {
           if (typeof msg === 'string') {
             const m = msg.toLowerCase();
-            if (m.includes('name')) setError('fullName', { type: 'server', message: msg });
-            else if (m.includes('phone')) setError('phone', { type: 'server', message: msg });
-            else setError('root', { type: 'server', message: msg });
+            if (m.includes('name')) {
+              setError('fullName', { type: 'server', message: msg });
+            } else if (m.includes('phone')) {
+              setError('phone', { type: 'server', message: msg });
+            } else {
+              setError('root', { type: 'server', message: msg });
+            }
           }
         });
       } else {

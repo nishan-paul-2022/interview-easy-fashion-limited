@@ -29,10 +29,14 @@ export default function SettingsPage() {
 
     // Load security settings
     const savedJwtExpiry = localStorage.getItem('settings_jwtExpiry');
-    if (savedJwtExpiry) setJwtExpiry(savedJwtExpiry);
+    if (savedJwtExpiry) {
+      setJwtExpiry(savedJwtExpiry);
+    }
 
     const savedPasswordMinLength = localStorage.getItem('settings_passwordMinLength');
-    if (savedPasswordMinLength) setPasswordMinLength(savedPasswordMinLength);
+    if (savedPasswordMinLength) {
+      setPasswordMinLength(savedPasswordMinLength);
+    }
   }, []);
 
   const handleThemeToggle = (checked: boolean) => {
@@ -55,7 +59,9 @@ export default function SettingsPage() {
   };
 
   // Prevent hydration mismatch by returning null until mounted
-  if (!isMounted) return null;
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 pb-12">

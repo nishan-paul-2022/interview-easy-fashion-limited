@@ -72,7 +72,9 @@ export default function OrderDetailsPage() {
   }, [orderId, router, toast]);
 
   const handleSaveStatus = async () => {
-    if (!order || selectedStatus === order.status) return;
+    if (!order || selectedStatus === order.status) {
+      return;
+    }
 
     setIsUpdating(true);
     try {
@@ -101,7 +103,9 @@ export default function OrderDetailsPage() {
     );
   }
 
-  if (!order) return null;
+  if (!order) {
+    return null;
+  }
 
   // Build timeline based on status
   const statuses = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED'];
@@ -110,7 +114,9 @@ export default function OrderDetailsPage() {
 
   const timelineSteps: TimelineStep[] = statuses.map((s, idx) => {
     let title = s.charAt(0) + s.slice(1).toLowerCase();
-    if (s === 'PENDING') title = 'Order Placed';
+    if (s === 'PENDING') {
+      title = 'Order Placed';
+    }
 
     let timestamp = '';
     let isCompleted = false;

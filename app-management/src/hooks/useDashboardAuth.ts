@@ -25,7 +25,9 @@ export function useDashboardAuth() {
 
     const fetchUser = async () => {
       if (cachedUser) {
-        if (mounted) setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
         return;
       }
 

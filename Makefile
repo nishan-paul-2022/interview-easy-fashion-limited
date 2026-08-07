@@ -40,9 +40,12 @@ format:
 
 ## Run tests in all apps
 test:
-	@if [ -f app-backend/package.json ]; then npm run test --prefix app-backend --if-present; fi
-	@if [ -f app-customer/package.json ]; then npm run test --prefix app-customer --if-present; fi
-	@if [ -f app-management/package.json ]; then npm run test --prefix app-management --if-present; fi
+	@echo "Running tests in app-backend..."
+	@if [ -f app-backend/package.json ]; then npm run test --prefix app-backend --if-present && npm run test:e2e --prefix app-backend --if-present; fi
+	@echo "Running tests in app-customer..."
+	@if [ -f app-customer/package.json ]; then npm run test --prefix app-customer --if-present && npm run test:e2e --prefix app-customer --if-present; fi
+	@echo "Running tests in app-management..."
+	@if [ -f app-management/package.json ]; then npm run test --prefix app-management --if-present && npm run test:e2e --prefix app-management --if-present; fi
 
 ## Build all apps
 build:

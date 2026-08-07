@@ -103,10 +103,18 @@ function ProductsContent() {
           page: currentPage,
           limit,
         };
-        if (searchQuery) params.search = searchQuery;
-        if (categoryParams.length) params.categoryId = categoryParams.join(',');
-        if (styleParams.length) params.styleId = styleParams.join(',');
-        if (sizeParams.length) params.sizeId = sizeParams.join(',');
+        if (searchQuery) {
+          params.search = searchQuery;
+        }
+        if (categoryParams.length) {
+          params.categoryId = categoryParams.join(',');
+        }
+        if (styleParams.length) {
+          params.styleId = styleParams.join(',');
+        }
+        if (sizeParams.length) {
+          params.sizeId = sizeParams.join(',');
+        }
 
         const res = await apiClient.get<PaginatedResponse<ProductResponse>>('/products', params);
 
@@ -131,7 +139,9 @@ function ProductsContent() {
           setTotalPages(1);
         }
       } finally {
-        if (mounted) setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     }
 
@@ -148,7 +158,9 @@ function ProductsContent() {
     } else {
       params.delete(name);
     }
-    if (name !== 'page') params.delete('page');
+    if (name !== 'page') {
+      params.delete('page');
+    }
 
     router.push(`${pathname}?${params.toString()}`);
   };

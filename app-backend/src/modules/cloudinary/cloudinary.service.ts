@@ -17,8 +17,12 @@ export class CloudinaryService {
       const uploadStream = cloudinary.uploader.upload_stream(
         { folder },
         (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
-          if (error) return reject(error);
-          if (!result) return reject(new Error('Unknown upload error'));
+          if (error) {
+            return reject(error);
+          }
+          if (!result) {
+            return reject(new Error('Unknown upload error'));
+          }
           resolve({
             url: result.secure_url,
             publicId: result.public_id,
@@ -33,7 +37,9 @@ export class CloudinaryService {
   async deleteImage(publicId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       cloudinary.uploader.destroy(publicId, (error, _result) => {
-        if (error) return reject(error);
+        if (error) {
+          return reject(error);
+        }
         resolve();
       });
     });

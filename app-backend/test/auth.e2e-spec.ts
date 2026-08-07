@@ -23,14 +23,21 @@ describe('Auth Endpoints (e2e)', () => {
     const mockPrismaService = {
       user: {
         findUnique: jest.fn().mockImplementation(async ({ where }) => {
-          if (where.email) return db.users.find((u) => u.email === where.email) || null;
-          if (where.id) return db.users.find((u) => u.id === where.id) || null;
+          if (where.email) {
+            return db.users.find((u) => u.email === where.email) || null;
+          }
+          if (where.id) {
+            return db.users.find((u) => u.id === where.id) || null;
+          }
           return null;
         }),
         findFirst: jest.fn().mockImplementation(async ({ where }) => {
-          if (where.email) return db.users.find((u) => u.email === where.email) || null;
+          if (where.email) {
+            return db.users.find((u) => u.email === where.email) || null;
+          }
           return null;
         }),
+
         create: jest.fn().mockImplementation(async ({ data }) => {
           const newUser = {
             id: Math.random().toString(),
@@ -44,7 +51,9 @@ describe('Auth Endpoints (e2e)', () => {
         }),
         update: jest.fn().mockImplementation(async ({ where, data }) => {
           const userIndex = db.users.findIndex((u) => u.id === where.id);
-          if (userIndex === -1) throw new Error('User not found');
+          if (userIndex === -1) {
+            throw new Error('User not found');
+          }
 
           if (data.failedLoginAttempts?.increment) {
             db.users[userIndex].failedLoginAttempts += data.failedLoginAttempts.increment;

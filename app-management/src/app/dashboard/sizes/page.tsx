@@ -69,15 +69,20 @@ export default function SizeManagementPage() {
     } catch (e: unknown) {
       const err = e as { message?: string | string[] };
       let msg = 'An error occurred';
-      if (Array.isArray(err.message)) msg = err.message.join(', ');
-      else if (err.message) msg = err.message;
+      if (Array.isArray(err.message)) {
+        msg = err.message.join(', ');
+      } else if (err.message) {
+        msg = err.message;
+      }
       toast.error(msg);
       throw e;
     }
   };
 
   const handleConfirmDelete = async () => {
-    if (!sizeToDelete) return;
+    if (!sizeToDelete) {
+      return;
+    }
     try {
       await apiClient.delete(`/sizes/${sizeToDelete.id}`);
       toast.success(`Size deleted successfully.`);

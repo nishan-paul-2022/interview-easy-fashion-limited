@@ -58,7 +58,9 @@ export default function CategoryListPage() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!categoryToDelete) return;
+    if (!categoryToDelete) {
+      return;
+    }
     try {
       await apiClient.delete(`/categories/${categoryToDelete.id}`);
       toast.success(`Category "${categoryToDelete.name}" deleted successfully.`);

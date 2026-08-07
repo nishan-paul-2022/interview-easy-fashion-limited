@@ -35,8 +35,12 @@ export class DashboardService {
 
     if (startDate || endDate) {
       where.createdAt = {};
-      if (startDate) where.createdAt.gte = startDate;
-      if (endDate) where.createdAt.lte = endDate;
+      if (startDate) {
+        where.createdAt.gte = startDate;
+      }
+      if (endDate) {
+        where.createdAt.lte = endDate;
+      }
     }
 
     const [total, data] = await Promise.all([

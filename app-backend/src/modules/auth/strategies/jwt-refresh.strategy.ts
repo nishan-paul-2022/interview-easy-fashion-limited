@@ -20,6 +20,6 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token malformed');
     }
-    return { ...payload, refreshToken };
+    return { id: payload.sub, refreshToken };
   }
 }

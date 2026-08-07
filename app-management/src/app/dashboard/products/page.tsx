@@ -92,9 +92,15 @@ export default function ProductListPage() {
     setIsLoading(true);
     try {
       const params: Record<string, string> = { limit: '50' };
-      if (debouncedSearch) params.search = debouncedSearch;
-      if (selectedCategory !== 'all') params.categoryId = selectedCategory;
-      if (selectedStyle !== 'all') params.styleId = selectedStyle;
+      if (debouncedSearch) {
+        params.search = debouncedSearch;
+      }
+      if (selectedCategory !== 'all') {
+        params.categoryId = selectedCategory;
+      }
+      if (selectedStyle !== 'all') {
+        params.styleId = selectedStyle;
+      }
 
       const res = await apiClient.get<{ data: ProductData[] }>('/products', params);
       setProducts(res.data || []);
@@ -129,7 +135,9 @@ export default function ProductListPage() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!productToDelete) return;
+    if (!productToDelete) {
+      return;
+    }
     try {
       await apiClient.delete(`/products/${productToDelete.id}`);
       toast.success(`Product "${productToDelete.name}" deleted successfully.`);

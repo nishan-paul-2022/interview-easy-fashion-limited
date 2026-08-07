@@ -362,7 +362,9 @@ export class AuthService {
 
   async changePassword(userId: string, dto: ChangePasswordDto) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new UnauthorizedException('User not found');
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
 
     const isMatch = await bcrypt.compare(dto.currentPassword, user.passwordHash || '');
     if (!isMatch) {

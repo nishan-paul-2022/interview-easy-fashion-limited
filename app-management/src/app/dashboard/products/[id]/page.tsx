@@ -68,7 +68,9 @@ export default function ProductDetailsPage() {
   }, [productId, router, toast]);
 
   const handleEditClick = () => {
-    if (product) router.push(`/dashboard/products/${product.id}/edit`);
+    if (product) {
+      router.push(`/dashboard/products/${product.id}/edit`);
+    }
   };
 
   const handleDeleteClick = () => {
@@ -76,7 +78,9 @@ export default function ProductDetailsPage() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!product) return;
+    if (!product) {
+      return;
+    }
     try {
       await apiClient.delete(`/products/${product.id}`);
       toast.success(`Product "${product.name}" deleted successfully.`);
@@ -100,7 +104,9 @@ export default function ProductDetailsPage() {
     );
   }
 
-  if (!product) return null;
+  if (!product) {
+    return null;
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-12">

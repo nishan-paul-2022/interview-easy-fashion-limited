@@ -12,7 +12,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-easy-fashion}"]
+      test:
+        ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-easy-fashion}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -55,8 +56,8 @@ services:
     image: nginx:alpine
     container_name: easy-fashion-nginx-prod
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ../infra/nginx:/etc/nginx/conf.d
       - /etc/letsencrypt:/etc/letsencrypt

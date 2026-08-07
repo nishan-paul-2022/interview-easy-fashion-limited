@@ -39,7 +39,6 @@ module.exports = [
       ],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'error',
-      curly: ['error', 'all'],
       'no-empty': 'error',
       'no-restricted-imports': [
         'error',
@@ -59,6 +58,7 @@ module.exports = [
         },
       ],
       ...prettierConfig.rules,
+      curly: ['error', 'all'],
     },
   },
 ];

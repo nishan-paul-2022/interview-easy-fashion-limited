@@ -36,8 +36,12 @@ export class CreateProductDto {
 
   @ApiProperty({ type: [Number] })
   @Transform(({ value }) => {
-    if (Array.isArray(value)) return value.map(Number);
-    if (typeof value === 'string') return value.split(',').map(Number);
+    if (Array.isArray(value)) {
+      return value.map(Number);
+    }
+    if (typeof value === 'string') {
+      return value.split(',').map(Number);
+    }
     return [Number(value)];
   })
   @IsArray()

@@ -40,7 +40,9 @@ export default function AdminProfilePage() {
 
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     setIsUpdatingProfile(true);
     try {
@@ -82,8 +84,11 @@ export default function AdminProfilePage() {
     } catch (e: unknown) {
       const err = e as { message?: string | string[] };
       let msg = 'Failed to change password';
-      if (Array.isArray(err.message)) msg = err.message.join(', ');
-      else if (err.message) msg = err.message;
+      if (Array.isArray(err.message)) {
+        msg = err.message.join(', ');
+      } else if (err.message) {
+        msg = err.message;
+      }
       toast.error(msg);
     } finally {
       setIsUpdatingPassword(false);
@@ -98,7 +103,9 @@ export default function AdminProfilePage() {
     );
   }
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   // @ts-expect-error role is an object in our backend payload
   const roleName = user.role?.name || user.role || 'MANAGER';

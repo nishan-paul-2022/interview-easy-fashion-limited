@@ -10,7 +10,8 @@
     "lint:fix": "next lint --fix",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "test": "jest"
+    "test": "jest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

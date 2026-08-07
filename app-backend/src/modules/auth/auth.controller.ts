@@ -58,8 +58,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiResponse({ status: 200, description: 'Current user data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getMe(@CurrentUser() payload: { sub: string }) {
-    return this.authService.getMe(payload.sub);
+  async getMe(@CurrentUser() user: { id: string }) {
+    return this.authService.getMe(user.id);
   }
 
   @Post('refresh')
@@ -69,8 +69,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiResponse({ status: 200, description: 'Tokens successfully refreshed' })
   @ApiResponse({ status: 401, description: 'Invalid refresh token' })
-  async refresh(@CurrentUser() payload: { sub: string; refreshToken: string }) {
-    return this.authService.refresh(payload.sub, payload.refreshToken);
+  async refresh(@CurrentUser() user: { id: string; refreshToken: string }) {
+    return this.authService.refresh(user.id, user.refreshToken);
   }
 
   @Post('logout')
@@ -81,11 +81,11 @@ export class AuthController {
   @ApiResponse({ status: 204, description: 'User successfully logged out' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async logout(
-    @CurrentUser() payload: { sub: string },
+    @CurrentUser() user: { id: string },
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string,
   ) {
-    await this.authService.logout(payload.sub, ip, userAgent);
+    await this.authService.logout(user.id, ip, userAgent);
   }
 
   @Get('google')

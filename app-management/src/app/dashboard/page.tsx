@@ -107,33 +107,45 @@ export default function DashboardHomePage() {
     async function fetchSummary() {
       try {
         const res = await apiClient.get<SummaryData>('/dashboard/summary');
-        if (mounted) setSummary(res);
+        if (mounted) {
+          setSummary(res);
+        }
       } catch (e) {
         console.error(e);
       } finally {
-        if (mounted) setIsLoadingSummary(false);
+        if (mounted) {
+          setIsLoadingSummary(false);
+        }
       }
     }
 
     async function fetchOrders() {
       try {
         const res = await apiClient.get<{ data: OrderData[] }>('/orders', { limit: 5 });
-        if (mounted) setOrders(res.data || []);
+        if (mounted) {
+          setOrders(res.data || []);
+        }
       } catch (e) {
         console.error(e);
       } finally {
-        if (mounted) setIsLoadingOrders(false);
+        if (mounted) {
+          setIsLoadingOrders(false);
+        }
       }
     }
 
     async function fetchUsers() {
       try {
         const res = await apiClient.get<{ data: UserData[] }>('/users', { limit: 5 });
-        if (mounted) setUsers(res.data || []);
+        if (mounted) {
+          setUsers(res.data || []);
+        }
       } catch (e) {
         console.error(e);
       } finally {
-        if (mounted) setIsLoadingUsers(false);
+        if (mounted) {
+          setIsLoadingUsers(false);
+        }
       }
     }
 

@@ -53,8 +53,11 @@ export default function CreateUserPage() {
     } catch (e: unknown) {
       const err = e as { message?: string | string[] };
       let msg = 'Failed to create user';
-      if (Array.isArray(err.message)) msg = err.message.join(', ');
-      else if (err.message) msg = err.message;
+      if (Array.isArray(err.message)) {
+        msg = err.message.join(', ');
+      } else if (err.message) {
+        msg = err.message;
+      }
       toast.error(msg);
     } finally {
       setIsSubmitting(false);

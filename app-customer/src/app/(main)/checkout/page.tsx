@@ -113,10 +113,15 @@ export default function CheckoutPage() {
         err.message.forEach((msg: string) => {
           if (typeof msg === 'string') {
             const m = msg.toLowerCase();
-            if (m.includes('name')) setError('fullName', { type: 'server', message: msg });
-            else if (m.includes('phone')) setError('phone', { type: 'server', message: msg });
-            else if (m.includes('address')) setError('address', { type: 'server', message: msg });
-            else setError('root', { type: 'server', message: msg });
+            if (m.includes('name')) {
+              setError('fullName', { type: 'server', message: msg });
+            } else if (m.includes('phone')) {
+              setError('phone', { type: 'server', message: msg });
+            } else if (m.includes('address')) {
+              setError('address', { type: 'server', message: msg });
+            } else {
+              setError('root', { type: 'server', message: msg });
+            }
           }
         });
       } else {
