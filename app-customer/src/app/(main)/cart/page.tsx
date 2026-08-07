@@ -167,8 +167,7 @@ export default function CartPage() {
               size="lg"
               className="w-full mt-2"
               onClick={() => {
-                // Mock checkout action
-                alert('Proceeding to checkout...');
+                router.push('/checkout');
               }}
             >
               Proceed to Checkout

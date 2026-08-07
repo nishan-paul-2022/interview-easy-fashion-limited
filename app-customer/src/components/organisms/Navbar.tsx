@@ -8,9 +8,11 @@ import { Badge } from '@/components/atoms/Badge';
 import { Icon } from '@/components/atoms/Icon';
 import { Dropdown } from '@/components/molecules/Dropdown';
 import { SearchBar } from '@/components/molecules/SearchBar';
+import { useCart } from '@/context/CartContext';
 
 export const Navbar = () => {
   const router = useRouter();
+  const { totalItems } = useCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -99,7 +101,7 @@ export const Navbar = () => {
             <Icon name="ShoppingBag" />
             <span className="absolute -top-1.5 -right-2 flex items-center justify-center pointer-events-none transform scale-75 origin-top-right">
               <Badge
-                label="0"
+                label={totalItems.toString()}
                 variant="success"
                 className="!px-1.5 !py-0 min-w-[1.5rem] flex items-center justify-center text-center"
               />

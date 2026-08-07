@@ -131,7 +131,11 @@ class ApiClient {
           }
         } else {
           clearTokens();
-          if (typeof window !== 'undefined') {
+          if (
+            typeof window !== 'undefined' &&
+            !window.location.pathname.startsWith('/login') &&
+            !window.location.pathname.startsWith('/register')
+          ) {
             window.location.href = '/login';
           }
           throw new Error('Authentication required');
