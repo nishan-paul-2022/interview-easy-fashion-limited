@@ -1,0 +1,35 @@
+server {
+    listen 80;
+    server_name easy.kaiofficial.xyz;
+
+    # All HTTP -> HTTPS redirect (301)
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name easy.kaiofficial.xyz;
+
+    # Note: ssl_certificate and ssl_certificate_key will be added/managed by Certbot
+
+    # Security headers on all locations
+    add_header X-Frame-Options SAMEORIGIN always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+    # Proxy settings
+    client_max_body_size 20m;
+
+    location / {
+        # Routing rule (host-to-container proxying)
+        proxy_pass http://127.0.0.1:3013;
+        
+        include proxy_params;
+        proxy_http_version 1.1;
+        
+        # WebSocket upgrade headers
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
