@@ -2,49 +2,52 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import { Button } from '@/components/atoms/Button';
 import { Icon } from '@/components/atoms/Icon';
 
-const MOCK_ORDER = {
-  id: 'ORD-8F92-4C1A',
-  date: new Date().toLocaleDateString(),
-  address: '123 Main St, Apt 4B\nNew York, NY 10001',
-  items: [
-    {
-      id: 'prd_0',
-      name: 'Premium Product 1',
-      size: 'M',
-      quantity: 1,
-      price: 29.99,
-      imageUrl:
-        'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600',
-    },
-    {
-      id: 'prd_2',
-      name: 'Premium Product 3',
-      size: 'L',
-      quantity: 2,
-      price: 40.99,
-      imageUrl:
-        'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&q=80&w=600',
-    },
-  ],
-  subtotal: 111.97,
-  shipping: 0,
-  tax: 8.96,
-  grandTotal: 120.93,
-};
+interface OrderItem {
+  id: string;
+  name: string;
+  size: string;
+  quantity: number;
+  price: number;
+  imageUrl: string;
+}
+
+interface OrderData {
+  id: string;
+  date: string;
+  address: string;
+  items: OrderItem[];
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  grandTotal: number;
+}
 
 export default function OrderSuccessPage() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [order, setOrder] = useState<OrderData | null>(null);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    const savedOrder = sessionStorage.getItem('easyfashion_order_success');
+    if (savedOrder) {
+      try {
+        setOrder(JSON.parse(savedOrder));
+      } catch {
+        router.push('/cart');
+      }
+    } else {
+      router.push('/cart');
+    }
+  }, [router]);
 
-  if (!mounted) {
+  if (!mounted || !order) {
     return (
       <div className="flex min-h-[50vh] w-full items-center justify-center">
         <Icon name="Search" size={32} className="animate-spin text-muted" />
@@ -53,8 +56,7 @@ export default function OrderSuccessPage() {
   }
 
   const handleDownloadInvoice = () => {
-    // Mock downloading invoice
-    alert('Downloading invoice for order ' + MOCK_ORDER.id);
+    alert('Downloading invoice for order ' + order.id);
   };
 
   return (
@@ -70,7 +72,7 @@ export default function OrderSuccessPage() {
         </p>
         <div className="rounded-lg bg-surface px-6 py-3 border border-muted/20">
           <span className="text-sm text-muted">Order ID: </span>
-          <span className="font-bold text-accent">{MOCK_ORDER.id}</span>
+          <span className="font-bold text-accent">{order.id}</span>
         </div>
       </div>
 
@@ -79,11 +81,11 @@ export default function OrderSuccessPage() {
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
             <h3 className="mb-2 font-semibold text-text">Shipping Address</h3>
-            <p className="whitespace-pre-line text-sm text-muted">{MOCK_ORDER.address}</p>
+            <p className="whitespace-pre-line text-sm text-muted">{order.address}</p>
           </div>
           <div>
             <h3 className="mb-2 font-semibold text-text">Order Date</h3>
-            <p className="text-sm text-muted">{MOCK_ORDER.date}</p>
+            <p className="text-sm text-muted">{order.date}</p>
           </div>
         </div>
 
@@ -92,7 +94,7 @@ export default function OrderSuccessPage() {
         {/* Ordered Items Summary */}
         <h3 className="mb-4 font-semibold text-text">Order Summary</h3>
         <div className="flex flex-col gap-4">
-          {MOCK_ORDER.items.map((item) => (
+          {order.items.map((item) => (
             <div key={item.id} className="flex gap-4">
               <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded bg-muted/10">
                 <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
@@ -116,21 +118,21 @@ export default function OrderSuccessPage() {
         <div className="flex flex-col gap-3 text-sm">
           <div className="flex justify-between">
             <span className="text-muted">Subtotal</span>
-            <span className="font-medium text-text">${MOCK_ORDER.subtotal.toFixed(2)}</span>
+            <span className="font-medium text-text">${order.subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted">Shipping</span>
             <span className="font-medium text-text">
-              {MOCK_ORDER.shipping === 0 ? 'Free' : `$${MOCK_ORDER.shipping.toFixed(2)}`}
+              {order.shipping === 0 ? 'Free' : `$${order.shipping.toFixed(2)}`}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted">Tax</span>
-            <span className="font-medium text-text">${MOCK_ORDER.tax.toFixed(2)}</span>
+            <span className="font-medium text-text">${order.tax.toFixed(2)}</span>
           </div>
           <div className="mt-2 flex justify-between border-t border-muted/20 pt-4 text-lg font-bold">
             <span className="text-text">Grand Total</span>
-            <span className="text-text">${MOCK_ORDER.grandTotal.toFixed(2)}</span>
+            <span className="text-text">${order.grandTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>

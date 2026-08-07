@@ -14,6 +14,7 @@ import { Input } from '@/components/atoms/Input';
 import { Textarea } from '@/components/atoms/Textarea';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { useCart } from '@/context/CartContext';
+import { apiClient } from '@/lib/api';
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -35,6 +36,7 @@ export default function CheckoutPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -68,14 +70,64 @@ export default function CheckoutPage() {
   const tax = subtotal * 0.08;
   const grandTotal = subtotal + shipping + tax;
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: CheckoutFormData) => {
     setIsSubmitting(true);
-    // Mock API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Success: Clear cart and redirect
-    dispatch({ type: 'CLEAR_CART' });
-    router.push('/order-success');
+    try {
+      const payload = {
+        customerName: data.fullName,
+        phone: data.phone,
+        shippingAddress: data.address,
+        items: state.items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          size: item.size,
+        })),
+      };
+
+      interface OrderResponse {
+        id?: string;
+        [key: string]: unknown;
+      }
+
+      const res = await apiClient.post<OrderResponse>('/orders', payload);
+
+      const orderData = {
+        id: res.id || 'ORD-' + Math.random().toString(36).substring(7).toUpperCase(),
+        date: new Date().toLocaleDateString(),
+        address: data.address,
+        items: state.items,
+        subtotal,
+        shipping,
+        tax,
+        grandTotal,
+      };
+
+      sessionStorage.setItem('easyfashion_order_success', JSON.stringify(orderData));
+
+      dispatch({ type: 'CLEAR_CART' });
+      router.push('/order-success');
+    } catch (error: unknown) {
+      const err = error as { message?: string | string[] };
+      if (err.message && Array.isArray(err.message)) {
+        err.message.forEach((msg: string) => {
+          if (typeof msg === 'string') {
+            const m = msg.toLowerCase();
+            if (m.includes('name')) setError('fullName', { type: 'server', message: msg });
+            else if (m.includes('phone')) setError('phone', { type: 'server', message: msg });
+            else if (m.includes('address')) setError('address', { type: 'server', message: msg });
+            else setError('root', { type: 'server', message: msg });
+          }
+        });
+      } else {
+        setError('root', {
+          type: 'server',
+          message: (err.message as string) || 'Failed to create order',
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -90,6 +142,12 @@ export default function CheckoutPage() {
       </nav>
 
       <h1 className="text-3xl font-bold text-text">Checkout</h1>
+
+      {errors.root && (
+        <div className="rounded-lg bg-error/10 p-4 text-error border border-error/20">
+          {errors.root.message}
+        </div>
+      )}
 
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Left Column: Form */}
