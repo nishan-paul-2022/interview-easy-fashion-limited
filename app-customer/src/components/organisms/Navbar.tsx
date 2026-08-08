@@ -64,9 +64,10 @@ export const Navbar = () => {
 
           <Link
             href="/"
-            className="text-accent font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 text-accent font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
           >
-            EasyFashion
+            <img src="/logo.svg" alt="EasyFashion Logo" className="h-8 w-auto" />
+            <span>EasyFashion</span>
           </Link>
 
           {/* Desktop Nav Links */}

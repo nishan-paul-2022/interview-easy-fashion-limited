@@ -67,12 +67,17 @@ export const Sidebar = () => {
         <div
           className={`h-16 flex items-center px-4 border-b border-muted/20 shrink-0 ${isCollapsed ? 'justify-center' : 'justify-between'}`}
         >
-          {!isCollapsed && (
+          {isCollapsed ? (
+            <Link href="/" className="hover:opacity-80 transition-opacity">
+              <img src="/logo.svg" alt="EasyFashion Logo" className="h-8 w-auto" />
+            </Link>
+          ) : (
             <Link
               href="/"
-              className="text-accent font-bold text-xl tracking-tight truncate hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 text-accent font-bold text-xl tracking-tight truncate hover:opacity-80 transition-opacity"
             >
-              EasyFashion
+              <img src="/logo.svg" alt="EasyFashion Logo" className="h-8 w-auto" />
+              <span>EasyFashion</span>
             </Link>
           )}
           <button
