@@ -8,6 +8,8 @@ import { Button } from '@/components/atoms/Button';
 import { Icon } from '@/components/atoms/Icon';
 import { ProductCardProps, ProductCard } from '@/components/molecules/ProductCard';
 import { ProductGridSkeleton } from '@/components/molecules/Skeleton';
+import { useToast } from '@/components/molecules/Toast';
+import { useCart } from '@/context/CartContext';
 import { apiClient } from '@/lib/api';
 
 interface StatsResponse {
@@ -44,6 +46,9 @@ interface FormattedCategory {
 }
 
 export default function Home() {
+  const { dispatch } = useCart();
+  const { success } = useToast();
+
   const [stats, setStats] = useState([
     { title: 'Total Categories', value: '-', icon: 'Folder' as const },
     { title: 'Total Products', value: '-', icon: 'Package' as const },
@@ -54,6 +59,30 @@ export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<ProductCardProps[]>([]);
   const [categories, setCategories] = useState<FormattedCategory[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+
+  const handleAddToCart = (id: string) => {
+    const product = featuredProducts.find((p) => p.id === id);
+    if (!product) {
+      return;
+    }
+
+    const size = product.sizes && product.sizes.length > 0 ? product.sizes[0] : 'OS';
+
+    dispatch({
+      type: 'ADD_ITEM',
+      payload: {
+        id: size ? `${product.id || ''}-${size}` : product.id || '',
+        productId: product.id || '',
+        name: product.name || '',
+        price: product.price || 0,
+        size,
+        quantity: 1,
+        imageUrl: product.imageUrl || '',
+      },
+    });
+
+    success(`Added ${product.name || ''} (Size: ${size}) to cart`);
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -232,7 +261,7 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.map((product) => (
-              <ProductCard key={product.id} {...product} />
+              <ProductCard key={product.id} {...product} onAddToCart={handleAddToCart} />
             ))}
           </div>
         )}
