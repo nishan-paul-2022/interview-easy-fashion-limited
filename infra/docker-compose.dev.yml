@@ -31,7 +31,7 @@ services:
     env_file:
       - ../.env
     ports:
-      - '${BACKEND_PORT:-3015}:3000'
+      - '${BACKEND_PORT:-3015}:${BACKEND_PORT:-3015}'
     volumes:
       - ../app-backend:/app
       - /app/node_modules
