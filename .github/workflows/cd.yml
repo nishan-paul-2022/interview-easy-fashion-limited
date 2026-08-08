@@ -127,12 +127,13 @@ jobs:
           source: 'infra/docker-compose.yml,infra/nginx'
           target: '/var/www/easy-fashion'
 
-      - name: Deploy to VPS via SSH
+       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 30m
           script: |
             # Login to GHCR
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
