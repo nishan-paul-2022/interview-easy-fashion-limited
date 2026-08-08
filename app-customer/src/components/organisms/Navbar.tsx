@@ -9,10 +9,12 @@ import { Icon } from '@/components/atoms/Icon';
 import { Dropdown } from '@/components/molecules/Dropdown';
 import { SearchBar } from '@/components/molecules/SearchBar';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Navbar = () => {
   const router = useRouter();
   const { totalItems } = useCart();
+  const { logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,8 +28,7 @@ export const Navbar = () => {
   const handleAccountAction = (value: string | string[]) => {
     const action = Array.isArray(value) ? value[0] : value;
     if (action === 'logout') {
-      // Handle logout logic
-      console.log('Logout');
+      logout();
     } else if (action) {
       router.push(action);
     }
