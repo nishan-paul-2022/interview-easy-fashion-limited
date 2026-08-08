@@ -1,4 +1,4 @@
-.PHONY: install dev lint format test build docker-up docker-down docker-logs clean
+.PHONY: install dev lint format test build docker-up docker-down docker-logs clean migrate seed
 
 ## Install dependencies in all three sub-apps
 install:
@@ -9,7 +9,19 @@ install:
 
 ## Concurrently run all three dev servers
 dev:
+	docker compose -f infra/docker-compose.dev.yml up -d postgres
+	@echo "Waiting for PostgreSQL to be ready..."
+	@until docker exec easy-fashion-postgres-dev pg_isready -U postgres >/dev/null 2>&1; do sleep 1; done
+	@echo "PostgreSQL is ready! Starting dev servers..."
 	npx dotenv-cli -e .env -- npx --yes concurrently "cross-env PORT=\$$BACKEND_PORT npm run dev --prefix app-backend --if-present" "cross-env PORT=\$$CUSTOMER_PORT npm run dev --prefix app-customer --if-present" "cross-env PORT=\$$MANAGEMENT_PORT npm run dev --prefix app-management --if-present"
+
+## Run database migrations
+migrate:
+	npx dotenv-cli -e .env -- sh -c "cd app-backend && npx prisma migrate dev"
+
+## Seed the database
+seed:
+	npx dotenv-cli -e .env -- sh -c "cd app-backend && npx prisma db seed"
 
 ## Lint all apps
 lint:
@@ -56,6 +68,13 @@ build:
 ## Start local dev Docker containers
 docker-dev-up:
 	docker compose -f infra/docker-compose.dev.yml up -d
+
+## Alias for starting local dev Docker containers
+docker-up: docker-dev-up
+
+## Stop local dev Docker containers
+docker-down:
+	docker compose -f infra/docker-compose.dev.yml down
 
 ## Start production Docker containers
 docker-prod-up:
