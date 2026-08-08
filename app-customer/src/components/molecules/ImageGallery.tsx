@@ -26,6 +26,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images }) => {
           src={images[activeIndex]}
           alt={`Product view ${activeIndex + 1}`}
           fill
+          unoptimized
           className="object-cover"
         />
       </div>
@@ -41,7 +42,13 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images }) => {
                 index === activeIndex ? 'border-accent' : 'border-transparent hover:border-muted/50'
               }`}
             >
-              <Image src={src} alt={`Thumbnail ${index + 1}`} fill className="object-cover" />
+              <Image
+                src={src}
+                alt={`Thumbnail ${index + 1}`}
+                fill
+                unoptimized
+                className="object-cover"
+              />
             </button>
           ))}
         </div>
