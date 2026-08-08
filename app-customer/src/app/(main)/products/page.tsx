@@ -14,7 +14,8 @@ import { apiClient } from '@/lib/api';
 
 interface FilterOptionResponse {
   id: string | number;
-  name: string;
+  name?: string;
+  label?: string;
 }
 
 interface ProductResponse {
@@ -80,11 +81,14 @@ function ProductsContent() {
 
         setFilterOptions({
           category: (categoriesRes?.data || []).map((c) => ({
-            label: c.name,
+            label: c.name || '',
             value: String(c.id),
           })),
-          style: (stylesRes?.data || []).map((s) => ({ label: s.name, value: String(s.id) })),
-          size: (sizesRes?.data || []).map((s) => ({ label: s.name, value: String(s.id) })),
+          style: (stylesRes?.data || []).map((s) => ({ label: s.name || '', value: String(s.id) })),
+          size: (sizesRes?.data || []).map((s) => ({
+            label: s.label || s.name || '',
+            value: String(s.id),
+          })),
         });
       } catch {
         console.error('Failed to fetch filter options');
