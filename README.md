@@ -57,7 +57,7 @@ _Note: Before running `make dev`, ensure you have copied the `.env.example` file
 To run the entire stack (Database, Backend, Customer App, Management App) locally using Docker:
 
 ```bash
-make docker-up
+make up
 ```
 
 ## Production Deployment

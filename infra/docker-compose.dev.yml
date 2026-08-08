@@ -29,7 +29,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-easy-fashion}?schema=public
     env_file:
-      - ../app-backend/.env
+      - ../.env
     ports:
       - '${BACKEND_PORT:-3015}:3000'
     volumes:
@@ -47,7 +47,7 @@ services:
     container_name: easy-fashion-customer-dev
     command: npm run dev
     env_file:
-      - ../app-customer/.env
+      - ../.env
     ports:
       - '${CUSTOMER_PORT:-3013}:3000'
     volumes:
@@ -63,7 +63,7 @@ services:
     container_name: easy-fashion-management-dev
     command: npm run dev
     env_file:
-      - ../app-management/.env
+      - ../.env
     ports:
       - '${MANAGEMENT_PORT:-3014}:3000'
     volumes:

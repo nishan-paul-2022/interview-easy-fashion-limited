@@ -1,4 +1,4 @@
-.PHONY: install dev lint format test build docker-up docker-down docker-logs clean migrate seed
+.PHONY: install dev lint format test build compile up down prod-up prod-down logs clean migrate seed
 
 ## Install dependencies in all three sub-apps
 install:
@@ -10,9 +10,7 @@ install:
 ## Concurrently run all three dev servers
 dev:
 	docker compose -f infra/docker-compose.dev.yml up -d postgres
-	@echo "Waiting for PostgreSQL to be ready..."
 	@until docker exec easy-fashion-postgres-dev pg_isready -U postgres >/dev/null 2>&1; do sleep 1; done
-	@echo "PostgreSQL is ready! Starting dev servers..."
 	npx dotenv-cli -e .env -- npx --yes concurrently "cross-env PORT=\$$BACKEND_PORT npm run dev --prefix app-backend --if-present" "cross-env PORT=\$$CUSTOMER_PORT npm run dev --prefix app-customer --if-present" "cross-env PORT=\$$MANAGEMENT_PORT npm run dev --prefix app-management --if-present"
 
 ## Run database migrations
@@ -59,33 +57,36 @@ test:
 	@echo "Running tests in app-management..."
 	@if [ -f app-management/package.json ]; then npm run test --prefix app-management --if-present && npm run test:e2e --prefix app-management --if-present; fi
 
-## Build all apps
-build:
+## Compile all apps locally
+compile:
 	@if [ -f app-backend/package.json ]; then npm run build --prefix app-backend --if-present; fi
 	@if [ -f app-customer/package.json ]; then npm run build --prefix app-customer --if-present; fi
 	@if [ -f app-management/package.json ]; then npm run build --prefix app-management --if-present; fi
 
+## Build local dev Docker containers
+build:
+	docker compose -f infra/docker-compose.dev.yml build
+
 ## Start local dev Docker containers
-docker-dev-up:
+up:
 	docker compose -f infra/docker-compose.dev.yml up -d
 
-## Alias for starting local dev Docker containers
-docker-up: docker-dev-up
-
-## Stop local dev Docker containers
-docker-down:
+## Stop local dev Docker containers and free up ports
+down:
 	docker compose -f infra/docker-compose.dev.yml down
+	@echo "Stopping any processes running on ports 3013, 3014, 3015, and 5432..."
+	@fuser -k 3013/tcp 3014/tcp 3015/tcp 5432/tcp >/dev/null 2>&1 || true
 
 ## Start production Docker containers
-docker-prod-up:
+prod-up:
 	docker compose -f infra/docker-compose.yml up -d
 
 ## Stop production Docker containers
-docker-prod-down:
+prod-down:
 	docker compose -f infra/docker-compose.yml down
 
 ## View Docker logs
-docker-logs:
+logs:
 	docker compose -f infra/docker-compose.dev.yml logs -f
 
 ## Remove node_modules, dist, .next across all apps
