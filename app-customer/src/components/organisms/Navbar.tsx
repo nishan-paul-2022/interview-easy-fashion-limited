@@ -15,7 +15,7 @@ export const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { totalItems } = useCart();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -120,7 +120,7 @@ export const Navbar = () => {
                 className="flex outline-none hover:opacity-80 transition-opacity rounded-full border border-muted/30 p-0.5 focus:border-accent focus:ring-1 focus:ring-accent"
                 aria-label="Account Menu"
               >
-                <Avatar size="sm" name={user?.fullName || 'Guest'} />
+                <Avatar size="sm" name={isLoading ? '' : user?.fullName || 'Guest'} />
               </button>
             }
             options={accountOptions}
