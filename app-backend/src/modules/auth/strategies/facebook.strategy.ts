@@ -12,14 +12,16 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       callbackURL: configService.get<string>('FACEBOOK_CALLBACK_URL') as string,
       profileFields: ['id', 'emails', 'name'],
       scope: ['email'],
+      graphAPIVersion: 'v18.0',
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
     const { id, emails, name } = profile;
+    const email = emails?.[0]?.value || `${id}@facebook.com`;
     return {
       providerId: id,
-      email: emails?.[0]?.value,
+      email: email,
       fullName: name?.givenName
         ? `${name.givenName} ${name.familyName || ''}`.trim()
         : 'Facebook User',
