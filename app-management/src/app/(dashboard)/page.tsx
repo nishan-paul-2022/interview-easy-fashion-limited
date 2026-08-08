@@ -30,7 +30,7 @@ interface UserData {
   id: string;
   fullName?: string;
   email: string;
-  role: string;
+  role: string | { name: string };
   isActive?: boolean;
 }
 
@@ -63,8 +63,9 @@ const orderColumns: DataTableColumn<OrderData>[] = [
   { key: 'date', header: 'Date', render: (row) => new Date(row.createdAt).toLocaleDateString() },
 ];
 
-const getUserRoleBadge = (role: string) => {
-  switch ((role || '').toUpperCase()) {
+const getUserRoleBadge = (role: string | { name: string }) => {
+  const roleName = typeof role === 'string' ? role : role?.name || '';
+  switch (roleName.toUpperCase()) {
     case 'SUPER_ADMIN':
       return <Badge label="Super Admin" variant="error" />;
     case 'ADMIN':
@@ -74,7 +75,7 @@ const getUserRoleBadge = (role: string) => {
     case 'CUSTOMER':
       return <Badge label="Customer" variant="neutral" />;
     default:
-      return <Badge label={role || 'User'} variant="neutral" />;
+      return <Badge label={roleName || 'User'} variant="neutral" />;
   }
 };
 
