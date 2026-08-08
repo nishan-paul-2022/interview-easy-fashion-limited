@@ -10,10 +10,12 @@ import {
   Req,
   Ip,
   Headers,
+  Res,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { AuthService } from '@/modules/auth/auth.service';
 import { ChangePasswordDto } from '@/modules/auth/dto/change-password.dto';
@@ -30,7 +32,10 @@ import { JwtRefreshGuard } from '@/modules/auth/guards/jwt-refresh.guard';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new customer' })
@@ -100,13 +105,19 @@ export class AuthController {
   @ApiOperation({ summary: 'Google OAuth callback' })
   async googleAuthCallback(
     @Req() req: Request,
+    @Res() res: Response,
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string,
   ) {
-    return this.authService.googleLogin(
+    const result = await this.authService.googleLogin(
       req.user as { providerId: string; email: string; fullName: string },
       ip,
       userAgent,
+    );
+    const frontendUrl =
+      this.configService.get<string>('CORS_ORIGIN_CUSTOMER') || 'http://localhost:3013';
+    return res.redirect(
+      `${frontendUrl}/login?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
     );
   }
 
@@ -122,13 +133,19 @@ export class AuthController {
   @ApiOperation({ summary: 'Facebook OAuth callback' })
   async facebookAuthCallback(
     @Req() req: Request,
+    @Res() res: Response,
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string,
   ) {
-    return this.authService.facebookLogin(
+    const result = await this.authService.facebookLogin(
       req.user as { providerId: string; email: string; fullName: string },
       ip,
       userAgent,
+    );
+    const frontendUrl =
+      this.configService.get<string>('CORS_ORIGIN_CUSTOMER') || 'http://localhost:3013';
+    return res.redirect(
+      `${frontendUrl}/login?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
     );
   }
 
