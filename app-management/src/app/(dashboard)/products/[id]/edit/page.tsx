@@ -46,7 +46,9 @@ export default function ProductEditPage() {
           description: res.description || '',
           price: String(res.price || ''),
           isActive: res.status !== 'INACTIVE', // or res.isActive if that's what backend returns
-          images: res.images || [],
+          images: (res.images || []).map((img: unknown) =>
+            typeof img === 'string' ? img : (img as { url: string }).url,
+          ),
         };
         // wait, backend has isActive property?
         // According to our create-product DTO it's isActive: boolean

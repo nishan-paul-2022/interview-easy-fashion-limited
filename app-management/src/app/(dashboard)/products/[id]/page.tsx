@@ -135,7 +135,9 @@ export default function ProductDetailsPage() {
           <ImageGallery
             images={
               product.images?.length
-                ? product.images
+                ? product.images.map((img: unknown) =>
+                    typeof img === 'string' ? img : (img as { url: string }).url,
+                  )
                 : [
                     'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
                   ]

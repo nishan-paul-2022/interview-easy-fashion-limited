@@ -127,7 +127,9 @@ function ProductsContent() {
             sizes: p.sizes?.map((s) => s.name) || [],
             price: Number(p.price) || 0,
             imageUrl:
-              p.images?.[0] ||
+              (typeof p.images?.[0] === 'string'
+                ? p.images[0]
+                : (p.images?.[0] as unknown as { url: string })?.url) ||
               'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
           }));
           setProducts(formattedProducts);
