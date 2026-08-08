@@ -56,7 +56,44 @@ export default function OrderSuccessPage() {
   }
 
   const handleDownloadInvoice = () => {
-    alert('Downloading invoice for order ' + order.id);
+    const invoiceText = `========================================
+             EASYFASHION
+========================================
+Order ID: ${order.id}
+Date: ${order.date}
+Shipping Address:
+${order.address}
+
+----------------------------------------
+Order Summary:
+${order.items
+  .map(
+    (item) =>
+      `- ${item.name} (Size: ${item.size}) x ${item.quantity} : $${(
+        item.price * item.quantity
+      ).toFixed(2)}`,
+  )
+  .join('\n')}
+
+----------------------------------------
+Subtotal: $${order.subtotal.toFixed(2)}
+Shipping: ${order.shipping === 0 ? 'Free' : `$${order.shipping.toFixed(2)}`}
+Tax (8%): $${order.tax.toFixed(2)}
+========================================
+Grand Total: $${order.grandTotal.toFixed(2)}
+========================================
+         Thank you for shopping!
+`;
+
+    const blob = new Blob([invoiceText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `invoice-${order.id}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
