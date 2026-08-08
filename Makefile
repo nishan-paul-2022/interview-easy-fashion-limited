@@ -1,4 +1,4 @@
-.PHONY: install dev lint format test build compile up down prod-up prod-down logs clean migrate seed
+.PHONY: install dev lint lint-fix format test build compile up down prod-up prod-down logs clean migrate seed
 
 ## Install dependencies in all three sub-apps
 install:
@@ -35,11 +35,18 @@ format:
 	@if [ -f app-management/package.json ]; then npm run format --prefix app-management --if-present; fi
 
 ## Lint all apps and auto-fix errors
-lint:
+lint-fix:
 	npm run lint:fix
 	@if [ -f app-backend/package.json ]; then npm run lint:fix --prefix app-backend --if-present; fi
 	@if [ -f app-customer/package.json ]; then npm run lint:fix --prefix app-customer --if-present; fi
 	@if [ -f app-management/package.json ]; then npm run lint:fix --prefix app-management --if-present; fi
+
+## Check lint errors in all apps (used by CI)
+lint:
+	npm run lint
+	@if [ -f app-backend/package.json ]; then npm run lint --prefix app-backend --if-present; fi
+	@if [ -f app-customer/package.json ]; then npm run lint --prefix app-customer --if-present; fi
+	@if [ -f app-management/package.json ]; then npm run lint --prefix app-management --if-present; fi
 
 ## Run tests in all apps
 test:
