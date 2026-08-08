@@ -14,6 +14,7 @@ RUN npx prisma generate
 # Copy source code and build
 COPY . .
 RUN npm run build
+RUN npx esbuild prisma/seed.ts --bundle --platform=node --outfile=prisma/seed.js --external:@prisma/client --external:pg --external:bcrypt
 
 # Stage 2: runner
 FROM node:20-alpine AS runner
@@ -32,6 +33,7 @@ COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/clie
 
 # Copy compiled output
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma/seed.js ./prisma/seed.js
 
 # Copy and setup entrypoint script
 COPY docker-entrypoint.sh ./

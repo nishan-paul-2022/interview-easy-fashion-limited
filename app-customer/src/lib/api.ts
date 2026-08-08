@@ -52,8 +52,8 @@ class ApiClient {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${refreshToken}`,
           },
-          body: JSON.stringify({ refreshToken }),
           credentials: 'omit',
         });
 

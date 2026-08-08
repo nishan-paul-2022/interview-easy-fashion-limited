@@ -145,6 +145,7 @@ jobs:
             # Run DB migrations
             sleep 5
             docker compose -f infra/docker-compose.yml exec -T backend npx prisma migrate deploy
+            docker compose -f infra/docker-compose.yml exec -T backend node prisma/seed.js
 
             # Copy Nginx configs and reload
             cp -r infra/nginx/* /etc/nginx/sites-available/
