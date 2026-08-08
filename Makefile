@@ -78,11 +78,11 @@ docker-down:
 
 ## Start production Docker containers
 docker-prod-up:
-	docker compose -f infra/docker-compose.prod.yml up -d
+	docker compose -f infra/docker-compose.yml up -d
 
 ## Stop production Docker containers
 docker-prod-down:
-	docker compose -f infra/docker-compose.prod.yml down
+	docker compose -f infra/docker-compose.yml down
 
 ## View Docker logs
 docker-logs:
