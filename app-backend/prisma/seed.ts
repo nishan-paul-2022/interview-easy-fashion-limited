@@ -152,8 +152,8 @@ async function main() {
       styles.push(st);
     }
 
-    // 7. Seed 150 Products
-    console.log('🌱 Seeding 150 products...');
+    // 7. Seed Products (Ensuring multiple products for every category-style combination)
+    console.log('🌱 Seeding 420 products (6 per Category-Style combination)...');
     const products = [];
     const garmentTypes = [
       'Shirt',
@@ -168,47 +168,50 @@ async function main() {
       'Hoodie',
     ];
 
-    for (let i = 0; i < 150; i++) {
-      const category = faker.helpers.arrayElement(categories);
-      const style = faker.helpers.arrayElement(styles);
-      const randomType = faker.helpers.arrayElement(garmentTypes);
-      const productName = `${faker.commerce.productAdjective()} ${faker.commerce.productMaterial()} ${randomType}`;
+    const productsPerCombination = 6;
+    for (const category of categories) {
+      for (const style of styles) {
+        for (let k = 0; k < productsPerCombination; k++) {
+          const randomType = faker.helpers.arrayElement(garmentTypes);
+          const productName = `${faker.commerce.productAdjective()} ${faker.commerce.productMaterial()} ${randomType}`;
 
-      const product = await prisma.product.create({
-        data: {
-          name: productName,
-          description: faker.commerce.productDescription(),
-          price: parseFloat(faker.commerce.price({ min: 15, max: 250 })),
-          categoryId: category.id,
-          styleId: style.id,
-          isActive: faker.datatype.boolean({ probability: 0.95 }),
-        },
-      });
+          const product = await prisma.product.create({
+            data: {
+              name: productName,
+              description: faker.commerce.productDescription(),
+              price: parseFloat(faker.commerce.price({ min: 15, max: 250 })),
+              categoryId: category.id,
+              styleId: style.id,
+              isActive: faker.datatype.boolean({ probability: 0.95 }),
+            },
+          });
 
-      // Product Images (1-3 images)
-      const imageCount = faker.number.int({ min: 1, max: 3 });
-      for (let j = 0; j < imageCount; j++) {
-        await prisma.productImage.create({
-          data: {
-            productId: product.id,
-            url: faker.image.urlLoremFlickr({ category: 'fashion', width: 640, height: 480 }),
-            isPrimary: j === 0,
-          },
-        });
+          // Product Images (1-3 images)
+          const imageCount = faker.number.int({ min: 1, max: 3 });
+          for (let j = 0; j < imageCount; j++) {
+            await prisma.productImage.create({
+              data: {
+                productId: product.id,
+                url: faker.image.urlLoremFlickr({ category: 'fashion', width: 640, height: 480 }),
+                isPrimary: j === 0,
+              },
+            });
+          }
+
+          // Product Sizes (2-5 random sizes)
+          const productSizes = faker.helpers.arrayElements(sizes, { min: 2, max: 5 });
+          for (const size of productSizes) {
+            await prisma.productSize.create({
+              data: {
+                productId: product.id,
+                sizeId: size.id,
+              },
+            });
+          }
+
+          products.push(product);
+        }
       }
-
-      // Product Sizes (2-5 random sizes)
-      const productSizes = faker.helpers.arrayElements(sizes, { min: 2, max: 5 });
-      for (const size of productSizes) {
-        await prisma.productSize.create({
-          data: {
-            productId: product.id,
-            sizeId: size.id,
-          },
-        });
-      }
-
-      products.push(product);
     }
 
     // 8. Seed 300 Orders
