@@ -195,7 +195,11 @@ export default function ProfilePage() {
             <div className="w-full md:w-1/3">
               <div className="flex flex-col items-center rounded-xl border border-muted/20 bg-surface p-8 shadow-sm text-center">
                 <div className="relative mb-4">
-                  <Avatar name={profile.fullName} size="lg" className="h-24 w-24 text-4xl" />
+                  <Avatar
+                    name={profile.fullName}
+                    size="lg"
+                    className="h-24 w-24 text-4xl border border-muted/30 bg-muted/5"
+                  />
                 </div>
                 <h2 className="text-2xl font-bold text-text">{profile.fullName}</h2>
                 <p className="mb-6 text-sm text-muted">

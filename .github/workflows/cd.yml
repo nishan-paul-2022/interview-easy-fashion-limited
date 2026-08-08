@@ -148,11 +148,11 @@ jobs:
             docker compose -f infra/docker-compose.yml exec -T backend node prisma/seed.js
 
             # Copy Nginx configs and reload
-            cp -r infra/nginx/* /etc/nginx/sites-available/
-            for f in /etc/nginx/sites-available/easy-fashion /etc/nginx/sites-available/admin-easy-fashion /etc/nginx/sites-available/api-easy-fashion; do
-              ln -sf $f /etc/nginx/sites-enabled/$(basename $f)
+            sudo cp -r infra/nginx/* /etc/nginx/sites-available/
+            for f in easy-fashion admin-easy-fashion api-easy-fashion; do
+              sudo ln -sf /etc/nginx/sites-available/$f /etc/nginx/sites-enabled/$f
             done
-            nginx -t && systemctl reload nginx
+            sudo nginx -t && sudo systemctl reload nginx
 
       - name: Health Check
         run: |

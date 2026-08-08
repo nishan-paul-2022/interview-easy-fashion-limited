@@ -117,7 +117,7 @@ export class AuthController {
     const frontendUrl =
       this.configService.get<string>('CORS_ORIGIN_CUSTOMER') || 'http://localhost:3013';
     return res.redirect(
-      `${frontendUrl}/login?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
+      `${frontendUrl}/auth/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
     );
   }
 
@@ -145,7 +145,7 @@ export class AuthController {
     const frontendUrl =
       this.configService.get<string>('CORS_ORIGIN_CUSTOMER') || 'http://localhost:3013';
     return res.redirect(
-      `${frontendUrl}/login?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
+      `${frontendUrl}/auth/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
     );
   }
 

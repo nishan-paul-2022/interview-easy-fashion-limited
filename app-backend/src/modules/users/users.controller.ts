@@ -62,8 +62,14 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Roles(RoleName.SUPER_ADMIN)
-  async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @CurrentUser() currentUser: { id: string; role: string },
+  ) {
+    if (currentUser.role !== RoleName.SUPER_ADMIN && id !== currentUser.id) {
+      throw new ForbiddenException('Insufficient permissions');
+    }
     const user = await this.usersService.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
