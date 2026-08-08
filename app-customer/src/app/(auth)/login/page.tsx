@@ -12,7 +12,7 @@ import { Input } from '@/components/atoms/Input';
 import { PasswordInput } from '@/components/atoms/PasswordInput';
 import { useToast } from '@/components/molecules/Toast';
 import { useAuth, User } from '@/hooks/useAuth';
-import { apiClient, setTokens, clearTokens } from '@/lib/api';
+import { apiClient } from '@/lib/api';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -26,33 +26,6 @@ export default function LoginPage() {
   const toast = useToast();
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const callbackProcessed = React.useRef(false);
-
-  React.useEffect(() => {
-    const handleOAuthCallback = async () => {
-      if (callbackProcessed.current) {
-        return;
-      }
-
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get('accessToken');
-      const refresh = params.get('refreshToken');
-      if (token && refresh) {
-        callbackProcessed.current = true;
-        try {
-          setTokens(token, refresh);
-          const userData = await apiClient.get<User>('/auth/me');
-          login(userData, token, refresh);
-          toast.success('Successfully logged in!');
-          router.push('/');
-        } catch {
-          clearTokens();
-          toast.error('Failed to complete login callback');
-        }
-      }
-    };
-    handleOAuthCallback();
-  }, [router, login, toast]);
 
   const {
     register,
@@ -76,7 +49,6 @@ export default function LoginPage() {
     } catch (error) {
       const err = error as Error;
       toast.error(err.message || 'Login failed');
-    } finally {
       setIsSubmitting(false);
     }
   };
