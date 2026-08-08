@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Icon } from '@/components/atoms/Icon';
 import { Input } from '@/components/atoms/Input';
 
@@ -16,25 +16,18 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChange,
   onSearch,
-  debounceMs = 300,
+  debounceMs, // eslint-disable-line @typescript-eslint/no-unused-vars
   ...props
 }) => {
-  const onSearchRef = useRef(onSearch);
-
-  useEffect(() => {
-    onSearchRef.current = onSearch;
-  }, [onSearch]);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      onSearchRef.current(value);
-    }, debounceMs);
-
-    return () => clearTimeout(handler);
-  }, [value, debounceMs]);
-
   const handleClear = () => {
     onChange('');
+    onSearch('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      onSearch(value);
+    }
   };
 
   return (
@@ -42,6 +35,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       leftIcon="Search"
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      onKeyDown={handleKeyDown}
       rightElement={
         value ? (
           <button

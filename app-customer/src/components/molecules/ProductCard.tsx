@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import React from 'react';
 import { Badge } from '@/components/atoms/Badge';
 import { Button } from '@/components/atoms/Button';
@@ -30,37 +31,47 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     <div
       className={`group relative flex flex-col bg-surface border border-muted/20 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-accent/5 hover:-translate-y-1 ${className}`}
     >
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-muted/10">
-        <Image
-          src={imageUrl}
-          alt={name}
-          fill
-          unoptimized
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-1.5">
-          {sizes.map((size) => (
-            <Badge key={size} label={size} variant="neutral" />
-          ))}
-        </div>
-      </div>
-
-      <div className="flex flex-col p-4 flex-grow">
-        <div className="text-xs text-muted mb-1 flex items-center justify-between uppercase tracking-wider">
-          <span>{category}</span>
-          <span>{styleName}</span>
+      <Link href={`/products/${id}`} className="block flex-grow flex flex-col">
+        <div className="relative aspect-[3/4] w-full overflow-hidden bg-muted/10">
+          <Image
+            src={imageUrl}
+            alt={name}
+            fill
+            unoptimized
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-1.5 z-10">
+            {sizes.map((size) => (
+              <Badge key={size} label={size} variant="neutral" />
+            ))}
+          </div>
         </div>
 
-        <h3 className="text-text font-medium text-lg leading-tight mb-2 line-clamp-2">{name}</h3>
+        <div className="flex flex-col p-4 flex-grow">
+          <div className="text-xs text-muted mb-1 flex items-center justify-between uppercase tracking-wider">
+            <span>{category}</span>
+            <span>{styleName}</span>
+          </div>
 
-        <div className="mt-auto pt-4 flex flex-col xl:flex-row xl:items-center justify-between gap-3 xl:gap-2">
+          <h3 className="text-text font-medium text-lg leading-tight mb-2 line-clamp-2 group-hover:text-accent transition-colors">
+            {name}
+          </h3>
+        </div>
+      </Link>
+
+      <div className="px-4 pb-4 mt-auto">
+        <div className="pt-3 flex flex-col gap-2 border-t border-muted/10">
           <span className="text-xl font-bold text-accent">${price.toFixed(2)}</span>
           <Button
             variant="success"
             size="sm"
-            onClick={() => onAddToCart?.(id)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAddToCart?.(id);
+            }}
             leftIcon="ShoppingBag"
-            className="w-full xl:w-auto justify-center"
+            className="w-full justify-center whitespace-nowrap"
           >
             Add to Cart
           </Button>

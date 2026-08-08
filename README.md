@@ -1,5 +1,9 @@
 # Easy Fashion Limited
 
+<p align="center">
+  <img src="docs/logo.svg" alt="EasyFashion Logo" width="250" />
+</p>
+
 ## Project Overview and Purpose
 
 Easy Fashion Limited is a full-stack e-commerce platform designed for a fashion retail business. It encompasses a customer-facing storefront for browsing and purchasing products, a management dashboard for administrators to manage inventory, orders, and users, and a robust backend API powering both applications. Built with a modern technology stack (Next.js, NestJS, PostgreSQL), the platform provides a responsive, scalable, and seamless shopping experience.
@@ -57,7 +61,7 @@ _Note: Before running `make dev`, ensure you have copied the `.env.example` file
 To run the entire stack (Database, Backend, Customer App, Management App) locally using Docker:
 
 ```bash
-make docker-up
+make up
 ```
 
 ## Production Deployment

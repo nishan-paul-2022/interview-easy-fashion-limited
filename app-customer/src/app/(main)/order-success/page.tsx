@@ -56,7 +56,121 @@ export default function OrderSuccessPage() {
   }
 
   const handleDownloadInvoice = () => {
-    alert('Downloading invoice for order ' + order.id);
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Pop-up blocked! Please allow pop-ups to print/download your invoice.');
+      return;
+    }
+
+    const itemsHtml = order.items
+      .map(
+        (item) => `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px;">${item.name} (Size: ${item.size})</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px; text-align: center;">${item.quantity}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px; text-align: right;">$${item.price.toFixed(2)}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px; text-align: right;">$${(item.price * item.quantity).toFixed(2)}</td>
+        </tr>
+      `,
+      )
+      .join('');
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Invoice - ${order.id}</title>
+          <style>
+            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #222; padding: 20px; line-height: 1.5; }
+            .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, .05); }
+            .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #00bcd4; padding-bottom: 20px; }
+            .logo-area { display: flex; align-items: center; gap: 8px; }
+            .logo-text { font-size: 28px; font-weight: bold; color: #00bcd4; }
+            .details { margin-bottom: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+            .shipping-info, .order-info { font-size: 14px; }
+            .title { font-weight: bold; margin-bottom: 5px; text-transform: uppercase; font-size: 12px; color: #888; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th { background: #f9f9f9; text-align: left; padding: 10px; font-size: 13px; font-weight: bold; text-transform: uppercase; color: #666; border-bottom: 2px solid #eaeaea; }
+            .totals { margin-top: 30px; margin-left: auto; width: 300px; font-size: 14px; }
+            .totals-row { display: flex; justify-content: space-between; padding: 6px 0; }
+            .grand-total { font-size: 20px; font-weight: bold; margin-top: 10px; color: #00bcd4; border-top: 2px solid #00bcd4; padding-top: 10px; }
+            .footer { text-align: center; margin-top: 60px; font-size: 12px; color: #888; border-top: 1px solid #eee; padding-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-box">
+            <div class="header">
+              <div class="logo-area">
+                <span class="logo-text">EasyFashion</span>
+              </div>
+              <div style="text-align: right; font-size: 14px;">
+                <span style="font-size: 20px; font-weight: bold; color: #666;">INVOICE</span><br>
+                <strong>Date:</strong> ${order.date}
+              </div>
+            </div>
+            
+            <div class="details">
+              <div class="shipping-info">
+                <div class="title">Shipping Address</div>
+                <div style="white-space: pre-line;">${order.address}</div>
+              </div>
+              <div class="order-info" style="text-align: right;">
+                <div class="title">Order Reference</div>
+                <strong>ID:</strong> ${order.id}<br>
+                <strong>Payment:</strong> Cash on Delivery
+              </div>
+            </div>
+            
+            <table>
+              <thead>
+                <tr>
+                  <th>Item Description</th>
+                  <th style="text-align: center;">Qty</th>
+                  <th style="text-align: right;">Price</th>
+                  <th style="text-align: right;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHtml}
+              </tbody>
+            </table>
+            
+            <div class="totals">
+              <div class="totals-row">
+                <span style="color: #666;">Subtotal</span>
+                <span>$${order.subtotal.toFixed(2)}</span>
+              </div>
+              <div class="totals-row">
+                <span style="color: #666;">Shipping</span>
+                <span>${order.shipping === 0 ? 'Free' : `$${order.shipping.toFixed(2)}`}</span>
+              </div>
+              <div class="totals-row">
+                <span style="color: #666;">Tax (8%)</span>
+                <span>$${order.tax.toFixed(2)}</span>
+              </div>
+              <div class="totals-row grand-total">
+                <span>Grand Total</span>
+                <span>$${order.grandTotal.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div class="footer">
+              Thank you for shopping with EasyFashion!<br>
+              If you have any questions about this invoice, please contact support@easyfashion.com
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() {
+                window.close();
+              }, 500);
+            }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   return (

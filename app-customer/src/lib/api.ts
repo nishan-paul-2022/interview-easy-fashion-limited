@@ -134,7 +134,8 @@ class ApiClient {
           if (
             typeof window !== 'undefined' &&
             !window.location.pathname.startsWith('/login') &&
-            !window.location.pathname.startsWith('/register')
+            !window.location.pathname.startsWith('/register') &&
+            !endpoint.includes('/auth/me')
           ) {
             window.location.href = '/login';
           }

@@ -10,11 +10,14 @@ import { Pagination } from '@/components/molecules/Pagination';
 import { ProductCardProps, ProductCard } from '@/components/molecules/ProductCard';
 import { SearchBar } from '@/components/molecules/SearchBar';
 import { ProductGridSkeleton } from '@/components/molecules/Skeleton';
+import { useToast } from '@/components/molecules/Toast';
+import { useCart } from '@/context/CartContext';
 import { apiClient } from '@/lib/api';
 
 interface FilterOptionResponse {
   id: string | number;
-  name: string;
+  name?: string;
+  label?: string;
 }
 
 interface ProductResponse {
@@ -36,10 +39,36 @@ function ProductsContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { dispatch } = useCart();
+  const { success } = useToast();
 
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<ProductCardProps[]>([]);
   const [totalPages, setTotalPages] = useState(1);
+
+  const handleAddToCart = (id: string) => {
+    const product = products.find((p) => p.id === id);
+    if (!product) {
+      return;
+    }
+
+    const size = product.sizes && product.sizes.length > 0 ? product.sizes[0] : 'OS';
+
+    dispatch({
+      type: 'ADD_ITEM',
+      payload: {
+        id: size ? `${product.id || ''}-${size}` : product.id || '',
+        productId: product.id || '',
+        name: product.name || '',
+        price: product.price || 0,
+        size,
+        quantity: 1,
+        imageUrl: product.imageUrl || '',
+      },
+    });
+
+    success(`Added ${product.name || ''} (Size: ${size}) to cart`);
+  };
 
   const [filterOptions, setFilterOptions] = useState<{
     category: { label: string; value: string }[];
@@ -64,6 +93,10 @@ function ProductsContent() {
   const [searchValue, setSearchValue] = useState(searchQuery);
 
   useEffect(() => {
+    setSearchValue(searchQuery);
+  }, [searchQuery]);
+
+  useEffect(() => {
     async function fetchFilters() {
       try {
         const [categoriesRes, stylesRes, sizesRes] = await Promise.all([
@@ -80,11 +113,14 @@ function ProductsContent() {
 
         setFilterOptions({
           category: (categoriesRes?.data || []).map((c) => ({
-            label: c.name,
+            label: c.name || '',
             value: String(c.id),
           })),
-          style: (stylesRes?.data || []).map((s) => ({ label: s.name, value: String(s.id) })),
-          size: (sizesRes?.data || []).map((s) => ({ label: s.name, value: String(s.id) })),
+          style: (stylesRes?.data || []).map((s) => ({ label: s.name || '', value: String(s.id) })),
+          size: (sizesRes?.data || []).map((s) => ({
+            label: s.label || s.name || '',
+            value: String(s.id),
+          })),
         });
       } catch {
         console.error('Failed to fetch filter options');
@@ -127,7 +163,9 @@ function ProductsContent() {
             sizes: p.sizes?.map((s) => s.name) || [],
             price: Number(p.price) || 0,
             imageUrl:
-              p.images?.[0] ||
+              (typeof p.images?.[0] === 'string'
+                ? p.images[0]
+                : (p.images?.[0] as unknown as { url: string })?.url) ||
               'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
           }));
           setProducts(formattedProducts);
@@ -292,7 +330,7 @@ function ProductsContent() {
           <>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
               {products.map((product) => (
-                <ProductCard key={product.id} {...product} />
+                <ProductCard key={product.id} {...product} onAddToCart={handleAddToCart} />
               ))}
             </div>
 

@@ -49,7 +49,7 @@ export default function CreateUserPage() {
         password,
       });
       toast.success('User created successfully');
-      router.push('/dashboard/users');
+      router.push('/users');
     } catch (e: unknown) {
       const err = e as { message?: string | string[] };
       let msg = 'Failed to create user';
@@ -159,7 +159,7 @@ export default function CreateUserPage() {
         <div className="mt-4 flex items-center justify-end gap-4 border-t border-muted/20 pt-6">
           <Button
             variant="ghost"
-            onClick={() => router.push('/dashboard/users')}
+            onClick={() => router.push('/users')}
             type="button"
             disabled={isSubmitting}
           >

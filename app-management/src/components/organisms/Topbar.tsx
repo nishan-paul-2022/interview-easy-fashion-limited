@@ -14,7 +14,7 @@ export const Topbar = () => {
   const { setIsMobileOpen } = useSidebar();
 
   const getPageTitle = () => {
-    if (!pathname || pathname === '/dashboard') {
+    if (!pathname || pathname === '/') {
       return 'Dashboard';
     }
     const parts = pathname.split('/').filter(Boolean);
@@ -30,7 +30,7 @@ export const Topbar = () => {
 
   const handleAccountAction = (value: string | string[]) => {
     if (value === 'profile') {
-      router.push('/dashboard/profile');
+      router.push('/profile');
     } else if (value === 'logout') {
       router.push('/login');
     }

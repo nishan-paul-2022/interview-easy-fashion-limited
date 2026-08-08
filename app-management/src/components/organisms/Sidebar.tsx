@@ -13,14 +13,14 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: 'LayoutDashboard' },
-  { label: 'Categories', href: '/dashboard/categories', icon: 'Folder' },
-  { label: 'Products', href: '/dashboard/products', icon: 'Package' },
-  { label: 'Sizes', href: '/dashboard/sizes', icon: 'Ruler' },
-  { label: 'Styles', href: '/dashboard/styles', icon: 'Palette' },
-  { label: 'Orders', href: '/dashboard/orders', icon: 'ShoppingBag' },
-  { label: 'Users', href: '/dashboard/users', icon: 'Users' },
-  { label: 'Settings', href: '/dashboard/settings', icon: 'Settings' },
+  { label: 'Dashboard', href: '/', icon: 'LayoutDashboard' },
+  { label: 'Categories', href: '/categories', icon: 'Folder' },
+  { label: 'Products', href: '/products', icon: 'Package' },
+  { label: 'Sizes', href: '/sizes', icon: 'Ruler' },
+  { label: 'Styles', href: '/styles', icon: 'Palette' },
+  { label: 'Orders', href: '/orders', icon: 'ShoppingBag' },
+  { label: 'Users', href: '/users', icon: 'Users' },
+  { label: 'Settings', href: '/settings', icon: 'Settings' },
 ];
 
 export const Sidebar = () => {
@@ -41,8 +41,8 @@ export const Sidebar = () => {
   };
 
   const isActive = (href: string) => {
-    if (href === '/dashboard') {
-      return pathname === '/dashboard';
+    if (href === '/') {
+      return pathname === '/';
     }
     return pathname?.startsWith(href) ?? false;
   };
@@ -67,12 +67,17 @@ export const Sidebar = () => {
         <div
           className={`h-16 flex items-center px-4 border-b border-muted/20 shrink-0 ${isCollapsed ? 'justify-center' : 'justify-between'}`}
         >
-          {!isCollapsed && (
+          {isCollapsed ? (
+            <Link href="/" className="hover:opacity-80 transition-opacity">
+              <img src="/logo.svg" alt="EasyFashion Logo" className="h-8 w-auto" />
+            </Link>
+          ) : (
             <Link
-              href="/dashboard"
-              className="text-accent font-bold text-xl tracking-tight truncate hover:opacity-80 transition-opacity"
+              href="/"
+              className="flex items-center gap-2 text-accent font-bold text-xl tracking-tight truncate hover:opacity-80 transition-opacity"
             >
-              EasyFashion
+              <img src="/logo.svg" alt="EasyFashion Logo" className="h-8 w-auto" />
+              <span>EasyFashion</span>
             </Link>
           )}
           <button

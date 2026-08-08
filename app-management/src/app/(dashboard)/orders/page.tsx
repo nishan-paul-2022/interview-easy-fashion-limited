@@ -75,7 +75,7 @@ export default function OrderListPage() {
   }, [fetchOrders]);
 
   const handleViewClick = (order: Order) => {
-    router.push(`/dashboard/orders/${order.id}`);
+    router.push(`/orders/${order.id}`);
   };
 
   const columns: DataTableColumn<Order>[] = [

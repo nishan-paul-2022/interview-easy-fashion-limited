@@ -8,6 +8,8 @@ import { Button } from '@/components/atoms/Button';
 import { Icon } from '@/components/atoms/Icon';
 import { ProductCardProps, ProductCard } from '@/components/molecules/ProductCard';
 import { ProductGridSkeleton } from '@/components/molecules/Skeleton';
+import { useToast } from '@/components/molecules/Toast';
+import { useCart } from '@/context/CartContext';
 import { apiClient } from '@/lib/api';
 
 interface StatsResponse {
@@ -44,6 +46,9 @@ interface FormattedCategory {
 }
 
 export default function Home() {
+  const { dispatch } = useCart();
+  const { success } = useToast();
+
   const [stats, setStats] = useState([
     { title: 'Total Categories', value: '-', icon: 'Folder' as const },
     { title: 'Total Products', value: '-', icon: 'Package' as const },
@@ -54,6 +59,30 @@ export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<ProductCardProps[]>([]);
   const [categories, setCategories] = useState<FormattedCategory[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+
+  const handleAddToCart = (id: string) => {
+    const product = featuredProducts.find((p) => p.id === id);
+    if (!product) {
+      return;
+    }
+
+    const size = product.sizes && product.sizes.length > 0 ? product.sizes[0] : 'OS';
+
+    dispatch({
+      type: 'ADD_ITEM',
+      payload: {
+        id: size ? `${product.id || ''}-${size}` : product.id || '',
+        productId: product.id || '',
+        name: product.name || '',
+        price: product.price || 0,
+        size,
+        quantity: 1,
+        imageUrl: product.imageUrl || '',
+      },
+    });
+
+    success(`Added ${product.name || ''} (Size: ${size}) to cart`);
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -98,18 +127,40 @@ export default function Home() {
             sizes: p.sizes?.map((s) => s.name) || [],
             price: Number(p.price) || 0,
             imageUrl:
-              p.images?.[0] ||
+              (typeof p.images?.[0] === 'string'
+                ? p.images[0]
+                : (p.images?.[0] as unknown as { url: string })?.url) ||
               'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
           }));
           setFeaturedProducts(formattedProducts);
         }
 
         if (categoriesData?.data) {
+          const categoryImages: Record<string, string> = {
+            Tops: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&q=80&w=600',
+            Jeans:
+              'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80&w=600',
+            Outerwear:
+              'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=600',
+            Footwear:
+              'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=600',
+            Accessories:
+              'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600',
+            Activewear:
+              'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=600',
+            'Suits & Formal':
+              'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&q=80&w=600',
+            Dresses:
+              'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&q=80&w=600',
+            Sleepwear:
+              'https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&q=80&w=600',
+            Hats: 'https://images.unsplash.com/photo-1514327605112-b887c0e61c0a?auto=format&fit=crop&q=80&w=600',
+          };
           const formattedCategories: FormattedCategory[] = categoriesData.data.map((c) => ({
             name: c.name,
             url: `/products?categoryId=${c.id}`,
             image:
-              c.imageUrl ||
+              categoryImages[c.name] ||
               'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
           }));
           setCategories(formattedCategories);
@@ -136,6 +187,7 @@ export default function Home() {
               src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80&w=1200"
               alt="Fashion 1"
               fill
+              unoptimized
               className="object-cover"
             />
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
@@ -160,6 +212,7 @@ export default function Home() {
               src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&q=80&w=1200"
               alt="Fashion 2"
               fill
+              unoptimized
               className="object-cover"
             />
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
@@ -208,7 +261,7 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.map((product) => (
-              <ProductCard key={product.id} {...product} />
+              <ProductCard key={product.id} {...product} onAddToCart={handleAddToCart} />
             ))}
           </div>
         )}
@@ -230,6 +283,7 @@ export default function Home() {
                 src={cat.image}
                 alt={cat.name}
                 fill
+                unoptimized
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 z-20 flex items-center justify-center">

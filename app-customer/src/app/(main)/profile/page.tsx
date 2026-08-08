@@ -69,7 +69,7 @@ export default function ProfilePage() {
       try {
         const [meRes, ordersRes] = await Promise.all([
           apiClient.get<ProfileData>('/auth/me'),
-          apiClient.get<PaginatedOrders>('/orders/me', { limit: 1000 }).catch(() => ({ data: [] })),
+          apiClient.get<PaginatedOrders>('/orders/me', { limit: 100 }).catch(() => ({ data: [] })),
         ]);
 
         if (mounted) {

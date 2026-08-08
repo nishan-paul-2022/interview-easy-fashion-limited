@@ -100,8 +100,8 @@ test.describe('Management Dashboard Happy Paths', () => {
     await page.click('button[type="submit"]');
 
     // Should redirect to dashboard home
-    await page.waitForURL('**/dashboard');
-    expect(page.url()).toContain('/dashboard');
+    await page.waitForURL((url) => url.pathname === '/' || url.pathname === '');
+    expect(page.url()).not.toContain('/login');
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
   });
 
@@ -152,7 +152,7 @@ test.describe('Management Dashboard Happy Paths', () => {
 
     // Pre-authenticate by setting a token directly in localStorage or going via login
     // Or just navigating directly if the auth guard uses the /auth/me mock
-    await page.goto('/dashboard/categories');
+    await page.goto('/categories');
 
     // 1. View list
     await expect(page.locator('text=Tops')).toBeVisible();
@@ -245,7 +245,7 @@ test.describe('Management Dashboard Happy Paths', () => {
       }
     });
 
-    await page.goto('/dashboard/products/new');
+    await page.goto('/products/new');
 
     // Fill the form
     await page.getByLabel('Product Name').fill('Awesome Jacket');
@@ -272,8 +272,8 @@ test.describe('Management Dashboard Happy Paths', () => {
     await page.click('button[type="submit"]');
 
     // Should redirect to products list
-    await page.waitForURL('**/dashboard/products');
-    expect(page.url()).toContain('/dashboard/products');
+    await page.waitForURL('**/products');
+    expect(page.url()).toContain('/products');
 
     // Since we mocked FormData without parsing, we can just check if we redirected successfully.
     expect(submittedData.name).toBe('Awesome Jacket');
@@ -328,7 +328,7 @@ test.describe('Management Dashboard Happy Paths', () => {
     });
 
     // Navigate directly to the order details page
-    await page.goto('/dashboard/orders/101');
+    await page.goto('/orders/101');
 
     // Verify initial status
     await expect(page.locator('text=Order #101')).toBeVisible();
@@ -352,7 +352,7 @@ test.describe('Management Dashboard Happy Paths', () => {
     await expect(page.locator('text=Order status updated successfully')).toBeVisible();
 
     // Now navigate to list
-    await page.goto('/dashboard/orders');
+    await page.goto('/orders');
 
     // In the list, the badge should now say PROCESSING
     await expect(page.locator('td').filter({ hasText: /Processing/i })).toBeVisible();

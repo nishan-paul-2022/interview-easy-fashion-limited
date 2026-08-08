@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import React, { useState } from 'react';
 import { Avatar } from '@/components/atoms/Avatar';
 import { Badge } from '@/components/atoms/Badge';
@@ -9,10 +9,13 @@ import { Icon } from '@/components/atoms/Icon';
 import { Dropdown } from '@/components/molecules/Dropdown';
 import { SearchBar } from '@/components/molecules/SearchBar';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Navbar = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const { totalItems } = useCart();
+  const { logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,8 +29,7 @@ export const Navbar = () => {
   const handleAccountAction = (value: string | string[]) => {
     const action = Array.isArray(value) ? value[0] : value;
     if (action === 'logout') {
-      // Handle logout logic
-      console.log('Logout');
+      logout();
     } else if (action) {
       router.push(action);
     }
@@ -64,19 +66,23 @@ export const Navbar = () => {
 
           <Link
             href="/"
-            className="text-accent font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 text-accent font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
           >
-            EasyFashion
+            <img src="/logo.svg" alt="EasyFashion Logo" className="h-8 w-auto" />
+            <span>EasyFashion</span>
           </Link>
 
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-6 ml-8">
-            <Link href="/" className="text-text hover:text-accent transition-colors font-medium">
+            <Link
+              href="/"
+              className={`transition-colors font-medium ${pathname === '/' ? 'text-accent' : 'text-text hover:text-accent'}`}
+            >
               Home
             </Link>
             <Link
               href="/products"
-              className="text-text hover:text-accent transition-colors font-medium"
+              className={`transition-colors font-medium ${pathname === '/products' || pathname.startsWith('/products/') ? 'text-accent' : 'text-text hover:text-accent'}`}
             >
               Products
             </Link>
@@ -156,14 +162,14 @@ export const Navbar = () => {
         <div className="md:hidden absolute top-16 left-0 right-0 bg-surface border-b border-muted/20 p-4 flex flex-col gap-4 shadow-lg">
           <Link
             href="/"
-            className="text-text hover:text-accent font-medium px-2 py-2 rounded hover:bg-muted/10 transition-colors"
+            className={`font-medium px-2 py-2 rounded hover:bg-muted/10 transition-colors ${pathname === '/' ? 'text-accent' : 'text-text hover:text-accent'}`}
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Home
           </Link>
           <Link
             href="/products"
-            className="text-text hover:text-accent font-medium px-2 py-2 rounded hover:bg-muted/10 transition-colors"
+            className={`font-medium px-2 py-2 rounded hover:bg-muted/10 transition-colors ${pathname === '/products' || pathname.startsWith('/products/') ? 'text-accent' : 'text-text hover:text-accent'}`}
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Products

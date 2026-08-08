@@ -1,6 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsOptional, IsString, IsNumber } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from '@/common/dto/pagination-query.dto';
 
 export class ProductQueryDto extends PaginationQueryDto {
@@ -10,20 +9,17 @@ export class ProductQueryDto extends PaginationQueryDto {
   search?: string;
 
   @ApiPropertyOptional()
-  @Type(() => Number)
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  categoryId?: number;
+  categoryId?: string;
 
   @ApiPropertyOptional()
-  @Type(() => Number)
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  styleId?: number;
+  styleId?: string;
 
   @ApiPropertyOptional()
-  @Type(() => Number)
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  sizeId?: number;
+  sizeId?: string;
 }

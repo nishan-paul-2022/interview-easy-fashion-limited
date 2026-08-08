@@ -71,15 +71,35 @@ export class ProductsService {
       where.name = { contains: search, mode: 'insensitive' };
     }
     if (categoryId) {
-      where.categoryId = categoryId;
+      const categoryIds = String(categoryId)
+        .split(',')
+        .map((id) => parseInt(id, 10))
+        .filter((id) => !isNaN(id));
+      if (categoryIds.length) {
+        where.categoryId = { in: categoryIds };
+      }
     }
     if (styleId) {
-      where.styleId = styleId;
+      const styleIds = String(styleId)
+        .split(',')
+        .map((id) => parseInt(id, 10))
+        .filter((id) => !isNaN(id));
+      if (styleIds.length) {
+        where.styleId = { in: styleIds };
+      }
     }
     if (sizeId) {
-      where.productSizes = {
-        some: { sizeId },
-      };
+      const sizeIds = String(sizeId)
+        .split(',')
+        .map((id) => parseInt(id, 10))
+        .filter((id) => !isNaN(id));
+      if (sizeIds.length) {
+        where.productSizes = {
+          some: {
+            sizeId: { in: sizeIds },
+          },
+        };
+      }
     }
 
     const [total, data] = await Promise.all([
