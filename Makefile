@@ -21,20 +21,6 @@ migrate:
 seed:
 	npx dotenv-cli -e .env -- sh -c "cd app-backend && npx prisma db seed"
 
-## Lint all apps
-lint:
-	npm run lint
-	@if [ -f app-backend/package.json ]; then npm run lint --prefix app-backend --if-present; fi
-	@if [ -f app-customer/package.json ]; then npm run lint --prefix app-customer --if-present; fi
-	@if [ -f app-management/package.json ]; then npm run lint --prefix app-management --if-present; fi
-
-## Fix lint errors in all apps
-lint-fix:
-	npm run lint:fix
-	@if [ -f app-backend/package.json ]; then npm run lint:fix --prefix app-backend --if-present; fi
-	@if [ -f app-customer/package.json ]; then npm run lint:fix --prefix app-customer --if-present; fi
-	@if [ -f app-management/package.json ]; then npm run lint:fix --prefix app-management --if-present; fi
-
 ## Run TypeScript type checking in all apps
 typecheck:
 	@if [ -f app-backend/package.json ]; then npm run typecheck --prefix app-backend --if-present; fi
@@ -47,6 +33,13 @@ format:
 	@if [ -f app-backend/package.json ]; then npm run format --prefix app-backend --if-present; fi
 	@if [ -f app-customer/package.json ]; then npm run format --prefix app-customer --if-present; fi
 	@if [ -f app-management/package.json ]; then npm run format --prefix app-management --if-present; fi
+
+## Lint all apps and auto-fix errors
+lint:
+	npm run lint:fix
+	@if [ -f app-backend/package.json ]; then npm run lint:fix --prefix app-backend --if-present; fi
+	@if [ -f app-customer/package.json ]; then npm run lint:fix --prefix app-customer --if-present; fi
+	@if [ -f app-management/package.json ]; then npm run lint:fix --prefix app-management --if-present; fi
 
 ## Run tests in all apps
 test:
