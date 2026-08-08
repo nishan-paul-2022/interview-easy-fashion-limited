@@ -60,7 +60,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </Link>
 
       <div className="px-4 pb-4 mt-auto">
-        <div className="pt-4 flex flex-col xl:flex-row xl:items-center justify-between gap-3 xl:gap-2 border-t border-muted/10">
+        <div className="pt-3 flex flex-col gap-2 border-t border-muted/10">
           <span className="text-xl font-bold text-accent">${price.toFixed(2)}</span>
           <Button
             variant="success"
@@ -71,7 +71,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               onAddToCart?.(id);
             }}
             leftIcon="ShoppingBag"
-            className="w-full xl:w-auto justify-center"
+            className="w-full justify-center whitespace-nowrap"
           >
             Add to Cart
           </Button>
