@@ -93,6 +93,10 @@ function ProductsContent() {
   const [searchValue, setSearchValue] = useState(searchQuery);
 
   useEffect(() => {
+    setSearchValue(searchQuery);
+  }, [searchQuery]);
+
+  useEffect(() => {
     async function fetchFilters() {
       try {
         const [categoriesRes, stylesRes, sizesRes] = await Promise.all([
