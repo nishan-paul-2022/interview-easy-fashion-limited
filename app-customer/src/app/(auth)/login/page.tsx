@@ -26,13 +26,19 @@ export default function LoginPage() {
   const toast = useToast();
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const callbackProcessed = React.useRef(false);
 
   React.useEffect(() => {
     const handleOAuthCallback = async () => {
+      if (callbackProcessed.current) {
+        return;
+      }
+
       const params = new URLSearchParams(window.location.search);
       const token = params.get('accessToken');
       const refresh = params.get('refreshToken');
       if (token && refresh) {
+        callbackProcessed.current = true;
         try {
           setTokens(token, refresh);
           const userData = await apiClient.get<User>('/auth/me');
