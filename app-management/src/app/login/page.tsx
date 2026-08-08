@@ -40,7 +40,7 @@ export default function ManagementLoginPage() {
 
       login(response.user, response.accessToken, response.refreshToken);
       toast.success('Successfully logged in!');
-      router.push('/dashboard');
+      router.push('/');
     } catch (error) {
       const err = error as Error;
       toast.error(err.message || 'Login failed');

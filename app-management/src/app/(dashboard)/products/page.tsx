@@ -118,15 +118,15 @@ export default function ProductListPage() {
   }, [fetchProducts]);
 
   const handleAddClick = () => {
-    router.push('/dashboard/products/new');
+    router.push('/products/new');
   };
 
   const handleEditClick = (product: ProductData) => {
-    router.push(`/dashboard/products/${product.id}/edit`);
+    router.push(`/products/${product.id}/edit`);
   };
 
   const handleViewClick = (product: ProductData) => {
-    router.push(`/dashboard/products/${product.id}`);
+    router.push(`/products/${product.id}`);
   };
 
   const handleDeleteClick = (product: ProductData) => {

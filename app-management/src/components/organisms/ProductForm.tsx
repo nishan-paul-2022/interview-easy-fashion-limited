@@ -132,7 +132,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, isEdit })
         await apiClient.post('/products', formData);
         toast.success('Product created successfully!');
       }
-      router.push('/dashboard/products');
+      router.push('/products');
     } catch (e: unknown) {
       const err = e as { message?: string | string[] };
       let msg = 'An error occurred';
@@ -302,7 +302,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, isEdit })
       <div className="mt-4 flex items-center justify-end gap-4 border-t border-muted/20 pt-6">
         <Button
           variant="ghost"
-          onClick={() => router.push('/dashboard/products')}
+          onClick={() => router.push('/products')}
           type="button"
           disabled={isSubmitting}
         >

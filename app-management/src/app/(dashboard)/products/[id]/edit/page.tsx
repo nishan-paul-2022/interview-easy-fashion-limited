@@ -57,7 +57,7 @@ export default function ProductEditPage() {
         setInitialData(data);
       } catch {
         toast.error('Failed to load product for editing');
-        router.push('/dashboard/products');
+        router.push('/products');
       } finally {
         setIsLoading(false);
       }

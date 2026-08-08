@@ -56,7 +56,7 @@ export default function ProductDetailsPage() {
         setProduct(res);
       } catch {
         toast.error('Failed to load product details');
-        router.push('/dashboard/products');
+        router.push('/products');
       } finally {
         setIsLoading(false);
       }
@@ -69,7 +69,7 @@ export default function ProductDetailsPage() {
 
   const handleEditClick = () => {
     if (product) {
-      router.push(`/dashboard/products/${product.id}/edit`);
+      router.push(`/products/${product.id}/edit`);
     }
   };
 
@@ -85,7 +85,7 @@ export default function ProductDetailsPage() {
       await apiClient.delete(`/products/${product.id}`);
       toast.success(`Product "${product.name}" deleted successfully.`);
       setIsDeleteModalOpen(false);
-      router.push('/dashboard/products');
+      router.push('/products');
     } catch (e: unknown) {
       const err = e as { message?: string };
       toast.error(err.message || 'Failed to delete product');
@@ -117,11 +117,7 @@ export default function ProductDetailsPage() {
           <p className="text-sm text-muted">ID: {product.id}</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            onClick={() => router.push('/dashboard/products')}
-            leftIcon="ChevronLeft"
-          >
+          <Button variant="ghost" onClick={() => router.push('/products')} leftIcon="ChevronLeft">
             Back to List
           </Button>
           <Button variant="outline" onClick={handleEditClick} leftIcon="Pencil">

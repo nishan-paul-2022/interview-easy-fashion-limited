@@ -61,7 +61,7 @@ export default function OrderDetailsPage() {
         setSelectedStatus(res.status);
       } catch {
         toast.error('Failed to load order details');
-        router.push('/dashboard/orders');
+        router.push('/orders');
       } finally {
         setIsLoading(false);
       }
@@ -158,11 +158,7 @@ export default function OrderDetailsPage() {
           <h1 className="text-2xl font-bold text-text">Order Details</h1>
           <p className="text-sm text-muted">Order #{order.id}</p>
         </div>
-        <Button
-          variant="ghost"
-          onClick={() => router.push('/dashboard/orders')}
-          leftIcon="ChevronLeft"
-        >
+        <Button variant="ghost" onClick={() => router.push('/orders')} leftIcon="ChevronLeft">
           Back to Orders
         </Button>
       </div>

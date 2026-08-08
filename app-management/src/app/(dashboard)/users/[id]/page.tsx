@@ -46,7 +46,7 @@ export default function UserDetailsPage() {
         setUser(res);
       } catch {
         toast.error('Failed to load user details');
-        router.push('/dashboard/users');
+        router.push('/users');
       } finally {
         setIsLoading(false);
       }
@@ -131,11 +131,7 @@ export default function UserDetailsPage() {
           <p className="text-sm text-muted">ID: {user.id}</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            onClick={() => router.push('/dashboard/users')}
-            leftIcon="ChevronLeft"
-          >
+          <Button variant="ghost" onClick={() => router.push('/users')} leftIcon="ChevronLeft">
             Back to Users
           </Button>
           <Button

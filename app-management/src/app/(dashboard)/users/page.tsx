@@ -72,11 +72,11 @@ export default function UserManagementPage() {
   }, [fetchUsers]);
 
   const handleAddClick = () => {
-    router.push('/dashboard/users/new');
+    router.push('/users/new');
   };
 
   const handleViewClick = (user: User) => {
-    router.push(`/dashboard/users/${user.id}`);
+    router.push(`/users/${user.id}`);
   };
 
   const handleDeactivateClick = (user: User) => {
