@@ -2,8 +2,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -21,11 +22,22 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const toast = useToast();
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const errorParam = searchParams.get('error');
+
+  useEffect(() => {
+    if (errorParam === 'inactive') {
+      toast.error('Account is inactive. Please contact support.');
+    } else if (errorParam === 'auth_failed') {
+      toast.error('Authentication failed. Please try again.');
+    }
+  }, [errorParam, toast]);
 
   const {
     register,
@@ -59,6 +71,24 @@ export default function LoginPage() {
         <h2 className="text-3xl font-bold tracking-tight text-text">Welcome back</h2>
         <p className="mt-2 text-sm text-muted">Please sign in to your account</p>
       </div>
+
+      {errorParam === 'inactive' && (
+        <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-500">
+          <p className="font-semibold">Account is inactive</p>
+          <p className="mt-1 text-xs opacity-90">
+            Your account has been deactivated. Please contact support for assistance.
+          </p>
+        </div>
+      )}
+
+      {errorParam === 'auth_failed' && (
+        <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-500">
+          <p className="font-semibold">Authentication failed</p>
+          <p className="mt-1 text-xs opacity-90">
+            An error occurred during authentication. Please try again.
+          </p>
+        </div>
+      )}
 
       <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
         <Input
@@ -138,5 +168,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-8">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -160,7 +160,11 @@ export class OrdersService {
         },
         orderItems: {
           include: {
-            product: true,
+            product: {
+              include: {
+                images: true,
+              },
+            },
           },
         },
       },

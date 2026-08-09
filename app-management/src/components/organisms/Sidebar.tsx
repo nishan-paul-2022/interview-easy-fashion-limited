@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { Icon, IconName } from '@/components/atoms/Icon';
 import { useSidebar } from '@/context/SidebarContext';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 
 interface NavItem {
   label: string;
@@ -26,6 +27,7 @@ const navItems: NavItem[] = [
 export const Sidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const { user } = useDashboardAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { isMobileOpen, setIsMobileOpen } = useSidebar();
 
@@ -98,33 +100,40 @@ export const Sidebar = () => {
 
         {/* Navigation Links */}
         <nav className="flex-1 overflow-y-auto py-4 flex flex-col gap-1 px-2 scrollbar-thin">
-          {navItems.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 py-2.5 rounded-md transition-colors relative group outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                  active ? 'text-accent bg-accent/10' : 'text-text hover:bg-muted/10'
-                } ${isCollapsed ? 'justify-center px-0' : 'px-3'}`}
-                title={isCollapsed ? item.label : undefined}
-              >
-                {active && (
-                  <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-r-md" />
-                )}
-                <Icon
-                  name={item.icon}
-                  size={20}
-                  className={
-                    active ? 'text-accent' : 'text-muted group-hover:text-text transition-colors'
-                  }
-                />
-                {!isCollapsed && (
-                  <span className="font-medium whitespace-nowrap truncate">{item.label}</span>
-                )}
-              </Link>
-            );
-          })}
+          {navItems
+            .filter((item) => {
+              if (item.href === '/users') {
+                return user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
+              }
+              return true;
+            })
+            .map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 py-2.5 rounded-md transition-colors relative group outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                    active ? 'text-accent bg-accent/10' : 'text-text hover:bg-muted/10'
+                  } ${isCollapsed ? 'justify-center px-0' : 'px-3'}`}
+                  title={isCollapsed ? item.label : undefined}
+                >
+                  {active && (
+                    <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-r-md" />
+                  )}
+                  <Icon
+                    name={item.icon}
+                    size={20}
+                    className={
+                      active ? 'text-accent' : 'text-muted group-hover:text-text transition-colors'
+                    }
+                  />
+                  {!isCollapsed && (
+                    <span className="font-medium whitespace-nowrap truncate">{item.label}</span>
+                  )}
+                </Link>
+              );
+            })}
         </nav>
 
         {/* Logout Button */}

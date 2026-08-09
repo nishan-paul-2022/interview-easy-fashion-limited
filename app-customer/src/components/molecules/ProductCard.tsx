@@ -40,11 +40,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             unoptimized
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-1.5 z-10">
-            {sizes.map((size) => (
-              <Badge key={size} label={size} variant="neutral" />
-            ))}
-          </div>
         </div>
 
         <div className="flex flex-col p-4 flex-grow">
@@ -53,9 +48,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <span>{styleName}</span>
           </div>
 
-          <h3 className="text-text font-medium text-lg leading-tight mb-2 line-clamp-2 group-hover:text-accent transition-colors">
+          <h3 className="text-text font-medium text-lg leading-tight mb-3 line-clamp-2 group-hover:text-accent transition-colors">
             {name}
           </h3>
+
+          <div className="flex flex-wrap gap-1.5 mt-auto">
+            {sizes.map((size) => (
+              <Badge key={size} label={size} variant="neutral" />
+            ))}
+          </div>
         </div>
       </Link>
 

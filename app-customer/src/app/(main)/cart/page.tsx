@@ -9,6 +9,7 @@ import { Button } from '@/components/atoms/Button';
 import { Icon } from '@/components/atoms/Icon';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { useCart } from '@/context/CartContext';
+import { getFullSizeName } from '@/lib/utils';
 
 export default function CartPage() {
   const { state, dispatch, subtotal } = useCart();
@@ -77,7 +78,7 @@ export default function CartPage() {
                     >
                       {item.name}
                     </Link>
-                    <p className="text-sm text-muted">Size: {item.size}</p>
+                    <p className="text-sm text-muted">Size: {getFullSizeName(item.size)}</p>
                     <button
                       onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: item.id })}
                       className="mt-1 flex w-fit items-center gap-1 text-sm text-error hover:underline"

@@ -32,7 +32,7 @@ const roleOptions = [
 export default function UserManagementPage() {
   const router = useRouter();
   const toast = useToast();
-  const { user: currentUser } = useDashboardAuth();
+  const { user: currentUser, isLoading: isAuthLoading } = useDashboardAuth();
 
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,8 +68,15 @@ export default function UserManagementPage() {
   }, [debouncedSearch, selectedRole, toast]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    if (!isAuthLoading && currentUser) {
+      if (currentUser.role === 'MANAGER') {
+        router.replace('/');
+        toast.error('You do not have permission to access the user management page.');
+        return;
+      }
+      fetchUsers();
+    }
+  }, [currentUser, isAuthLoading, fetchUsers, router, toast]);
 
   const handleAddClick = () => {
     router.push('/users/new');
@@ -80,6 +87,10 @@ export default function UserManagementPage() {
   };
 
   const handleDeactivateClick = (user: User) => {
+    if (currentUser?.role !== 'SUPER_ADMIN') {
+      toast.error('You do not have permission to deactivate users.');
+      return;
+    }
     if (user.id === currentUser?.id) {
       toast.error('You cannot deactivate your own account.');
       return;
@@ -168,9 +179,11 @@ export default function UserManagementPage() {
             onChange={(val) => setSelectedRole(val as string)}
           />
         </div>
-        <Button variant="primary" leftIcon="Plus" onClick={handleAddClick}>
-          Add User
-        </Button>
+        {currentUser?.role === 'SUPER_ADMIN' && (
+          <Button variant="primary" leftIcon="Plus" onClick={handleAddClick}>
+            Add User
+          </Button>
+        )}
       </div>
 
       {/* Data Table */}
@@ -185,6 +198,7 @@ export default function UserManagementPage() {
         }}
         rowActions={(row) => {
           const isSelf = row.id === currentUser?.id;
+          const isSuperAdmin = currentUser?.role === 'SUPER_ADMIN';
           return (
             <>
               <Button
@@ -194,19 +208,21 @@ export default function UserManagementPage() {
                 onClick={() => handleViewClick(row)}
                 aria-label="View user"
               />
-              <Button
-                variant="ghost"
-                size="sm"
-                leftIcon={row.isActive ? 'Minus' : 'CheckCircle'}
-                className={
-                  row.isActive
-                    ? 'text-error hover:bg-error/10 hover:text-error'
-                    : 'text-success hover:bg-success/10 hover:text-success'
-                }
-                onClick={() => handleDeactivateClick(row)}
-                aria-label={row.isActive ? 'Deactivate user' : 'Activate user'}
-                disabled={isSelf}
-              />
+              {isSuperAdmin && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  leftIcon={row.isActive ? 'Minus' : 'CheckCircle'}
+                  className={
+                    row.isActive
+                      ? 'text-error hover:bg-error/10 hover:text-error'
+                      : 'text-success hover:bg-success/10 hover:text-success'
+                  }
+                  onClick={() => handleDeactivateClick(row)}
+                  aria-label={row.isActive ? 'Deactivate user' : 'Activate user'}
+                  disabled={isSelf}
+                />
+              )}
             </>
           );
         }}
@@ -216,6 +232,8 @@ export default function UserManagementPage() {
       <DeleteConfirmationModal
         isOpen={isDeactivateModalOpen}
         title={userToDeactivate?.isActive ? 'Deactivate User' : 'Activate User'}
+        confirmLabel={userToDeactivate?.isActive ? 'Deactivate' : 'Activate'}
+        confirmVariant={userToDeactivate?.isActive ? 'danger' : 'primary'}
         description={
           <span>
             Are you sure you want to {userToDeactivate?.isActive ? 'deactivate' : 'activate'}{' '}

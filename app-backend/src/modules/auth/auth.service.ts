@@ -267,6 +267,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
+    if (!user.isActive) {
+      throw new ForbiddenException('Account is inactive');
+    }
+
     if (!user.refreshTokenHash) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -325,6 +329,11 @@ export class AuthService {
         });
         user = await this.usersService.findById(user.id);
       }
+    }
+
+    if (!user!.isActive) {
+      await this.usersService.logAudit(user!.id, AuditAction.LOGIN_FAILURE, ipAddress, userAgent);
+      throw new ForbiddenException('Account is inactive');
     }
 
     const accessToken = this.tokenService.generateAccessToken(user!);

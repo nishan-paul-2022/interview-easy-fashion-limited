@@ -21,9 +21,19 @@ export const Topbar = () => {
     }
     const parts = pathname.split('/').filter(Boolean);
     const lastPart = parts[parts.length - 1];
-    if (!lastPart) {
-      return 'Dashboard';
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(lastPart);
+    const isNumeric = /^\d+$/.test(lastPart);
+    if ((isUuid || isNumeric) && parts.length > 1) {
+      const parentPart = parts[parts.length - 2];
+      const singular = parentPart.endsWith('ies')
+        ? parentPart.slice(0, -3) + 'y'
+        : parentPart.endsWith('s')
+          ? parentPart.slice(0, -1)
+          : parentPart;
+      const formattedParent = singular.charAt(0).toUpperCase() + singular.slice(1);
+      return `${formattedParent} Details`;
     }
+
     return lastPart
       .split('-')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))

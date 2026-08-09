@@ -5,6 +5,7 @@ import { Badge } from '@/components/atoms/Badge';
 import { Icon, IconName } from '@/components/atoms/Icon';
 import { Skeleton } from '@/components/molecules/Skeleton';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { apiClient } from '@/lib/api';
 
 interface SummaryData {
@@ -98,6 +99,7 @@ const userColumns: DataTableColumn<UserData>[] = [
 ];
 
 export default function DashboardHomePage() {
+  const { user: currentUser } = useDashboardAuth();
   const [summary, setSummary] = useState<SummaryData | null>(null);
   const [orders, setOrders] = useState<OrderData[]>([]);
   const [users, setUsers] = useState<UserData[]>([]);
@@ -105,6 +107,8 @@ export default function DashboardHomePage() {
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+
+  const isManager = currentUser?.role === 'MANAGER';
 
   useEffect(() => {
     let mounted = true;
@@ -156,18 +160,23 @@ export default function DashboardHomePage() {
 
     fetchSummary();
     fetchOrders();
-    fetchUsers();
+    if (!isManager) {
+      fetchUsers();
+    } else {
+      setIsLoadingUsers(false);
+    }
 
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isManager]);
 
   const summaryStats = [
     {
       label: 'Total Users',
       value: summary?.totalUsers ?? summary?.users ?? '0',
       icon: 'Users' as IconName,
+      hidden: isManager,
     },
     {
       label: 'Total Categories',
@@ -184,7 +193,7 @@ export default function DashboardHomePage() {
       value: summary?.totalOrders ?? summary?.orders ?? '0',
       icon: 'ShoppingBag' as IconName,
     },
-  ];
+  ].filter((stat) => !stat.hidden);
 
   return (
     <div className="flex w-full max-w-7xl mx-auto flex-col gap-8 pb-10">
@@ -218,7 +227,11 @@ export default function DashboardHomePage() {
             ))}
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div
+        className={
+          isManager ? 'w-full flex flex-col gap-4' : 'grid grid-cols-1 xl:grid-cols-2 gap-8'
+        }
+      >
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-text">Latest Orders</h2>
@@ -231,17 +244,19 @@ export default function DashboardHomePage() {
           />
         </div>
 
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-text">Recent Users</h2>
+        {!isManager && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-text">Recent Users</h2>
+            </div>
+            <DataTable
+              columns={userColumns}
+              data={users}
+              isLoading={isLoadingUsers}
+              emptyProps={{ icon: 'Users', title: 'No users found' }}
+            />
           </div>
-          <DataTable
-            columns={userColumns}
-            data={users}
-            isLoading={isLoadingUsers}
-            emptyProps={{ icon: 'Users', title: 'No users found' }}
-          />
-        </div>
+        )}
       </div>
     </div>
   );

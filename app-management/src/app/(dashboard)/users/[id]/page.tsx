@@ -30,7 +30,7 @@ export default function UserDetailsPage() {
   const params = useParams();
   const toast = useToast();
   const userId = params.id as string;
-  const { user: currentUser } = useDashboardAuth();
+  const { user: currentUser, isLoading: isAuthLoading } = useDashboardAuth();
 
   const [user, setUser] = useState<UserDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,10 +51,17 @@ export default function UserDetailsPage() {
         setIsLoading(false);
       }
     }
-    if (userId) {
-      fetchUser();
+    if (!isAuthLoading && currentUser) {
+      if (currentUser.role === 'MANAGER') {
+        router.replace('/');
+        toast.error('You do not have permission to access user details.');
+        return;
+      }
+      if (userId) {
+        fetchUser();
+      }
     }
-  }, [userId, router, toast]);
+  }, [userId, router, toast, currentUser, isAuthLoading]);
 
   const handleToggleStatusClick = () => {
     setIsDeactivateModalOpen(true);
@@ -124,25 +131,27 @@ export default function UserDetailsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 pb-12">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">User Details</h1>
-          <p className="text-sm text-muted">ID: {user.id}</p>
+          <span className="inline-flex items-center px-2.5 py-1 rounded bg-muted/10 border border-muted/20 text-xs font-semibold text-muted font-mono">
+            USER ID: {user.id}
+          </span>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="ghost" onClick={() => router.push('/users')} leftIcon="ChevronLeft">
             Back to Users
           </Button>
-          <Button
-            variant={isUserActive ? 'danger' : 'primary'}
-            onClick={handleToggleStatusClick}
-            leftIcon={isUserActive ? 'Minus' : 'CheckCircle'}
-            disabled={isSelf || isUpdatingStatus}
-            isLoading={isUpdatingStatus}
-          >
-            {isUserActive ? 'Deactivate' : 'Activate'}
-          </Button>
+          {currentUser?.role === 'SUPER_ADMIN' && (
+            <Button
+              variant={isUserActive ? 'danger' : 'primary'}
+              onClick={handleToggleStatusClick}
+              leftIcon={isUserActive ? 'Minus' : 'CheckCircle'}
+              disabled={isSelf || isUpdatingStatus}
+              isLoading={isUpdatingStatus}
+            >
+              {isUserActive ? 'Deactivate' : 'Activate'}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -161,7 +170,7 @@ export default function UserDetailsPage() {
               variant={isUserActive ? 'success' : 'neutral'}
             />
 
-            {isSelf ? (
+            {isSelf || currentUser?.role !== 'SUPER_ADMIN' ? (
               <Badge
                 label={user.role?.name}
                 variant={
@@ -198,9 +207,9 @@ export default function UserDetailsPage() {
           <div className="flex flex-col gap-4 rounded-xl border border-muted/20 bg-surface p-6 shadow-sm">
             <h3 className="text-lg font-bold text-text">Contact Information</h3>
             <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 min-w-0">
                 <span className="text-sm font-medium text-muted">Email Address</span>
-                <span className="font-semibold text-text">{user.email}</span>
+                <span className="font-semibold text-text break-all">{user.email}</span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm font-medium text-muted">Phone Number</span>
@@ -248,6 +257,8 @@ export default function UserDetailsPage() {
       <DeleteConfirmationModal
         isOpen={isDeactivateModalOpen}
         title={isUserActive ? 'Deactivate User' : 'Activate User'}
+        confirmLabel={isUserActive ? 'Deactivate' : 'Activate'}
+        confirmVariant={isUserActive ? 'danger' : 'primary'}
         description={
           <span>
             Are you sure you want to {isUserActive ? 'deactivate' : 'activate'}{' '}

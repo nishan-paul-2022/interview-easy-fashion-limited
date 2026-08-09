@@ -15,6 +15,7 @@ import { Textarea } from '@/components/atoms/Textarea';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { useCart } from '@/context/CartContext';
 import { apiClient } from '@/lib/api';
+import { getFullSizeName } from '@/lib/utils';
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -200,18 +201,23 @@ export default function CheckoutPage() {
             {/* Read-only Line Items */}
             <div className="flex max-h-60 flex-col gap-4 overflow-y-auto pr-2 scrollbar-thin">
               {state.items.map((item) => (
-                <div key={item.id} className="flex gap-4">
+                <div key={item.id} className="flex gap-4 items-start">
                   <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded bg-muted/10">
                     <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
                   </div>
-                  <div className="flex flex-1 flex-col">
-                    <span className="font-semibold text-text line-clamp-1">{item.name}</span>
-                    <span className="text-sm text-muted">
-                      Size: {item.size} &bull; Qty: {item.quantity}
-                    </span>
-                    <span className="mt-auto font-medium text-text">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </span>
+                  <div className="flex flex-col text-sm text-muted">
+                    <span className="font-semibold text-text line-clamp-1 mb-1.5">{item.name}</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
+                        Size: {getFullSizeName(item.size)}
+                      </span>
+                      <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
+                        Quantity: {item.quantity}
+                      </span>
+                      <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
+                        Price: ${item.price.toFixed(2)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}

@@ -10,6 +10,8 @@ export interface DeleteConfirmationModalProps {
   description: React.ReactNode;
   onConfirm: () => void;
   onCancel: () => void;
+  confirmLabel?: string;
+  confirmVariant?: 'primary' | 'danger' | 'outline' | 'ghost';
 }
 
 export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
@@ -18,14 +20,16 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
   description,
   onConfirm,
   onCancel,
+  confirmLabel,
+  confirmVariant,
 }) => {
   const footer = (
     <>
       <Button variant="ghost" onClick={onCancel}>
         Cancel
       </Button>
-      <Button variant="danger" onClick={onConfirm}>
-        Confirm Delete
+      <Button variant={confirmVariant || 'danger'} onClick={onConfirm}>
+        {confirmLabel || 'Confirm Delete'}
       </Button>
     </>
   );

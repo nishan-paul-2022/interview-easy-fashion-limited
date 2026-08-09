@@ -9,31 +9,16 @@ import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmati
 import { ImageGallery } from '@/components/molecules/ImageGallery';
 import { Skeleton } from '@/components/molecules/Skeleton';
 import { useToast } from '@/components/molecules/Toast';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { apiClient } from '@/lib/api';
-
-const getStatusBadge = (status: string) => {
-  switch ((status || '').toUpperCase()) {
-    case 'ACTIVE':
-      return <Badge label="Active" variant="success" />;
-    case 'DRAFT':
-      return <Badge label="Draft" variant="warning" />;
-    case 'OUT_OF_STOCK':
-      return <Badge label="Out of Stock" variant="error" />;
-    case 'INACTIVE':
-      return <Badge label="Inactive" variant="neutral" />;
-    default:
-      return <Badge label={status || 'Unknown'} variant="neutral" />;
-  }
-};
 
 interface ProductDetails {
   id: string;
   name: string;
   category?: { id: string; name: string };
   style?: { id: string; name: string };
-  sizes?: { id: string; name: string }[];
+  productSizes?: { size?: { id: string; label: string } }[];
   price: number;
-  status: string;
   isActive?: boolean;
   description: string;
   images: string[];
@@ -44,6 +29,8 @@ export default function ProductDetailsPage() {
   const params = useParams();
   const toast = useToast();
   const productId = params.id as string;
+  const { user } = useDashboardAuth();
+  const isManager = user?.role === 'MANAGER';
 
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,16 +55,28 @@ export default function ProductDetailsPage() {
   }, [productId, router, toast]);
 
   const handleEditClick = () => {
+    if (isManager) {
+      toast.error('You do not have permission to edit products.');
+      return;
+    }
     if (product) {
       router.push(`/products/${product.id}/edit`);
     }
   };
 
   const handleDeleteClick = () => {
+    if (isManager) {
+      toast.error('You do not have permission to delete products.');
+      return;
+    }
     setIsDeleteModalOpen(true);
   };
 
   const handleConfirmDelete = async () => {
+    if (isManager) {
+      toast.error('You do not have permission to delete products.');
+      return;
+    }
     if (!product) {
       return;
     }
@@ -113,19 +112,24 @@ export default function ProductDetailsPage() {
       {/* Header with actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">Product Details</h1>
-          <p className="text-sm text-muted">ID: {product.id}</p>
+          <span className="inline-flex items-center px-2.5 py-1 rounded bg-muted/10 border border-muted/20 text-xs font-semibold text-muted font-mono">
+            PRODUCT ID: {product.id}
+          </span>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="ghost" onClick={() => router.push('/products')} leftIcon="ChevronLeft">
             Back to List
           </Button>
-          <Button variant="outline" onClick={handleEditClick} leftIcon="Pencil">
-            Edit Product
-          </Button>
-          <Button variant="danger" onClick={handleDeleteClick} leftIcon="Trash2">
-            Delete
-          </Button>
+          {!isManager && (
+            <>
+              <Button variant="outline" onClick={handleEditClick} leftIcon="Pencil">
+                Edit Product
+              </Button>
+              <Button variant="danger" onClick={handleDeleteClick} leftIcon="Trash2">
+                Delete
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -151,7 +155,11 @@ export default function ProductDetailsPage() {
               <span className="text-2xl font-bold text-accent">
                 ${Number(product.price).toFixed(2)}
               </span>
-              {getStatusBadge(product.isActive === false ? 'INACTIVE' : product.status)}
+              {product.isActive === false ? (
+                <Badge label="Inactive" variant="neutral" />
+              ) : (
+                <Badge label="Active" variant="success" />
+              )}
             </div>
           </div>
 
@@ -168,15 +176,15 @@ export default function ProductDetailsPage() {
               <div className="col-span-2 flex flex-col gap-2 pt-2">
                 <span className="text-sm font-medium text-muted">Available Sizes</span>
                 <div className="flex flex-wrap gap-2">
-                  {(product.sizes || []).map((size) => (
+                  {(product.productSizes || []).map((ps) => (
                     <span
-                      key={size.id}
+                      key={ps.size?.id}
                       className="rounded-md border border-muted/20 bg-muted/5 px-3 py-1 text-sm font-medium text-text"
                     >
-                      {size.name}
+                      {ps.size?.label || ''}
                     </span>
                   ))}
-                  {(!product.sizes || product.sizes.length === 0) && (
+                  {(!product.productSizes || product.productSizes.length === 0) && (
                     <span className="text-sm text-muted">No sizes selected</span>
                   )}
                 </div>

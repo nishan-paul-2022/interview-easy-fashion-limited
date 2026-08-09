@@ -7,10 +7,13 @@ import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmati
 import { useToast } from '@/components/molecules/Toast';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
 import { SimpleEntityFormModal, SimpleEntity } from '@/components/organisms/SimpleEntityFormModal';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { apiClient } from '@/lib/api';
 
 export default function SizeManagementPage() {
   const toast = useToast();
+  const { user } = useDashboardAuth();
+  const isManager = user?.role === 'MANAGER';
 
   const [sizes, setSizes] = useState<SimpleEntity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,6 +58,10 @@ export default function SizeManagementPage() {
   };
 
   const handleSaveSize = async (data: { value: string }) => {
+    if (isManager) {
+      toast.error('You do not have permission to modify sizes.');
+      return;
+    }
     try {
       if (sizeToEdit) {
         await apiClient.patch(`/sizes/${sizeToEdit.id}`, { label: data.value });
@@ -80,6 +87,10 @@ export default function SizeManagementPage() {
   };
 
   const handleConfirmDelete = async () => {
+    if (isManager) {
+      toast.error('You do not have permission to delete sizes.');
+      return;
+    }
     if (!sizeToDelete) {
       return;
     }
@@ -120,9 +131,11 @@ export default function SizeManagementPage() {
           <h1 className="text-2xl font-bold text-text">Size Management</h1>
           <p className="text-sm text-muted">Manage product sizes available in the store.</p>
         </div>
-        <Button variant="primary" leftIcon="Plus" onClick={handleAddClick}>
-          Add Size
-        </Button>
+        {!isManager && (
+          <Button variant="primary" leftIcon="Plus" onClick={handleAddClick}>
+            Add Size
+          </Button>
+        )}
       </div>
 
       {/* Data Table */}
@@ -134,30 +147,36 @@ export default function SizeManagementPage() {
           icon: 'Ruler',
           title: 'No sizes yet',
           description: 'Get started by creating your first product size.',
-          action: {
-            label: 'Add Size',
-            onClick: handleAddClick,
-          },
+          action: isManager
+            ? undefined
+            : {
+                label: 'Add Size',
+                onClick: handleAddClick,
+              },
         }}
-        rowActions={(row) => (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon="Pencil"
-              onClick={() => handleEditClick(row)}
-              aria-label="Edit size"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon="Trash2"
-              className="text-error hover:bg-error/10 hover:text-error"
-              onClick={() => handleDeleteClick(row)}
-              aria-label="Delete size"
-            />
-          </>
-        )}
+        rowActions={
+          isManager
+            ? undefined
+            : (row) => (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon="Pencil"
+                    onClick={() => handleEditClick(row)}
+                    aria-label="Edit size"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon="Trash2"
+                    className="text-error hover:bg-error/10 hover:text-error"
+                    onClick={() => handleDeleteClick(row)}
+                    aria-label="Delete size"
+                  />
+                </>
+              )
+        }
       />
 
       {/* Create / Edit Form Modal */}

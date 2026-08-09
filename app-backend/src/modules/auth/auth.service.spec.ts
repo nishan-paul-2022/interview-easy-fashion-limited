@@ -200,7 +200,7 @@ describe('AuthService', () => {
 
   describe('refresh', () => {
     it('should return new token pair on valid token', async () => {
-      const user = { id: '1', refreshTokenHash: 'hashed_refresh' };
+      const user = { id: '1', refreshTokenHash: 'hashed_refresh', isActive: true };
       usersService.findById.mockResolvedValue(user as never);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (bcrypt.hash as jest.Mock).mockResolvedValue('new_hashed_refresh');
@@ -215,7 +215,7 @@ describe('AuthService', () => {
     });
 
     it('should clear hash and throw UnauthorizedException on reused token', async () => {
-      const user = { id: '1', refreshTokenHash: 'hashed_refresh' };
+      const user = { id: '1', refreshTokenHash: 'hashed_refresh', isActive: true };
       usersService.findById.mockResolvedValue(user as never);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 

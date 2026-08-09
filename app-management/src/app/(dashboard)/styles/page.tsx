@@ -7,10 +7,13 @@ import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmati
 import { useToast } from '@/components/molecules/Toast';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
 import { SimpleEntityFormModal, SimpleEntity } from '@/components/organisms/SimpleEntityFormModal';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { apiClient } from '@/lib/api';
 
 export default function StyleManagementPage() {
   const toast = useToast();
+  const { user } = useDashboardAuth();
+  const isManager = user?.role === 'MANAGER';
 
   const [styles, setStyles] = useState<SimpleEntity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,6 +58,10 @@ export default function StyleManagementPage() {
   };
 
   const handleSaveStyle = async (data: { value: string }) => {
+    if (isManager) {
+      toast.error('You do not have permission to modify styles.');
+      return;
+    }
     try {
       if (styleToEdit) {
         await apiClient.patch(`/styles/${styleToEdit.id}`, { name: data.value });
@@ -80,6 +87,10 @@ export default function StyleManagementPage() {
   };
 
   const handleConfirmDelete = async () => {
+    if (isManager) {
+      toast.error('You do not have permission to delete styles.');
+      return;
+    }
     if (!styleToDelete) {
       return;
     }
@@ -120,9 +131,11 @@ export default function StyleManagementPage() {
           <h1 className="text-2xl font-bold text-text">Style Management</h1>
           <p className="text-sm text-muted">Manage product styles available in the store.</p>
         </div>
-        <Button variant="primary" leftIcon="Plus" onClick={handleAddClick}>
-          Add Style
-        </Button>
+        {!isManager && (
+          <Button variant="primary" leftIcon="Plus" onClick={handleAddClick}>
+            Add Style
+          </Button>
+        )}
       </div>
 
       {/* Data Table */}
@@ -134,30 +147,36 @@ export default function StyleManagementPage() {
           icon: 'Palette',
           title: 'No styles yet',
           description: 'Get started by creating your first product style.',
-          action: {
-            label: 'Add Style',
-            onClick: handleAddClick,
-          },
+          action: isManager
+            ? undefined
+            : {
+                label: 'Add Style',
+                onClick: handleAddClick,
+              },
         }}
-        rowActions={(row) => (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon="Pencil"
-              onClick={() => handleEditClick(row)}
-              aria-label="Edit style"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon="Trash2"
-              className="text-error hover:bg-error/10 hover:text-error"
-              onClick={() => handleDeleteClick(row)}
-              aria-label="Delete style"
-            />
-          </>
-        )}
+        rowActions={
+          isManager
+            ? undefined
+            : (row) => (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon="Pencil"
+                    onClick={() => handleEditClick(row)}
+                    aria-label="Edit style"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon="Trash2"
+                    className="text-error hover:bg-error/10 hover:text-error"
+                    onClick={() => handleDeleteClick(row)}
+                    aria-label="Delete style"
+                  />
+                </>
+              )
+        }
       />
 
       {/* Create / Edit Form Modal */}

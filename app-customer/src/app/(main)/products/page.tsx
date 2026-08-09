@@ -26,7 +26,7 @@ interface ProductResponse {
   price: number | string;
   category?: { name: string };
   style?: { name: string };
-  sizes?: { name: string }[];
+  productSizes?: { size?: { id: string; label: string } }[];
   images?: string[];
 }
 
@@ -96,6 +96,16 @@ function ProductsContent() {
     setSearchValue(searchQuery);
   }, [searchQuery]);
 
+  // Debounced auto-search as user types
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchValue !== searchQuery) {
+        updateQueryString('search', searchValue);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchValue, searchQuery]);
+
   useEffect(() => {
     async function fetchFilters() {
       try {
@@ -161,7 +171,10 @@ function ProductsContent() {
             name: p.name,
             category: p.category?.name || 'Uncategorized',
             styleName: p.style?.name || 'Standard',
-            sizes: p.sizes?.map((s) => s.name) || [],
+            sizes:
+              p.productSizes
+                ?.map((ps) => ps.size?.label)
+                .filter((l): l is string => typeof l === 'string') || [],
             price: Number(p.price) || 0,
             imageUrl:
               (typeof p.images?.[0] === 'string'
@@ -324,11 +337,13 @@ function ProductsContent() {
           />
         </div>
 
-        {isLoading ? (
+        {isLoading && products.length === 0 ? (
           <ProductGridSkeleton />
         ) : products.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
+            <div
+              className={`grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-6 transition-opacity duration-200 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
+            >
               {products.map((product) => (
                 <ProductCard key={product.id} {...product} onAddToCart={handleAddToCart} />
               ))}

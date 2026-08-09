@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 
 import { Button } from '@/components/atoms/Button';
 import { Icon } from '@/components/atoms/Icon';
+import { getFullSizeName } from '@/lib/utils';
 
 interface OrderItem {
   id: string;
@@ -66,7 +67,7 @@ export default function OrderSuccessPage() {
       .map(
         (item) => `
         <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px;">${item.name} (Size: ${item.size})</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px;">${item.name} (Size: ${getFullSizeName(item.size)})</td>
           <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px; text-align: center;">${item.quantity}</td>
           <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px; text-align: right;">$${item.price.toFixed(2)}</td>
           <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px; text-align: right;">$${(item.price * item.quantity).toFixed(2)}</td>
@@ -125,7 +126,7 @@ export default function OrderSuccessPage() {
               <thead>
                 <tr>
                   <th>Item Description</th>
-                  <th style="text-align: center;">Qty</th>
+                  <th style="text-align: center;">Quantity</th>
                   <th style="text-align: right;">Price</th>
                   <th style="text-align: right;">Total</th>
                 </tr>
@@ -209,18 +210,23 @@ export default function OrderSuccessPage() {
         <h3 className="mb-4 font-semibold text-text">Order Summary</h3>
         <div className="flex flex-col gap-4">
           {order.items.map((item) => (
-            <div key={item.id} className="flex gap-4">
+            <div key={item.id} className="flex gap-4 items-start">
               <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded bg-muted/10">
                 <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
               </div>
-              <div className="flex flex-1 flex-col">
-                <span className="font-semibold text-text line-clamp-1">{item.name}</span>
-                <span className="text-sm text-muted">
-                  Size: {item.size} &bull; Qty: {item.quantity}
-                </span>
-                <span className="mt-auto font-medium text-text">
-                  ${(item.price * item.quantity).toFixed(2)}
-                </span>
+              <div className="flex flex-col text-sm text-muted">
+                <span className="font-semibold text-text line-clamp-1 mb-1.5">{item.name}</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
+                    Size: {getFullSizeName(item.size)}
+                  </span>
+                  <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
+                    Quantity: {item.quantity}
+                  </span>
+                  <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
+                    Price: ${item.price.toFixed(2)}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
