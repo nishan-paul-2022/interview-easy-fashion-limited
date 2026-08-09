@@ -124,11 +124,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, isEdit })
       if (isEdit) {
         // In this simple API logic, we might just pass new files
         // and ignore existing URLs depending on backend, but let's pass new files
-        newImageFiles.forEach((file) => formData.append('images', file));
+        newImageFiles.forEach((file) => formData.append('files', file));
         await apiClient.patch(`/products/${initialData?.id}`, formData);
         toast.success('Product updated successfully!');
       } else {
-        newImageFiles.forEach((file) => formData.append('images', file));
+        newImageFiles.forEach((file) => formData.append('files', file));
         await apiClient.post('/products', formData);
         toast.success('Product created successfully!');
       }
