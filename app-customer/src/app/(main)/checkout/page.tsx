@@ -15,6 +15,7 @@ import { Textarea } from '@/components/atoms/Textarea';
 import { EmptyState } from '@/components/molecules/EmptyState';
 import { useCart } from '@/context/CartContext';
 import { apiClient } from '@/lib/api';
+import { getFullSizeName } from '@/lib/utils';
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -208,7 +209,7 @@ export default function CheckoutPage() {
                     <span className="font-semibold text-text line-clamp-1 mb-1.5">{item.name}</span>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
-                        Size: {item.size}
+                        Size: {getFullSizeName(item.size)}
                       </span>
                       <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
                         Quantity: {item.quantity}

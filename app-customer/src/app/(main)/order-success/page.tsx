@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 
 import { Button } from '@/components/atoms/Button';
 import { Icon } from '@/components/atoms/Icon';
+import { getFullSizeName } from '@/lib/utils';
 
 interface OrderItem {
   id: string;
@@ -66,7 +67,7 @@ export default function OrderSuccessPage() {
       .map(
         (item) => `
         <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px;">${item.name} (Size: ${item.size})</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px;">${item.name} (Size: ${getFullSizeName(item.size)})</td>
           <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px; text-align: center;">${item.quantity}</td>
           <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px; text-align: right;">$${item.price.toFixed(2)}</td>
           <td style="padding: 10px; border-bottom: 1px solid #eaeaea; font-size: 14px; text-align: right;">$${(item.price * item.quantity).toFixed(2)}</td>
@@ -217,7 +218,7 @@ export default function OrderSuccessPage() {
                 <span className="font-semibold text-text line-clamp-1 mb-1.5">{item.name}</span>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
-                    Size: {item.size}
+                    Size: {getFullSizeName(item.size)}
                   </span>
                   <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
                     Quantity: {item.quantity}
