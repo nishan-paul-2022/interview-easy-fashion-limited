@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/atoms/Button';
-import { Icon } from '@/components/atoms/Icon';
 import { Input } from '@/components/atoms/Input';
 import { PasswordInput } from '@/components/atoms/PasswordInput';
 import { useToast } from '@/components/molecules/Toast';
@@ -53,7 +52,7 @@ export default function ManagementLoginPage() {
     <div className="flex flex-col w-full gap-8">
       <div className="flex flex-col items-center text-center gap-3">
         <div className="w-14 h-14 rounded-2xl bg-bg flex items-center justify-center shadow-inner border border-muted/10">
-          <Icon name="Shield" size={28} className="text-accent" />
+          <img src="/logo.svg" alt="EasyFashion Logo" className="h-8 w-auto" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-text">Admin Login</h1>
