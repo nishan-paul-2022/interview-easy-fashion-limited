@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import { Avatar } from '@/components/atoms/Avatar';
 import { Icon } from '@/components/atoms/Icon';
@@ -14,26 +14,6 @@ export const Topbar = () => {
   const router = useRouter();
   const { setIsMobileOpen } = useSidebar();
   const { user } = useDashboardAuth();
-
-  const [isDarkMode, setIsDarkMode] = useState(true);
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === 'dark');
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const nextMode = !isDarkMode;
-    setIsDarkMode(nextMode);
-    localStorage.setItem('theme', nextMode ? 'dark' : 'light');
-    if (nextMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
 
   const getPageTitle = () => {
     if (!pathname || pathname === '/') {
@@ -77,14 +57,6 @@ export const Topbar = () => {
       </div>
 
       <div className="flex items-center gap-6">
-        <button
-          onClick={toggleTheme}
-          className="text-muted hover:text-text transition-colors p-1.5 rounded-md hover:bg-muted/10 outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          aria-label="Toggle Theme"
-        >
-          <Icon name={isDarkMode ? 'Sun' : 'Moon'} size={20} />
-        </button>
-
         <Dropdown
           align="right"
           trigger={
