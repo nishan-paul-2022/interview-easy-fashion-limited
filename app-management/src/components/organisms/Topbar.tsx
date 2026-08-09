@@ -7,11 +7,13 @@ import { Avatar } from '@/components/atoms/Avatar';
 import { Icon } from '@/components/atoms/Icon';
 import { Dropdown } from '@/components/molecules/Dropdown';
 import { useSidebar } from '@/context/SidebarContext';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 
 export const Topbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { setIsMobileOpen } = useSidebar();
+  const { user } = useDashboardAuth();
 
   const getPageTitle = () => {
     if (!pathname || pathname === '/') {
@@ -67,7 +69,7 @@ export const Topbar = () => {
           align="right"
           trigger={
             <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-              <Avatar name="Admin User" size="sm" />
+              <Avatar name={user?.fullName || 'Admin User'} size="sm" />
               <Icon name="ChevronRight" size={16} className="text-muted rotate-90" />
             </div>
           }
