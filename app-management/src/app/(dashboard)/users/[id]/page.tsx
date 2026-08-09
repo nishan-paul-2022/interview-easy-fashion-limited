@@ -131,10 +131,12 @@ export default function UserDetailsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 pb-12">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-text">{user.id}</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <h1 className="text-2xl font-bold text-text">User Details</h1>
+          <span className="inline-flex items-center px-2.5 py-1 rounded bg-muted/10 border border-muted/20 text-xs font-semibold text-muted font-mono">
+            ID: {user.id}
+          </span>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="ghost" onClick={() => router.push('/users')} leftIcon="ChevronLeft">
