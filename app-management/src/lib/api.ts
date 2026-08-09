@@ -147,7 +147,8 @@ class ApiClient {
         return {} as T;
       }
 
-      return await response.json();
+      const text = await response.text();
+      return text ? JSON.parse(text) : ({} as T);
     } catch (error) {
       throw error;
     }
