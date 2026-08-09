@@ -22,7 +22,8 @@ export const Topbar = () => {
     const parts = pathname.split('/').filter(Boolean);
     const lastPart = parts[parts.length - 1];
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(lastPart);
-    if (isUuid && parts.length > 1) {
+    const isNumeric = /^\d+$/.test(lastPart);
+    if ((isUuid || isNumeric) && parts.length > 1) {
       const parentPart = parts[parts.length - 2];
       const singular = parentPart.endsWith('ies')
         ? parentPart.slice(0, -3) + 'y'
