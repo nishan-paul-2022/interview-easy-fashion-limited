@@ -51,10 +51,18 @@ async function main() {
 
     console.log('🌱 Seeding default users...');
     // 2. Seed Super Admin, Admin, and Manager
-    const defaultPassword = process.env.SUPER_ADMIN_PASSWORD || 'admin123!';
+    const defaultPassword = process.env.SUPER_ADMIN_PASSWORD;
+    if (!defaultPassword) {
+      throw new Error(
+        'SUPER_ADMIN_PASSWORD environment variable is required for database seeding.',
+      );
+    }
     const passwordHash = await bcrypt.hash(defaultPassword, 12);
 
-    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@easyfashion.com';
+    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+    if (!superAdminEmail) {
+      throw new Error('SUPER_ADMIN_EMAIL environment variable is required for database seeding.');
+    }
     const superAdmin = await prisma.user.create({
       data: {
         email: superAdminEmail,
