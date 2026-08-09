@@ -109,16 +109,24 @@ export class AuthController {
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string,
   ) {
-    const result = await this.authService.googleLogin(
-      req.user as { providerId: string; email: string; fullName: string },
-      ip,
-      userAgent,
-    );
     const frontendUrl =
       this.configService.get<string>('CORS_ORIGIN_CUSTOMER') || 'http://localhost:3013';
-    return res.redirect(
-      `${frontendUrl}/auth/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
-    );
+    try {
+      const result = await this.authService.googleLogin(
+        req.user as { providerId: string; email: string; fullName: string },
+        ip,
+        userAgent,
+      );
+      return res.redirect(
+        `${frontendUrl}/auth/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
+      );
+    } catch (error: unknown) {
+      const err = error as { status?: number; message?: string };
+      if (err.status === 403 || err.message === 'Account is inactive') {
+        return res.redirect(`${frontendUrl}/login?error=inactive`);
+      }
+      return res.redirect(`${frontendUrl}/login?error=auth_failed`);
+    }
   }
 
   @Get('facebook')
@@ -137,16 +145,24 @@ export class AuthController {
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string,
   ) {
-    const result = await this.authService.facebookLogin(
-      req.user as { providerId: string; email: string; fullName: string },
-      ip,
-      userAgent,
-    );
     const frontendUrl =
       this.configService.get<string>('CORS_ORIGIN_CUSTOMER') || 'http://localhost:3013';
-    return res.redirect(
-      `${frontendUrl}/auth/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
-    );
+    try {
+      const result = await this.authService.facebookLogin(
+        req.user as { providerId: string; email: string; fullName: string },
+        ip,
+        userAgent,
+      );
+      return res.redirect(
+        `${frontendUrl}/auth/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
+      );
+    } catch (error: unknown) {
+      const err = error as { status?: number; message?: string };
+      if (err.status === 403 || err.message === 'Account is inactive') {
+        return res.redirect(`${frontendUrl}/login?error=inactive`);
+      }
+      return res.redirect(`${frontendUrl}/login?error=auth_failed`);
+    }
   }
 
   @Post('forgot-password')

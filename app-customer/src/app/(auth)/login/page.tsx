@@ -2,8 +2,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -21,11 +22,21 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const toast = useToast();
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'inactive') {
+      toast.error('Account is inactive. Please contact support.');
+    } else if (errorParam === 'auth_failed') {
+      toast.error('Authentication failed. Please try again.');
+    }
+  }, [searchParams, toast]);
 
   const {
     register,
@@ -138,5 +149,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-8">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
