@@ -14,6 +14,10 @@ async function main() {
   if (!connectionString) {
     throw new Error('DATABASE_URL is not set');
   }
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  if (!cloudName) {
+    throw new Error('CLOUDINARY_CLOUD_NAME is not set');
+  }
 
   const pool = new Pool({ connectionString });
   const adapter = new PrismaPg(pool);
@@ -23,6 +27,7 @@ async function main() {
     console.log('🧹 Cleaning existing data...');
     // Delete in order to satisfy foreign key constraints
     await prisma.auditLog.deleteMany({});
+    await prisma.heroBanner.deleteMany({});
     await prisma.orderItem.deleteMany({});
     await prisma.order.deleteMany({});
     await prisma.productImage.deleteMany({});
@@ -102,23 +107,54 @@ async function main() {
 
     // 4. Seed Categories
     console.log('🌱 Seeding categories...');
-    const categoryNames = [
-      'Tops',
-      'Jeans',
-      'Outerwear',
-      'Footwear',
-      'Accessories',
-      'Activewear',
-      'Suits & Formal',
-      'Dresses',
-      'Sleepwear',
-      'Hats',
+    const categoryDefinitions = [
+      {
+        name: 'Tops',
+        image: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260309/easy-fashion-categories/tops.jpg`,
+      },
+      {
+        name: 'Jeans',
+        image: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260309/easy-fashion-categories/jeans.jpg`,
+      },
+      {
+        name: 'Outerwear',
+        image: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260310/easy-fashion-categories/outerwear.jpg`,
+      },
+      {
+        name: 'Footwear',
+        image: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260311/easy-fashion-categories/footwear.jpg`,
+      },
+      {
+        name: 'Accessories',
+        image: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260311/easy-fashion-categories/accessories.jpg`,
+      },
+      {
+        name: 'Activewear',
+        image: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260312/easy-fashion-categories/activewear.jpg`,
+      },
+      {
+        name: 'Suits & Formal',
+        image: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260313/easy-fashion-categories/suits-formal.jpg`,
+      },
+      {
+        name: 'Dresses',
+        image: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260314/easy-fashion-categories/dresses.jpg`,
+      },
+      {
+        name: 'Sleepwear',
+        image: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260314/easy-fashion-categories/sleepwear.jpg`,
+      },
+      {
+        name: 'Hats',
+        image: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260315/easy-fashion-categories/hats.jpg`,
+      },
     ];
     const categories = [];
-    for (const name of categoryNames) {
+    for (const catDef of categoryDefinitions) {
       const cat = await prisma.category.create({
         data: {
-          name,
+          name: catDef.name,
+          imageUrl: catDef.image,
           description: faker.commerce.productDescription(),
           isActive: true,
         },
@@ -168,7 +204,6 @@ async function main() {
       'Hoodie',
     ];
 
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'hkzrv0ol';
     const SEED_IMAGES = [
       `https://res.cloudinary.com/${cloudName}/image/upload/v1786260048/easy-fashion-seed/yellow-dress.jpg`,
       `https://res.cloudinary.com/${cloudName}/image/upload/v1786260048/easy-fashion-seed/fashion-bags.jpg`,
@@ -294,6 +329,28 @@ async function main() {
         },
       });
     }
+
+    // 10. Seed Banners
+    console.log('🌱 Seeding hero banners...');
+    await prisma.heroBanner.createMany({
+      data: [
+        {
+          title: 'Summer Collection 2026',
+          subtitle:
+            'Discover the latest trends in modern fashion. High quality, responsive styles for everyone.',
+          imageUrl: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260802/easy-fashion-hero/hero-1.jpg`,
+          buttonText: 'Shop Now',
+          buttonLink: '/products',
+        },
+        {
+          title: 'Elevate Your Style',
+          subtitle: 'Minimalist designs with a focus on comfort and durability.',
+          imageUrl: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260802/easy-fashion-hero/hero-2.jpg`,
+          buttonText: 'Explore Products',
+          buttonLink: '/products',
+        },
+      ],
+    });
 
     console.log('✅ Seeding completed successfully!');
   } catch (error) {

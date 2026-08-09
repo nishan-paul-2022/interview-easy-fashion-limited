@@ -165,8 +165,7 @@ function ProductsContent() {
             imageUrl:
               (typeof p.images?.[0] === 'string'
                 ? p.images[0]
-                : (p.images?.[0] as unknown as { url: string })?.url) ||
-              `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'hkzrv0ol'}/image/upload/v1786260049/easy-fashion-seed/clothes-rack.jpg`,
+                : (p.images?.[0] as unknown as { url: string })?.url) || `/placeholder.svg`,
           }));
           setProducts(formattedProducts);
           setTotalPages(res?.meta?.lastPage || Math.ceil((res?.meta?.total || 0) / limit) || 1);

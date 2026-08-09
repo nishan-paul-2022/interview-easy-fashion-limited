@@ -16,4 +16,9 @@ export class CreateCategoryDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
 }

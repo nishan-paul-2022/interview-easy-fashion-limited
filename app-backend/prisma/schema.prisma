@@ -61,6 +61,7 @@ model Category {
   id          Int       @id @default(autoincrement())
   name        String    @unique
   description String?
+  imageUrl    String?
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -182,4 +183,16 @@ model EmailVerificationToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+model HeroBanner {
+  id         Int      @id @default(autoincrement())
+  title      String
+  subtitle   String?
+  imageUrl   String
+  buttonText String?
+  buttonLink String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

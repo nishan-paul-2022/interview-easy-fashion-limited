@@ -158,8 +158,7 @@ export default function ProductListPage() {
         const imgUrl =
           (typeof row.images?.[0] === 'string'
             ? row.images[0]
-            : (row.images?.[0] as unknown as { url: string })?.url) ||
-          `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'hkzrv0ol'}/image/upload/v1786260049/easy-fashion-seed/clothes-rack.jpg`;
+            : (row.images?.[0] as unknown as { url: string })?.url) || '/placeholder.svg';
         return (
           <div className="h-12 w-12 overflow-hidden rounded-md border border-muted/20 bg-muted/10">
             <img

@@ -45,8 +45,16 @@ interface FormattedCategory {
   image: string;
 }
 
+interface Banner {
+  id: number;
+  title: string;
+  subtitle?: string;
+  imageUrl: string;
+  buttonText?: string;
+  buttonLink?: string;
+}
+
 export default function Home() {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const { dispatch } = useCart();
   const { success } = useToast();
 
@@ -60,6 +68,25 @@ export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<ProductCardProps[]>([]);
   const [categories, setCategories] = useState<FormattedCategory[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [banners, setBanners] = useState<Banner[]>([
+    {
+      id: 1,
+      title: 'Summer Collection 2026',
+      subtitle:
+        'Discover the latest trends in modern fashion. High quality, responsive styles for everyone.',
+      imageUrl: '/hero-1.jpg',
+      buttonText: 'Shop Now',
+      buttonLink: '/products',
+    },
+    {
+      id: 2,
+      title: 'Elevate Your Style',
+      subtitle: 'Minimalist designs with a focus on comfort and durability.',
+      imageUrl: '/hero-2.jpg',
+      buttonText: 'Explore Products',
+      buttonLink: '/products',
+    },
+  ]);
 
   const handleAddToCart = (id: string) => {
     const product = featuredProducts.find((p) => p.id === id);
@@ -88,7 +115,7 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [statsData, productsData, categoriesData] = await Promise.all([
+        const [statsData, productsData, categoriesData, bannersData] = await Promise.all([
           apiClient.get<StatsResponse>('/stats/summary').catch(() => null),
           apiClient
             .get<PaginatedResponse<ProductResponse>>('/products', { limit: 6 })
@@ -96,6 +123,7 @@ export default function Home() {
           apiClient
             .get<PaginatedResponse<CategoryResponse>>('/categories')
             .catch(() => ({ data: [] })),
+          apiClient.get<Banner[]>('/banners').catch(() => []),
         ]);
 
         if (statsData) {
@@ -130,33 +158,22 @@ export default function Home() {
             imageUrl:
               (typeof p.images?.[0] === 'string'
                 ? p.images[0]
-                : (p.images?.[0] as unknown as { url: string })?.url) ||
-              `https://res.cloudinary.com/${cloudName}/image/upload/v1786260049/easy-fashion-seed/clothes-rack.jpg`,
+                : (p.images?.[0] as unknown as { url: string })?.url) || `/placeholder.svg`,
           }));
           setFeaturedProducts(formattedProducts);
         }
 
         if (categoriesData?.data) {
-          const categoryImages: Record<string, string> = {
-            Tops: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260309/easy-fashion-categories/tops.jpg`,
-            Jeans: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260309/easy-fashion-categories/jeans.jpg`,
-            Outerwear: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260310/easy-fashion-categories/outerwear.jpg`,
-            Footwear: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260311/easy-fashion-categories/footwear.jpg`,
-            Accessories: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260311/easy-fashion-categories/accessories.jpg`,
-            Activewear: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260312/easy-fashion-categories/activewear.jpg`,
-            'Suits & Formal': `https://res.cloudinary.com/${cloudName}/image/upload/v1786260313/easy-fashion-categories/suits-formal.jpg`,
-            Dresses: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260314/easy-fashion-categories/dresses.jpg`,
-            Sleepwear: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260314/easy-fashion-categories/sleepwear.jpg`,
-            Hats: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260315/easy-fashion-categories/hats.jpg`,
-          };
           const formattedCategories: FormattedCategory[] = categoriesData.data.map((c) => ({
             name: c.name,
             url: `/products?categoryId=${c.id}`,
-            image:
-              categoryImages[c.name] ||
-              `https://res.cloudinary.com/${cloudName}/image/upload/v1786260049/easy-fashion-seed/clothes-rack.jpg`,
+            image: c.imageUrl || `/placeholder.svg`,
           }));
           setCategories(formattedCategories);
+        }
+
+        if (bannersData && bannersData.length > 0) {
+          setBanners(bannersData);
         }
       } catch {
         // Ignored empty catch to satisfy empty block rules without throwing
@@ -166,62 +183,45 @@ export default function Home() {
       }
     }
     fetchData();
-  }, [cloudName]);
+  }, []);
 
   return (
     <div className="flex flex-col gap-12">
       {/* Hero Section */}
-      <section className="w-full rounded-lg overflow-hidden relative">
-        <Carousel autoplay effect="fade">
-          <div className="relative min-h-96 md:min-h-screen w-full">
-            <div className="absolute inset-0 bg-black/60 z-10" />
+      {banners.length > 0 && (
+        <section className="w-full rounded-lg overflow-hidden relative">
+          <Carousel autoplay effect="fade">
+            {banners.map((banner) => (
+              <div key={banner.id} className="relative min-h-96 md:min-h-screen w-full">
+                <div className="absolute inset-0 bg-black/60 z-10" />
 
-            <Image
-              src={`https://res.cloudinary.com/${cloudName}/image/upload/v1786260802/easy-fashion-hero/hero-1.jpg`}
-              alt="Fashion 1"
-              fill
-              unoptimized
-              className="object-cover"
-            />
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-                Summer Collection 2026
-              </h1>
-              <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl">
-                Discover the latest trends in modern fashion. High quality, responsive styles for
-                everyone.
-              </p>
-              <Link href="/products">
-                <Button variant="primary" size="lg">
-                  Shop Now
-                </Button>
-              </Link>
-            </div>
-          </div>
-          <div className="relative min-h-96 md:min-h-screen w-full">
-            <div className="absolute inset-0 bg-black/60 z-10" />
-
-            <Image
-              src={`https://res.cloudinary.com/${cloudName}/image/upload/v1786260802/easy-fashion-hero/hero-2.jpg`}
-              alt="Fashion 2"
-              fill
-              unoptimized
-              className="object-cover"
-            />
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">Elevate Your Style</h1>
-              <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl">
-                Minimalist designs with a focus on comfort and durability.
-              </p>
-              <Link href="/products">
-                <Button variant="primary" size="lg">
-                  Explore Products
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </Carousel>
-      </section>
+                <Image
+                  src={banner.imageUrl}
+                  alt={banner.title}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
+                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">{banner.title}</h1>
+                  {banner.subtitle && (
+                    <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl">
+                      {banner.subtitle}
+                    </p>
+                  )}
+                  {banner.buttonText && (
+                    <Link href={banner.buttonLink || '/products'}>
+                      <Button variant="primary" size="lg">
+                        {banner.buttonText}
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+          </Carousel>
+        </section>
+      )}
 
       {/* Summary Stats Section */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

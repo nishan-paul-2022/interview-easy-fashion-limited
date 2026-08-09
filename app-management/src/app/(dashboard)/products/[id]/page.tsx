@@ -138,9 +138,7 @@ export default function ProductDetailsPage() {
                 ? product.images.map((img: unknown) =>
                     typeof img === 'string' ? img : (img as { url: string }).url,
                   )
-                : [
-                    `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'hkzrv0ol'}/image/upload/v1786260049/easy-fashion-seed/clothes-rack.jpg`,
-                  ]
+                : ['/placeholder.svg']
             }
           />
         </div>
