@@ -39,7 +39,7 @@ export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
     return (
       <div
         ref={ref}
-        className={`relative inline-flex items-center justify-center rounded-full overflow-hidden bg-surface text-accent shrink-0 ${sizes[size]} ${className}`}
+        className={`relative inline-flex items-center justify-center rounded-full overflow-hidden bg-accent/5 border border-accent/30 text-accent shrink-0 ${sizes[size]} ${className}`}
         {...props}
       >
         {src && !imageError ? (
