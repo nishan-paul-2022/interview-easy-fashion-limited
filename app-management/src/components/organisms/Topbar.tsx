@@ -60,9 +60,8 @@ export const Topbar = () => {
         <Dropdown
           align="right"
           trigger={
-            <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+            <div className="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
               <Avatar name={user?.fullName || 'Admin User'} size="sm" />
-              <Icon name="ChevronRight" size={16} className="text-muted rotate-90" />
             </div>
           }
           options={accountOptions}
