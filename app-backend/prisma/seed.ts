@@ -168,6 +168,20 @@ async function main() {
       'Hoodie',
     ];
 
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'hkzrv0ol';
+    const SEED_IMAGES = [
+      `https://res.cloudinary.com/${cloudName}/image/upload/v1786260048/easy-fashion-seed/yellow-dress.jpg`,
+      `https://res.cloudinary.com/${cloudName}/image/upload/v1786260048/easy-fashion-seed/fashion-bags.jpg`,
+      `https://res.cloudinary.com/${cloudName}/image/upload/v1786260049/easy-fashion-seed/clothes-rack.jpg`,
+      `https://res.cloudinary.com/${cloudName}/image/upload/v1786260050/easy-fashion-seed/streetwear-coat.jpg`,
+      `https://res.cloudinary.com/${cloudName}/image/upload/v1786260051/easy-fashion-seed/model-jacket.jpg`,
+      `https://res.cloudinary.com/${cloudName}/image/upload/v1786260051/easy-fashion-seed/floral-dress.jpg`,
+      `https://res.cloudinary.com/${cloudName}/image/upload/v1786260052/easy-fashion-seed/red-sweater.jpg`,
+      `https://res.cloudinary.com/${cloudName}/image/upload/v1786260053/easy-fashion-seed/mens-suit.jpg`,
+      `https://res.cloudinary.com/${cloudName}/image/upload/v1786260053/easy-fashion-seed/white-shirt.jpg`,
+      `https://res.cloudinary.com/${cloudName}/image/upload/v1786260054/easy-fashion-seed/red-sneaker.jpg`,
+    ];
+
     const productsPerCombination = 6;
     for (const category of categories) {
       for (const style of styles) {
@@ -188,11 +202,12 @@ async function main() {
 
           // Product Images (1-3 images)
           const imageCount = faker.number.int({ min: 1, max: 3 });
+          const chosenImages = faker.helpers.arrayElements(SEED_IMAGES, imageCount);
           for (let j = 0; j < imageCount; j++) {
             await prisma.productImage.create({
               data: {
                 productId: product.id,
-                url: faker.image.urlLoremFlickr({ category: 'fashion', width: 640, height: 480 }),
+                url: chosenImages[j],
                 isPrimary: j === 0,
               },
             });
