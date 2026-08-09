@@ -114,19 +114,38 @@ export const Navbar = () => {
             </span>
           </Link>
 
-          <Dropdown
-            trigger={
-              <button
-                className="flex outline-none hover:opacity-80 transition-opacity rounded-full border border-muted/30 p-0.5 focus:border-accent focus:ring-1 focus:ring-accent"
-                aria-label="Account Menu"
+          {isLoading ? (
+            <div className="w-8 h-8 rounded-full bg-muted/20 animate-pulse" />
+          ) : user ? (
+            <Dropdown
+              trigger={
+                <button
+                  className="flex outline-none hover:opacity-80 transition-opacity rounded-full border border-muted/30 p-0.5 focus:border-accent focus:ring-1 focus:ring-accent"
+                  aria-label="Account Menu"
+                >
+                  <Avatar size="sm" name={user.fullName} />
+                </button>
+              }
+              options={accountOptions}
+              onChange={handleAccountAction}
+              align="right"
+            />
+          ) : (
+            <div className="flex items-center gap-3">
+              <Link
+                href="/login"
+                className="text-sm font-medium text-text hover:text-accent transition-colors"
               >
-                <Avatar size="sm" name={isLoading ? '' : user?.fullName || 'Guest'} />
-              </button>
-            }
-            options={accountOptions}
-            onChange={handleAccountAction}
-            align="right"
-          />
+                Sign In
+              </Link>
+              <Link
+                href="/register"
+                className="text-sm font-medium bg-accent text-white px-3.5 py-1.5 rounded-lg hover:bg-accent/90 transition-colors"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
