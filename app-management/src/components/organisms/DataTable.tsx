@@ -109,7 +109,7 @@ export function DataTable<T>({
                   {col.header}
                 </TableHeader>
               ))}
-              {rowActions && <TableHeader className="text-right">Actions</TableHeader>}
+              {rowActions && <TableHeader align="right">Actions</TableHeader>}
             </TableRow>
           </thead>
           <TableBody>
