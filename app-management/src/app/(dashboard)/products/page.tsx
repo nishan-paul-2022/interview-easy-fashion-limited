@@ -19,23 +19,10 @@ interface ProductData {
   style?: { id: string; name: string };
   sizes?: { id: string; name: string }[];
   price: number;
-  status: string;
+  isActive: boolean;
   images?: string[];
   [key: string]: unknown;
 }
-
-const getStatusBadge = (status: string) => {
-  switch ((status || '').toUpperCase()) {
-    case 'ACTIVE':
-      return <Badge label="Active" variant="success" />;
-    case 'DRAFT':
-      return <Badge label="Draft" variant="warning" />;
-    case 'OUT_OF_STOCK':
-      return <Badge label="Out of Stock" variant="error" />;
-    default:
-      return <Badge label={status || 'Unknown'} variant="neutral" />;
-  }
-};
 
 export default function ProductListPage() {
   const router = useRouter();
@@ -199,7 +186,16 @@ export default function ProductListPage() {
       header: 'Price',
       render: (row) => <span>${Number(row.price || 0).toFixed(2)}</span>,
     },
-    { key: 'status', header: 'Status', render: (row) => getStatusBadge(row.status) },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (row) => (
+        <Badge
+          label={row.isActive ? 'Active' : 'Inactive'}
+          variant={row.isActive ? 'success' : 'neutral'}
+        />
+      ),
+    },
   ];
 
   return (
