@@ -8,6 +8,7 @@ import { Dropdown } from '@/components/molecules/Dropdown';
 import { Skeleton } from '@/components/molecules/Skeleton';
 import { Timeline, TimelineStep } from '@/components/molecules/Timeline';
 import { useToast } from '@/components/molecules/Toast';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { apiClient } from '@/lib/api';
 
 interface OrderDetails {
@@ -47,11 +48,14 @@ export default function OrderDetailsPage() {
   const params = useParams();
   const toast = useToast();
   const orderId = params.id as string;
+  const { user } = useDashboardAuth();
 
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const canUpdateStatus = user?.role === 'SUPER_ADMIN' || user?.role === 'MANAGER';
 
   useEffect(() => {
     async function fetchOrder() {
@@ -72,6 +76,10 @@ export default function OrderDetailsPage() {
   }, [orderId, router, toast]);
 
   const handleSaveStatus = async () => {
+    if (!canUpdateStatus) {
+      toast.error('You do not have permission to update order status.');
+      return;
+    }
     if (!order || selectedStatus === order.status) {
       return;
     }
@@ -239,30 +247,32 @@ export default function OrderDetailsPage() {
         {/* Right Column: Timeline & Status Update */}
         <div className="flex flex-col gap-8 lg:col-span-1">
           {/* Status Update Block */}
-          <div className="flex flex-col gap-4 rounded-xl border border-muted/20 bg-surface p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-text">Update Status</h2>
-            <div className="flex flex-col gap-3">
-              <Dropdown
-                trigger={
-                  <Button variant="outline" className="w-full justify-between">
-                    {statusOptions.find((o) => o.value === selectedStatus)?.label}
-                  </Button>
-                }
-                options={statusOptions}
-                value={selectedStatus}
-                onChange={(val) => setSelectedStatus(val as string)}
-              />
-              <Button
-                variant="primary"
-                onClick={handleSaveStatus}
-                className="w-full"
-                disabled={selectedStatus === order.status || isUpdating}
-                isLoading={isUpdating}
-              >
-                Save Status
-              </Button>
+          {canUpdateStatus && (
+            <div className="flex flex-col gap-4 rounded-xl border border-muted/20 bg-surface p-6 shadow-sm">
+              <h2 className="text-lg font-bold text-text">Update Status</h2>
+              <div className="flex flex-col gap-3">
+                <Dropdown
+                  trigger={
+                    <Button variant="outline" className="w-full justify-between">
+                      {statusOptions.find((o) => o.value === selectedStatus)?.label}
+                    </Button>
+                  }
+                  options={statusOptions}
+                  value={selectedStatus}
+                  onChange={(val) => setSelectedStatus(val as string)}
+                />
+                <Button
+                  variant="primary"
+                  onClick={handleSaveStatus}
+                  className="w-full"
+                  disabled={selectedStatus === order.status || isUpdating}
+                  isLoading={isUpdating}
+                >
+                  Save Status
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Delivery Timeline Block */}
           <div className="flex flex-col gap-6 rounded-xl border border-muted/20 bg-surface p-6 shadow-sm">
