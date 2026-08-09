@@ -75,8 +75,12 @@ export default function ProductListPage() {
     fetchFilters();
   }, []);
 
+  const isFirstLoad = React.useRef(true);
+
   const fetchProducts = useCallback(async () => {
-    setIsLoading(true);
+    if (isFirstLoad.current) {
+      setIsLoading(true);
+    }
     try {
       const params: Record<string, string> = { limit: '50' };
       if (debouncedSearch) {
@@ -97,6 +101,7 @@ export default function ProductListPage() {
       setProducts([]);
     } finally {
       setIsLoading(false);
+      isFirstLoad.current = false;
     }
   }, [debouncedSearch, selectedCategory, selectedStyle, toast]);
 
