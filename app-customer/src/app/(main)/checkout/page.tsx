@@ -200,21 +200,16 @@ export default function CheckoutPage() {
             {/* Read-only Line Items */}
             <div className="flex max-h-60 flex-col gap-4 overflow-y-auto pr-2 scrollbar-thin">
               {state.items.map((item) => (
-                <div key={item.id} className="flex gap-4 justify-between items-start">
-                  <div className="flex gap-4">
-                    <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded bg-muted/10">
-                      <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
-                    </div>
-                    <div className="flex flex-col text-sm text-muted">
-                      <span className="font-semibold text-text line-clamp-1 mb-1">{item.name}</span>
-                      <span>Size: {item.size}</span>
-                      <span>Quantity: {item.quantity}</span>
-                      <span>Price: ${item.price.toFixed(2)}</span>
-                    </div>
+                <div key={item.id} className="flex gap-4 items-start">
+                  <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded bg-muted/10">
+                    <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
                   </div>
-                  <span className="font-semibold text-text text-right self-end pb-0.5">
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </span>
+                  <div className="flex flex-col text-sm text-muted">
+                    <span className="font-semibold text-text line-clamp-1 mb-1">{item.name}</span>
+                    <span>Size: {item.size}</span>
+                    <span>Quantity: {item.quantity}</span>
+                    <span>Price: ${item.price.toFixed(2)} each</span>
+                  </div>
                 </div>
               ))}
             </div>
