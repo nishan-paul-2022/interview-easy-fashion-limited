@@ -17,7 +17,7 @@ interface ProductData {
   name: string;
   category?: { id: string; name: string };
   style?: { id: string; name: string };
-  sizes?: { id: string; name: string }[];
+  productSizes?: { size?: { id: string; label: string } }[];
   price: number;
   isActive: boolean;
   images?: string[];
@@ -175,12 +175,12 @@ export default function ProductListPage() {
       header: 'Sizes',
       render: (row) => (
         <div className="flex flex-wrap gap-1">
-          {(row.sizes || []).map((s) => (
+          {(row.productSizes || []).map((ps) => (
             <span
-              key={s.id}
+              key={ps.size?.id}
               className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 text-text"
             >
-              {s.name}
+              {ps.size?.label || ''}
             </span>
           ))}
         </div>
