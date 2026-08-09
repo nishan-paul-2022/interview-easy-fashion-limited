@@ -8,6 +8,12 @@
 
 Easy Fashion Limited is a full-stack e-commerce platform designed for a fashion retail business. It encompasses a customer-facing storefront for browsing and purchasing products, a management dashboard for administrators to manage inventory, orders, and users, and a robust backend API powering both applications. Built with a modern technology stack (Next.js, NestJS, PostgreSQL), the platform provides a responsive, scalable, and seamless shopping experience.
 
+## 📸 Application Previews
+
+|                  Customer Home Page                  |                 Product Catalog & Filters                  |                 Profile & Order List                 |
+| :--------------------------------------------------: | :--------------------------------------------------------: | :--------------------------------------------------: |
+| ![Customer Home Page](assets/customer-home-page.gif) | ![Customer Product Page](assets/customer-product-page.gif) | ![Customer User Page](assets/customer-user-page.gif) |
+
 ## Architecture Diagram
 
 ```mermaid
