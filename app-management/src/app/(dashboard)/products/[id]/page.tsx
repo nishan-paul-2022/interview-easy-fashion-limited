@@ -11,29 +11,13 @@ import { Skeleton } from '@/components/molecules/Skeleton';
 import { useToast } from '@/components/molecules/Toast';
 import { apiClient } from '@/lib/api';
 
-const getStatusBadge = (status: string) => {
-  switch ((status || '').toUpperCase()) {
-    case 'ACTIVE':
-      return <Badge label="Active" variant="success" />;
-    case 'DRAFT':
-      return <Badge label="Draft" variant="warning" />;
-    case 'OUT_OF_STOCK':
-      return <Badge label="Out of Stock" variant="error" />;
-    case 'INACTIVE':
-      return <Badge label="Inactive" variant="neutral" />;
-    default:
-      return <Badge label={status || 'Unknown'} variant="neutral" />;
-  }
-};
-
 interface ProductDetails {
   id: string;
   name: string;
   category?: { id: string; name: string };
   style?: { id: string; name: string };
-  sizes?: { id: string; name: string }[];
+  productSizes?: { size?: { id: string; label: string } }[];
   price: number;
-  status: string;
   isActive?: boolean;
   description: string;
   images: string[];
@@ -151,7 +135,11 @@ export default function ProductDetailsPage() {
               <span className="text-2xl font-bold text-accent">
                 ${Number(product.price).toFixed(2)}
               </span>
-              {getStatusBadge(product.isActive === false ? 'INACTIVE' : product.status)}
+              {product.isActive === false ? (
+                <Badge label="Inactive" variant="neutral" />
+              ) : (
+                <Badge label="Active" variant="success" />
+              )}
             </div>
           </div>
 
@@ -168,15 +156,15 @@ export default function ProductDetailsPage() {
               <div className="col-span-2 flex flex-col gap-2 pt-2">
                 <span className="text-sm font-medium text-muted">Available Sizes</span>
                 <div className="flex flex-wrap gap-2">
-                  {(product.sizes || []).map((size) => (
+                  {(product.productSizes || []).map((ps) => (
                     <span
-                      key={size.id}
+                      key={ps.size?.id}
                       className="rounded-md border border-muted/20 bg-muted/5 px-3 py-1 text-sm font-medium text-text"
                     >
-                      {size.name}
+                      {ps.size?.label || ''}
                     </span>
                   ))}
-                  {(!product.sizes || product.sizes.length === 0) && (
+                  {(!product.productSizes || product.productSizes.length === 0) && (
                     <span className="text-sm text-muted">No sizes selected</span>
                   )}
                 </div>
