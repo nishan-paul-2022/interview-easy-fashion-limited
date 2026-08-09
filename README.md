@@ -8,28 +8,46 @@
 
 Easy Fashion Limited is a full-stack e-commerce platform designed for a fashion retail business. It encompasses a customer-facing storefront for browsing and purchasing products, a management dashboard for administrators to manage inventory, orders, and users, and a robust backend API powering both applications. Built with a modern technology stack (Next.js, NestJS, PostgreSQL), the platform provides a responsive, scalable, and seamless shopping experience.
 
-## Architecture Diagram
+## 📸 Application Previews
+
+### 📌 Customer Storefront
+
+|                  Customer Home Page                  |                 Product Catalog & Filters                  |                 Profile & Order List                 |
+| :--------------------------------------------------: | :--------------------------------------------------------: | :--------------------------------------------------: |
+| ![Customer Home Page](assets/customer-home-page.gif) | ![Customer Product Page](assets/customer-product-page.gif) | ![Customer User Page](assets/customer-user-page.gif) |
+
+### 📌 Management Dashboard
+
+|                     Management Dashboard Page                      |                    Management Product Page                     |                     Management Category Page                     |
+| :----------------------------------------------------------------: | :------------------------------------------------------------: | :--------------------------------------------------------------: |
+| ![Management Dashboard Page](assets/management-dashboard-page.gif) | ![Management Product Page](assets/management-product-page.gif) | ![Management Category Page](assets/management-category-page.gif) |
+
+|                   Management Order Page                    |                        Management Sizes and Style Page                         |                   Management User Page                   |
+| :--------------------------------------------------------: | :----------------------------------------------------------------------------: | :------------------------------------------------------: |
+| ![Management Order Page](assets/management-order-page.gif) | ![Management Sizes and Style Page](assets/management-sizes-and-style-page.gif) | ![Management User Page](assets/management-user-page.gif) |
+
+## 🏗 Architecture Diagram
 
 ```mermaid
 flowchart TD
-    Browser["User Browser<br/>(Customer/Management)"]
+    Browser["User Browser<br/>(Customer/Management)"]:::browser
 
     subgraph CI["GitHub Actions (CI/CD)"]
         direction TB
-        Build["Build Docker images"]
-        Push["Push to GHCR"]
-        Deploy["SSH to Host server"]
+        Build["Build Docker images"]:::ci
+        Push["Push to GHCR"]:::ci
+        Deploy["SSH to Host server"]:::ci
         Build --> Push --> Deploy
     end
 
     subgraph VPS["Host Server (VPS)"]
-        Nginx["Nginx Server<br/>(Reverse Proxy & SSL via Certbot)"]
+        Nginx["Nginx Server<br/>(Reverse Proxy & SSL via Certbot)"]:::nginx
 
         subgraph Docker["Docker Compose Network"]
-            Customer["app-customer<br/>(Next.js, Port: 3013)"]
-            Management["app-management<br/>(Next.js, Port: 3014)"]
-            Backend["app-backend<br/>(NestJS, Port: 3015)"]
-            DB[(PostgreSQL<br/>Database)]
+            Customer["app-customer<br/>(Next.js, Port: 3013)"]:::app
+            Management["app-management<br/>(Next.js, Port: 3014)"]:::app
+            Backend["app-backend<br/>(NestJS, Port: 3015)"]:::app
+            DB[(PostgreSQL<br/>Database)]:::db
 
             Backend --> DB
         end
@@ -41,6 +59,18 @@ flowchart TD
 
     Deploy -.->|Pulls & Restarts| Docker
     Browser -->|HTTPS| Nginx
+
+    classDef browser fill:#0284c7,stroke:#0369a1,stroke-width:2px,color:#ffffff;
+    classDef ci fill:#4f46e5,stroke:#4338ca,stroke-width:2px,color:#ffffff;
+    classDef nginx fill:#0d9488,stroke:#0f766e,stroke-width:2px,color:#ffffff;
+    classDef app fill:#2563eb,stroke:#1d4ed8,stroke-width:2px,color:#ffffff;
+    classDef db fill:#db2777,stroke:#be185d,stroke-width:2px,color:#ffffff;
+
+    style CI fill:#f3e8ff,stroke:#c084fc,stroke-width:2px;
+    style VPS fill:#fef3c7,stroke:#fbbf24,stroke-width:2px;
+    style Docker fill:#dbeafe,stroke:#60a5fa,stroke-width:2px;
+
+    linkStyle default stroke:#475569,stroke-width:2px;
 ```
 
 ## Setup & Installation
@@ -120,6 +150,15 @@ The production services are deployed and accessible at:
 - **Customer Storefront**: [https://easy.kaiofficial.xyz](https://easy.kaiofficial.xyz)
 - **Management Dashboard**: [https://admin-easy.kaiofficial.xyz](https://admin-easy.kaiofficial.xyz)
 - **Backend API**: [https://api-easy.kaiofficial.xyz](https://api-easy.kaiofficial.xyz)
+
+---
+
+### 🔑 Default Admin Credentials
+
+To log into the Management Dashboard, use the following seeded super admin credentials:
+
+- **Email**: `admin@easyfashion.com`
+- **Password**: `zGJLRyB6/pNWpxCA`
 
 ---
 
