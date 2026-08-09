@@ -214,8 +214,8 @@ export default function CheckoutPage() {
                       <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
                         Quantity: {item.quantity}
                       </span>
-                      <span className="px-2 py-0.5 text-xs font-medium rounded bg-accent/10 border border-accent/20 text-accent">
-                        ${item.price.toFixed(2)} each
+                      <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
+                        Price: ${item.price.toFixed(2)}
                       </span>
                     </div>
                   </div>
