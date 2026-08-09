@@ -46,7 +46,7 @@ export default function AdminProfilePage() {
 
     setIsUpdatingProfile(true);
     try {
-      await apiClient.patch(`/users/${user.id}`, { fullName, email, phone: phone || null });
+      await apiClient.patch(`/users/${user.id}`, { fullName, phone: phone || null });
       toast.success('Profile updated successfully! Refreshing...');
       setTimeout(() => {
         window.location.reload();
