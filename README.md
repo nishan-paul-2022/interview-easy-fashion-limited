@@ -115,7 +115,12 @@ Once the services are started (via either Option A or Option B), they can be acc
 
 ### ⚙️ Utility Commands
 
-Run `make test` to execute the full test suite (unit + E2E), `make lint` or `make lint-fix` to scan and fix code style errors, `make format` to run Prettier formatting, `make typecheck` for TypeScript checks, and `make db-destroy` to stop containers and wipe the database volume.
+- **`make test`**: Runs the full test suite (unit + E2E).
+- **`make lint`** / **`make lint-fix`**: Scans and auto-fixes linting errors.
+- **`make format`**: Automatically formats code with Prettier.
+- **`make typecheck`**: Runs TypeScript type check checks across the project.
+- **`make db-destroy`**: Stops local containers and wipes database volumes.
+- **`make down`**: Stops local development containers and frees up ports.
 
 ## Production Deployment
 
@@ -142,7 +147,6 @@ The production deployment process is fully automated via GitHub Actions:
 - **Design System First Approach**: Implemented a scalable UI using an atomic design hierarchy (Tokens → Atoms → Molecules → Organisms → Pages).
 - **Automated Code Formatting**: Enforced ESLint, Prettier, Husky, and Commitlint at the monorepo root.
 - **Responsive & Accessible Components**: All UI primitives are fully accessible (keyboard-navigable, ARIA attributes) and responsive out of the box.
-- **Micro-Animations**: Enhanced user experience with subtle animations across components like buttons, modals, and toasts.
 
 ## Assumptions & Limitations
 
