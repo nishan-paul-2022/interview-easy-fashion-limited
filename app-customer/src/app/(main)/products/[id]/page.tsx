@@ -103,9 +103,7 @@ export default function ProductDetailsPage({ params }: { params: { id: string } 
     ? product.images.map((img: unknown) =>
         typeof img === 'string' ? img : (img as { url: string }).url,
       )
-    : [
-        'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=1200',
-      ];
+    : ['/placeholder.svg'];
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => setQuantity((prev) => Math.max(1, prev - 1));

@@ -12,6 +12,7 @@ export interface Category {
   id: string;
   name: string;
   isActive: boolean;
+  imageUrl?: string;
   description?: string;
   createdAt?: string;
   _count?: { products?: number };
@@ -31,6 +32,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
   onSave,
 }) => {
   const [name, setName] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [description, setDescription] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,10 +41,12 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
     if (isOpen) {
       if (category) {
         setName(category.name || '');
+        setImageUrl(category.imageUrl || '');
         setDescription(category.description || '');
         setIsActive(category.isActive !== false); // default to true if undefined
       } else {
         setName('');
+        setImageUrl('');
         setDescription('');
         setIsActive(true);
       }
@@ -58,6 +62,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
       try {
         await onSave({
           name,
+          imageUrl: imageUrl || undefined,
           description,
           isActive,
         });
@@ -97,6 +102,13 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+        />
+
+        <Input
+          label="Category Image URL (Optional)"
+          placeholder="https://res.cloudinary.com/..."
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
         />
 
         <Textarea

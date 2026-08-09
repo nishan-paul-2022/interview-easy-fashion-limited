@@ -7,11 +7,13 @@ import { Avatar } from '@/components/atoms/Avatar';
 import { Icon } from '@/components/atoms/Icon';
 import { Dropdown } from '@/components/molecules/Dropdown';
 import { useSidebar } from '@/context/SidebarContext';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 
 export const Topbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { setIsMobileOpen } = useSidebar();
+  const { user } = useDashboardAuth();
 
   const getPageTitle = () => {
     if (!pathname || pathname === '/') {
@@ -55,20 +57,11 @@ export const Topbar = () => {
       </div>
 
       <div className="flex items-center gap-6">
-        <button
-          className="text-muted hover:text-text transition-colors relative"
-          aria-label="Toggle Theme"
-        >
-          <Icon name="AlertTriangle" size={20} />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-surface" />
-        </button>
-
         <Dropdown
           align="right"
           trigger={
-            <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-              <Avatar name="Admin User" size="sm" />
-              <Icon name="ChevronRight" size={16} className="text-muted rotate-90" />
+            <div className="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
+              <Avatar name={user?.fullName || 'Admin User'} size="sm" />
             </div>
           }
           options={accountOptions}

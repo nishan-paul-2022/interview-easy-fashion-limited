@@ -1,7 +1,16 @@
-node_modules/
-dist/
+# Ignore images & PDFs
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.svg
+**/*.webp
+**/*.pdf
+
+# Build & temp directories
 .next/
+dist/
+node_modules/
 coverage/
-.env*
-.DS_Store
+.git/
 *.log

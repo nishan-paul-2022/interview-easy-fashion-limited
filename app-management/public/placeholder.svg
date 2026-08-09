@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="100%" height="100%">
+  <rect width="400" height="500" fill="#1e1e24" />
+  <g transform="translate(150, 180)" stroke="#4b5563" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Hanger -->
+    <path d="M50,40 C50,20 65,20 65,30 C65,40 50,45 50,45" />
+    <!-- Shirt outline -->
+    <path d="M15,45 L35,60 L50,55 L65,60 L85,45 L95,65 L80,75 L80,160 L20,160 L20,75 L5,65 Z" />
+  </g>
+  <text x="200" y="380" fill="#9ca3af" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" text-anchor="middle">
+    No Image Available
+  </text>
+</svg>

@@ -6,6 +6,7 @@ import configuration from '@/config/configuration';
 import { envValidationSchema } from '@/config/env.validation';
 import { HealthController } from '@/health.controller';
 import { AuthModule } from '@/modules/auth/auth.module';
+import { BannersModule } from '@/modules/banners/banners.module';
 import { CategoriesModule } from '@/modules/categories/categories.module';
 import { CloudinaryModule } from '@/modules/cloudinary/cloudinary.module';
 import { DashboardModule } from '@/modules/dashboard/dashboard.module';
@@ -46,6 +47,7 @@ import { PrismaModule } from '@/prisma/prisma.module';
     StatsModule,
     OrdersModule,
     DashboardModule,
+    BannersModule,
   ],
   controllers: [HealthController],
   providers: [

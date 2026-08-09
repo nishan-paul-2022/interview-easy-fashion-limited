@@ -52,7 +52,11 @@ const getOrderStatusBadge = (status: string) => {
 };
 
 const orderColumns: DataTableColumn<OrderData>[] = [
-  { key: 'id', header: 'Order ID' },
+  {
+    key: 'id',
+    header: 'Order ID',
+    render: (row) => <span className="font-mono text-xs">{row.id.substring(0, 8)}...</span>,
+  },
   { key: 'customer', header: 'Customer', render: (row) => row.customerName || 'Guest' },
   {
     key: 'amount',

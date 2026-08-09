@@ -23,6 +23,8 @@ import {
   X,
   Upload,
   Menu,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 const icons = {
@@ -50,6 +52,8 @@ const icons = {
   X,
   Upload,
   Menu,
+  Sun,
+  Moon,
 };
 
 export type IconName = keyof typeof icons;

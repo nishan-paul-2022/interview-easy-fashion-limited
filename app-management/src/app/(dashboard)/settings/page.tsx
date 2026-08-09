@@ -4,28 +4,15 @@ import React, { useState, useEffect } from 'react';
 
 import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
-import { Toggle } from '@/components/atoms/Toggle';
 
 export default function SettingsPage() {
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const [jwtExpiry, setJwtExpiry] = useState('7d');
   const [passwordMinLength, setPasswordMinLength] = useState('8');
   const [isMounted, setIsMounted] = useState(false);
 
-  // Initialize from localStorage on client side
+  // Initialize on client side
   useEffect(() => {
     setIsMounted(true);
-
-    // Load theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === 'dark');
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
 
     // Load security settings
     const savedJwtExpiry = localStorage.getItem('settings_jwtExpiry');
@@ -38,18 +25,6 @@ export default function SettingsPage() {
       setPasswordMinLength(savedPasswordMinLength);
     }
   }, []);
-
-  const handleThemeToggle = (checked: boolean) => {
-    setIsDarkMode(checked);
-    const newTheme = checked ? 'dark' : 'light';
-    localStorage.setItem('theme', newTheme);
-
-    if (checked) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
 
   const handleSecuritySave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,23 +49,6 @@ export default function SettingsPage() {
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <div className="flex flex-col gap-8">
-          {/* Application Section */}
-          <div className="flex flex-col gap-4 rounded-xl border border-muted/20 bg-surface p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-text">Application</h2>
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between rounded-lg border border-muted/10 bg-bg p-4">
-                <div className="flex flex-col">
-                  <span className="font-medium text-text">Dark Mode</span>
-                  <span className="text-sm text-muted">Toggle the dark theme preference.</span>
-                </div>
-                <Toggle
-                  checked={isDarkMode}
-                  onChange={(e) => handleThemeToggle(e.target.checked)}
-                />
-              </div>
-            </div>
-          </div>
-
           {/* System Info Section */}
           <div className="flex flex-col gap-4 rounded-xl border border-muted/20 bg-surface p-6 shadow-sm">
             <h2 className="text-lg font-bold text-text">System Info</h2>

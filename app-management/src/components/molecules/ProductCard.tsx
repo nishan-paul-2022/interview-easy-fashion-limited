@@ -22,7 +22,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   styleName = 'Casual',
   sizes = ['S', 'M', 'L', 'XL'],
   price = 49.99,
-  imageUrl = 'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
+  imageUrl = '/placeholder.svg',
   onAddToCart,
   className = '',
 }) => {

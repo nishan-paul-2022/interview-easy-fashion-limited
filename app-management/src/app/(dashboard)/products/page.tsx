@@ -158,8 +158,7 @@ export default function ProductListPage() {
         const imgUrl =
           (typeof row.images?.[0] === 'string'
             ? row.images[0]
-            : (row.images?.[0] as unknown as { url: string })?.url) ||
-          'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=100';
+            : (row.images?.[0] as unknown as { url: string })?.url) || '/placeholder.svg';
         return (
           <div className="h-12 w-12 overflow-hidden rounded-md border border-muted/20 bg-muted/10">
             <img
