@@ -136,25 +136,18 @@ export default function Home() {
         }
 
         if (categoriesData?.data) {
+          const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
           const categoryImages: Record<string, string> = {
-            Tops: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&q=80&w=600',
-            Jeans:
-              'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80&w=600',
-            Outerwear:
-              'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=600',
-            Footwear:
-              'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=600',
-            Accessories:
-              'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600',
-            Activewear:
-              'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=600',
-            'Suits & Formal':
-              'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&q=80&w=600',
-            Dresses:
-              'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&q=80&w=600',
-            Sleepwear:
-              'https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&q=80&w=600',
-            Hats: 'https://images.unsplash.com/photo-1514327605112-b887c0e61c0a?auto=format&fit=crop&q=80&w=600',
+            Tops: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260309/easy-fashion-categories/tops.jpg`,
+            Jeans: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260309/easy-fashion-categories/jeans.jpg`,
+            Outerwear: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260310/easy-fashion-categories/outerwear.jpg`,
+            Footwear: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260311/easy-fashion-categories/footwear.jpg`,
+            Accessories: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260311/easy-fashion-categories/accessories.jpg`,
+            Activewear: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260312/easy-fashion-categories/activewear.jpg`,
+            'Suits & Formal': `https://res.cloudinary.com/${cloudName}/image/upload/v1786260313/easy-fashion-categories/suits-formal.jpg`,
+            Dresses: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260314/easy-fashion-categories/dresses.jpg`,
+            Sleepwear: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260314/easy-fashion-categories/sleepwear.jpg`,
+            Hats: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260315/easy-fashion-categories/hats.jpg`,
           };
           const formattedCategories: FormattedCategory[] = categoriesData.data.map((c) => ({
             name: c.name,
