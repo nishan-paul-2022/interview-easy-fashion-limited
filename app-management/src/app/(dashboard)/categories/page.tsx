@@ -9,6 +9,7 @@ import { SearchBar } from '@/components/molecules/SearchBar';
 import { useToast } from '@/components/molecules/Toast';
 import { Category, CategoryFormModal } from '@/components/organisms/CategoryFormModal';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { apiClient } from '@/lib/api';
 
 interface PaginatedCategories {
@@ -17,6 +18,8 @@ interface PaginatedCategories {
 
 export default function CategoryListPage() {
   const toast = useToast();
+  const { user } = useDashboardAuth();
+  const isManager = user?.role === 'MANAGER';
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,6 +66,10 @@ export default function CategoryListPage() {
   };
 
   const handleConfirmDelete = async () => {
+    if (isManager) {
+      toast.error('You do not have permission to delete categories.');
+      return;
+    }
     if (!categoryToDelete) {
       return;
     }
@@ -89,6 +96,10 @@ export default function CategoryListPage() {
   };
 
   const handleFormSave = async (data: Partial<Category>) => {
+    if (isManager) {
+      toast.error('You do not have permission to modify categories.');
+      return;
+    }
     try {
       if (categoryToEdit) {
         await apiClient.patch(`/categories/${categoryToEdit.id}`, data);
@@ -164,9 +175,11 @@ export default function CategoryListPage() {
             placeholder="Search categories..."
           />
         </div>
-        <Button variant="primary" leftIcon="Plus" onClick={handleAddClick}>
-          Add Category
-        </Button>
+        {!isManager && (
+          <Button variant="primary" leftIcon="Plus" onClick={handleAddClick}>
+            Add Category
+          </Button>
+        )}
       </div>
 
       {/* Data Table */}
@@ -178,30 +191,36 @@ export default function CategoryListPage() {
           icon: 'Folder',
           title: 'No categories yet',
           description: 'Get started by creating your first product category.',
-          action: {
-            label: 'Add Category',
-            onClick: handleAddClick,
-          },
+          action: isManager
+            ? undefined
+            : {
+                label: 'Add Category',
+                onClick: handleAddClick,
+              },
         }}
-        rowActions={(row) => (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon="Pencil"
-              onClick={() => handleEditClick(row)}
-              aria-label="Edit category"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon="Trash2"
-              className="text-error hover:bg-error/10 hover:text-error"
-              onClick={() => handleDeleteClick(row)}
-              aria-label="Delete category"
-            />
-          </>
-        )}
+        rowActions={
+          isManager
+            ? undefined
+            : (row) => (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon="Pencil"
+                    onClick={() => handleEditClick(row)}
+                    aria-label="Edit category"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon="Trash2"
+                    className="text-error hover:bg-error/10 hover:text-error"
+                    onClick={() => handleDeleteClick(row)}
+                    aria-label="Delete category"
+                  />
+                </>
+              )
+        }
       />
 
       {/* Create / Edit Form Modal */}
