@@ -38,8 +38,20 @@ export function useDashboardAuth() {
       const userData = await userPromiseCache;
 
       if (mounted) {
-        cachedUser = userData;
-        setUser(userData);
+        if (userData) {
+          const normalizedUser = {
+            ...userData,
+            role:
+              typeof userData.role === 'object' && userData.role !== null
+                ? (userData.role as { name?: string }).name || ''
+                : String(userData.role || ''),
+          };
+          cachedUser = normalizedUser;
+          setUser(normalizedUser);
+        } else {
+          cachedUser = null;
+          setUser(null);
+        }
         setIsLoading(false);
       }
     };
@@ -53,8 +65,15 @@ export function useDashboardAuth() {
 
   const login = (userData: User, accessToken: string, refreshToken: string) => {
     setTokens(accessToken, refreshToken);
-    cachedUser = userData;
-    setUser(userData);
+    const normalizedUser = {
+      ...userData,
+      role:
+        typeof userData.role === 'object' && userData.role !== null
+          ? (userData.role as { name?: string }).name || ''
+          : String(userData.role || ''),
+    };
+    cachedUser = normalizedUser;
+    setUser(normalizedUser);
   };
 
   const logout = async () => {
