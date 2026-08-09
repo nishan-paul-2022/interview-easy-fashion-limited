@@ -109,6 +109,19 @@ export default function CategoryListPage() {
   };
 
   const columns: DataTableColumn<Category>[] = [
+    {
+      key: 'image',
+      header: 'Image',
+      render: (row) => (
+        <div className="h-10 w-10 overflow-hidden rounded-md border border-muted/20 bg-muted/10">
+          <img
+            src={row.imageUrl || '/placeholder.svg'}
+            alt={row.name}
+            className="h-full w-full object-cover"
+          />
+        </div>
+      ),
+    },
     { key: 'name', header: 'Name', sortable: true },
     {
       key: 'productsCount',
