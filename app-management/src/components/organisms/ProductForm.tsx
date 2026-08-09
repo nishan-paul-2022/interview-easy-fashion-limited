@@ -63,7 +63,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, isEdit })
     async function loadOptions() {
       try {
         const [catRes, styleRes, sizeRes] = await Promise.all([
-          apiClient.get<{ data: Option[] }>('/categories', { limit: 100 }),
+          apiClient.get<{ data: Option[] }>('/categories', { limit: 100, isActive: 'true' }),
           apiClient.get<{ data: Option[] }>('/styles', { limit: 100 }),
           apiClient.get<{ data: Option[] }>('/sizes', { limit: 100 }),
         ]);
