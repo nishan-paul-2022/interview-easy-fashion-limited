@@ -113,6 +113,16 @@ Once the services are started (via either Option A or Option B), they can be acc
 
 ---
 
+### 🌐 Production Live Links
+
+The production services are deployed and accessible at:
+
+- **Customer Storefront**: [https://easy.kaiofficial.xyz](https://easy.kaiofficial.xyz)
+- **Management Dashboard**: [https://admin-easy.kaiofficial.xyz](https://admin-easy.kaiofficial.xyz)
+- **Backend API**: [https://api-easy.kaiofficial.xyz](https://api-easy.kaiofficial.xyz)
+
+---
+
 ### ⚙️ Utility Commands
 
 - **`make test`**: Runs the full test suite (unit + E2E).
