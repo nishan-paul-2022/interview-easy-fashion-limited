@@ -17,25 +17,26 @@ Easy Fashion Limited is a full-stack e-commerce platform designed for a fashion 
 ## Architecture Diagram
 
 ```mermaid
+%%{init: {'themeCSS': '.edgeLabel { background-color: #4f46e5 !important; color: #ffffff !important; border-radius: 4px; padding: 2px 4px; }'}}%%
 flowchart TD
-    Browser["User Browser<br/>(Customer/Management)"]
+    Browser["User Browser<br/>(Customer/Management)"]:::browser
 
     subgraph CI["GitHub Actions (CI/CD)"]
         direction TB
-        Build["Build Docker images"]
-        Push["Push to GHCR"]
-        Deploy["SSH to Host server"]
+        Build["Build Docker images"]:::ci
+        Push["Push to GHCR"]:::ci
+        Deploy["SSH to Host server"]:::ci
         Build --> Push --> Deploy
     end
 
     subgraph VPS["Host Server (VPS)"]
-        Nginx["Nginx Server<br/>(Reverse Proxy & SSL via Certbot)"]
+        Nginx["Nginx Server<br/>(Reverse Proxy & SSL via Certbot)"]:::nginx
 
         subgraph Docker["Docker Compose Network"]
-            Customer["app-customer<br/>(Next.js, Port: 3013)"]
-            Management["app-management<br/>(Next.js, Port: 3014)"]
-            Backend["app-backend<br/>(NestJS, Port: 3015)"]
-            DB[(PostgreSQL<br/>Database)]
+            Customer["app-customer<br/>(Next.js, Port: 3013)"]:::app
+            Management["app-management<br/>(Next.js, Port: 3014)"]:::app
+            Backend["app-backend<br/>(NestJS, Port: 3015)"]:::app
+            DB[(PostgreSQL<br/>Database)]:::db
 
             Backend --> DB
         end
@@ -47,6 +48,18 @@ flowchart TD
 
     Deploy -.->|Pulls & Restarts| Docker
     Browser -->|HTTPS| Nginx
+
+    classDef browser fill:#0284c7,stroke:#0369a1,stroke-width:2px,color:#ffffff;
+    classDef ci fill:#4f46e5,stroke:#4338ca,stroke-width:2px,color:#ffffff;
+    classDef nginx fill:#0d9488,stroke:#0f766e,stroke-width:2px,color:#ffffff;
+    classDef app fill:#2563eb,stroke:#1d4ed8,stroke-width:2px,color:#ffffff;
+    classDef db fill:#db2777,stroke:#be185d,stroke-width:2px,color:#ffffff;
+
+    style CI fill:#f3e8ff,stroke:#c084fc,stroke-width:2px;
+    style VPS fill:#fef3c7,stroke:#fbbf24,stroke-width:2px;
+    style Docker fill:#dbeafe,stroke:#60a5fa,stroke-width:2px;
+
+    linkStyle default stroke:#475569,stroke-width:2px;
 ```
 
 ## Setup & Installation
