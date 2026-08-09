@@ -200,7 +200,7 @@ test.describe('Management Dashboard Happy Paths', () => {
     await page.click('button:has-text("Confirm")'); // Or whatever the confirm button text is
 
     // Should be removed from list
-    await expect(page.locator('text=Cool Tops')).toBeHidden();
+    await expect(page.locator('tbody').locator('text=Cool Tops')).toBeHidden();
     await expect(page.locator('text=Bottoms')).toBeVisible(); // others should remain
   });
 
