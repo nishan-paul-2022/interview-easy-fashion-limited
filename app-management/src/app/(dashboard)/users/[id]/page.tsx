@@ -198,9 +198,9 @@ export default function UserDetailsPage() {
           <div className="flex flex-col gap-4 rounded-xl border border-muted/20 bg-surface p-6 shadow-sm">
             <h3 className="text-lg font-bold text-text">Contact Information</h3>
             <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 min-w-0">
                 <span className="text-sm font-medium text-muted">Email Address</span>
-                <span className="font-semibold text-text">{user.email}</span>
+                <span className="font-semibold text-text break-all">{user.email}</span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm font-medium text-muted">Phone Number</span>
