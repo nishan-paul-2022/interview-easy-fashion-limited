@@ -13,6 +13,7 @@ module.exports = [
       '**/*.log',
       '**/.DS_Store',
       'eslint.config.js',
+      'scripts/**',
     ],
   },
   {

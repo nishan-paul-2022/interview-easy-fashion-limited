@@ -104,7 +104,7 @@ export default function ProductDetailsPage({ params }: { params: { id: string } 
         typeof img === 'string' ? img : (img as { url: string }).url,
       )
     : [
-        'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=1200',
+        `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'hkzrv0ol'}/image/upload/v1786260049/easy-fashion-seed/clothes-rack.jpg`,
       ];
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);

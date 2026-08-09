@@ -159,7 +159,7 @@ export default function ProductListPage() {
           (typeof row.images?.[0] === 'string'
             ? row.images[0]
             : (row.images?.[0] as unknown as { url: string })?.url) ||
-          'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=100';
+          `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'hkzrv0ol'}/image/upload/v1786260049/easy-fashion-seed/clothes-rack.jpg`;
         return (
           <div className="h-12 w-12 overflow-hidden rounded-md border border-muted/20 bg-muted/10">
             <img

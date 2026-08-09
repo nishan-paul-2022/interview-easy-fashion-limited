@@ -46,6 +46,7 @@ interface FormattedCategory {
 }
 
 export default function Home() {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const { dispatch } = useCart();
   const { success } = useToast();
 
@@ -130,13 +131,12 @@ export default function Home() {
               (typeof p.images?.[0] === 'string'
                 ? p.images[0]
                 : (p.images?.[0] as unknown as { url: string })?.url) ||
-              'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
+              `https://res.cloudinary.com/${cloudName}/image/upload/v1786260049/easy-fashion-seed/clothes-rack.jpg`,
           }));
           setFeaturedProducts(formattedProducts);
         }
 
         if (categoriesData?.data) {
-          const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
           const categoryImages: Record<string, string> = {
             Tops: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260309/easy-fashion-categories/tops.jpg`,
             Jeans: `https://res.cloudinary.com/${cloudName}/image/upload/v1786260309/easy-fashion-categories/jeans.jpg`,
@@ -154,7 +154,7 @@ export default function Home() {
             url: `/products?categoryId=${c.id}`,
             image:
               categoryImages[c.name] ||
-              'https://images.unsplash.com/photo-1596755094514-f87e32f85e23?auto=format&fit=crop&q=80&w=600',
+              `https://res.cloudinary.com/${cloudName}/image/upload/v1786260049/easy-fashion-seed/clothes-rack.jpg`,
           }));
           setCategories(formattedCategories);
         }
@@ -166,7 +166,7 @@ export default function Home() {
       }
     }
     fetchData();
-  }, []);
+  }, [cloudName]);
 
   return (
     <div className="flex flex-col gap-12">
@@ -177,7 +177,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-black/60 z-10" />
 
             <Image
-              src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80&w=1200"
+              src={`https://res.cloudinary.com/${cloudName}/image/upload/v1786260802/easy-fashion-hero/hero-1.jpg`}
               alt="Fashion 1"
               fill
               unoptimized
@@ -202,7 +202,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-black/60 z-10" />
 
             <Image
-              src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&q=80&w=1200"
+              src={`https://res.cloudinary.com/${cloudName}/image/upload/v1786260802/easy-fashion-hero/hero-2.jpg`}
               alt="Fashion 2"
               fill
               unoptimized
