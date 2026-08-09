@@ -32,7 +32,7 @@ const roleOptions = [
 export default function UserManagementPage() {
   const router = useRouter();
   const toast = useToast();
-  const { user: currentUser } = useDashboardAuth();
+  const { user: currentUser, isLoading: isAuthLoading } = useDashboardAuth();
 
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,8 +68,15 @@ export default function UserManagementPage() {
   }, [debouncedSearch, selectedRole, toast]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    if (!isAuthLoading && currentUser) {
+      if (currentUser.role === 'MANAGER') {
+        router.replace('/');
+        toast.error('You do not have permission to access the user management page.');
+        return;
+      }
+      fetchUsers();
+    }
+  }, [currentUser, isAuthLoading, fetchUsers, router, toast]);
 
   const handleAddClick = () => {
     router.push('/users/new');

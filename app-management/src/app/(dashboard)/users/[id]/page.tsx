@@ -30,7 +30,7 @@ export default function UserDetailsPage() {
   const params = useParams();
   const toast = useToast();
   const userId = params.id as string;
-  const { user: currentUser } = useDashboardAuth();
+  const { user: currentUser, isLoading: isAuthLoading } = useDashboardAuth();
 
   const [user, setUser] = useState<UserDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,10 +51,17 @@ export default function UserDetailsPage() {
         setIsLoading(false);
       }
     }
-    if (userId) {
-      fetchUser();
+    if (!isAuthLoading && currentUser) {
+      if (currentUser.role === 'MANAGER') {
+        router.replace('/');
+        toast.error('You do not have permission to access user details.');
+        return;
+      }
+      if (userId) {
+        fetchUser();
+      }
     }
-  }, [userId, router, toast]);
+  }, [userId, router, toast, currentUser, isAuthLoading]);
 
   const handleToggleStatusClick = () => {
     setIsDeactivateModalOpen(true);

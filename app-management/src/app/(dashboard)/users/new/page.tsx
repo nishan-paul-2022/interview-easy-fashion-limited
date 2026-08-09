@@ -9,6 +9,7 @@ import { PasswordInput } from '@/components/atoms/PasswordInput';
 import { Toggle } from '@/components/atoms/Toggle';
 import { Dropdown } from '@/components/molecules/Dropdown';
 import { useToast } from '@/components/molecules/Toast';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { apiClient } from '@/lib/api';
 
 const roleOptions = [
@@ -19,6 +20,14 @@ const roleOptions = [
 export default function CreateUserPage() {
   const router = useRouter();
   const toast = useToast();
+  const { user: currentUser, isLoading: isAuthLoading } = useDashboardAuth();
+
+  React.useEffect(() => {
+    if (!isAuthLoading && currentUser && currentUser.role === 'MANAGER') {
+      router.replace('/');
+      toast.error('You do not have permission to create users.');
+    }
+  }, [currentUser, isAuthLoading, router, toast]);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
