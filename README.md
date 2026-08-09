@@ -123,6 +123,15 @@ The production services are deployed and accessible at:
 
 ---
 
+### 🔑 Default Admin Credentials
+
+To log into the Management Dashboard, use the following seeded super admin credentials:
+
+- **Email**: `admin@easyfashion.com`
+- **Password**: `zGJLRyB6/pNWpxCA`
+
+---
+
 ### ⚙️ Utility Commands
 
 - **`make test`**: Runs the full test suite (unit + E2E).
