@@ -141,15 +141,17 @@ export default function UserDetailsPage() {
           <Button variant="ghost" onClick={() => router.push('/users')} leftIcon="ChevronLeft">
             Back to Users
           </Button>
-          <Button
-            variant={isUserActive ? 'danger' : 'primary'}
-            onClick={handleToggleStatusClick}
-            leftIcon={isUserActive ? 'Minus' : 'CheckCircle'}
-            disabled={isSelf || isUpdatingStatus}
-            isLoading={isUpdatingStatus}
-          >
-            {isUserActive ? 'Deactivate' : 'Activate'}
-          </Button>
+          {currentUser?.role === 'SUPER_ADMIN' && (
+            <Button
+              variant={isUserActive ? 'danger' : 'primary'}
+              onClick={handleToggleStatusClick}
+              leftIcon={isUserActive ? 'Minus' : 'CheckCircle'}
+              disabled={isSelf || isUpdatingStatus}
+              isLoading={isUpdatingStatus}
+            >
+              {isUserActive ? 'Deactivate' : 'Activate'}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -168,7 +170,7 @@ export default function UserDetailsPage() {
               variant={isUserActive ? 'success' : 'neutral'}
             />
 
-            {isSelf ? (
+            {isSelf || currentUser?.role !== 'SUPER_ADMIN' ? (
               <Badge
                 label={user.role?.name}
                 variant={

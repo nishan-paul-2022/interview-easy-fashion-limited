@@ -23,11 +23,15 @@ export default function CreateUserPage() {
   const { user: currentUser, isLoading: isAuthLoading } = useDashboardAuth();
 
   React.useEffect(() => {
-    if (!isAuthLoading && currentUser && currentUser.role === 'MANAGER') {
-      router.replace('/');
+    if (!isAuthLoading && currentUser && currentUser.role !== 'SUPER_ADMIN') {
+      router.replace('/users');
       toast.error('You do not have permission to create users.');
     }
   }, [currentUser, isAuthLoading, router, toast]);
+
+  if (isAuthLoading || (currentUser && currentUser.role !== 'SUPER_ADMIN')) {
+    return null;
+  }
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');

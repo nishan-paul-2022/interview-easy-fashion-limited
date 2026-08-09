@@ -87,6 +87,10 @@ export default function UserManagementPage() {
   };
 
   const handleDeactivateClick = (user: User) => {
+    if (currentUser?.role !== 'SUPER_ADMIN') {
+      toast.error('You do not have permission to deactivate users.');
+      return;
+    }
     if (user.id === currentUser?.id) {
       toast.error('You cannot deactivate your own account.');
       return;
@@ -175,9 +179,11 @@ export default function UserManagementPage() {
             onChange={(val) => setSelectedRole(val as string)}
           />
         </div>
-        <Button variant="primary" leftIcon="Plus" onClick={handleAddClick}>
-          Add User
-        </Button>
+        {currentUser?.role === 'SUPER_ADMIN' && (
+          <Button variant="primary" leftIcon="Plus" onClick={handleAddClick}>
+            Add User
+          </Button>
+        )}
       </div>
 
       {/* Data Table */}
@@ -192,6 +198,7 @@ export default function UserManagementPage() {
         }}
         rowActions={(row) => {
           const isSelf = row.id === currentUser?.id;
+          const isSuperAdmin = currentUser?.role === 'SUPER_ADMIN';
           return (
             <>
               <Button
@@ -201,19 +208,21 @@ export default function UserManagementPage() {
                 onClick={() => handleViewClick(row)}
                 aria-label="View user"
               />
-              <Button
-                variant="ghost"
-                size="sm"
-                leftIcon={row.isActive ? 'Minus' : 'CheckCircle'}
-                className={
-                  row.isActive
-                    ? 'text-error hover:bg-error/10 hover:text-error'
-                    : 'text-success hover:bg-success/10 hover:text-success'
-                }
-                onClick={() => handleDeactivateClick(row)}
-                aria-label={row.isActive ? 'Deactivate user' : 'Activate user'}
-                disabled={isSelf}
-              />
+              {isSuperAdmin && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  leftIcon={row.isActive ? 'Minus' : 'CheckCircle'}
+                  className={
+                    row.isActive
+                      ? 'text-error hover:bg-error/10 hover:text-error'
+                      : 'text-success hover:bg-success/10 hover:text-success'
+                  }
+                  onClick={() => handleDeactivateClick(row)}
+                  aria-label={row.isActive ? 'Deactivate user' : 'Activate user'}
+                  disabled={isSelf}
+                />
+              )}
             </>
           );
         }}
