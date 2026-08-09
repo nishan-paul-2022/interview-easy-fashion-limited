@@ -29,10 +29,6 @@ export default function CreateUserPage() {
     }
   }, [currentUser, isAuthLoading, router, toast]);
 
-  if (isAuthLoading || (currentUser && currentUser.role !== 'SUPER_ADMIN')) {
-    return null;
-  }
-
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -76,6 +72,10 @@ export default function CreateUserPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (isAuthLoading || (currentUser && currentUser.role !== 'SUPER_ADMIN')) {
+    return null;
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 pb-12">
