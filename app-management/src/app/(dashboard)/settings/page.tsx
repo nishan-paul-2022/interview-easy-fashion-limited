@@ -5,9 +5,11 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
 import { useToast } from '@/components/molecules/Toast';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 
 export default function SettingsPage() {
   const toast = useToast();
+  const { user: currentUser } = useDashboardAuth();
   const [jwtExpiry, setJwtExpiry] = useState('7d');
   const [passwordMinLength, setPasswordMinLength] = useState('8');
   const [isMounted, setIsMounted] = useState(false);
@@ -88,38 +90,40 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-8">
-          {/* Security Section */}
-          <form
-            onSubmit={handleSecuritySave}
-            className="flex flex-col gap-4 rounded-xl border border-muted/20 bg-surface p-6 shadow-sm"
-          >
-            <h2 className="text-lg font-bold text-text">Security Policies</h2>
-            <div className="flex flex-col gap-5">
-              <Input
-                label="JWT Expiry"
-                placeholder="e.g. 7d, 24h"
-                value={jwtExpiry}
-                onChange={(e) => setJwtExpiry(e.target.value)}
-                required
-              />
-              <Input
-                label="Password Minimum Length"
-                type="number"
-                min={6}
-                placeholder="e.g. 8"
-                value={passwordMinLength}
-                onChange={(e) => setPasswordMinLength(e.target.value)}
-                required
-              />
-            </div>
-            <div className="mt-2 flex justify-end">
-              <Button variant="primary" type="submit">
-                Save Policies
-              </Button>
-            </div>
-          </form>
-        </div>
+        {currentUser?.role === 'SUPER_ADMIN' && (
+          <div className="flex flex-col gap-8">
+            {/* Security Section */}
+            <form
+              onSubmit={handleSecuritySave}
+              className="flex flex-col gap-4 rounded-xl border border-muted/20 bg-surface p-6 shadow-sm"
+            >
+              <h2 className="text-lg font-bold text-text">Security Policies</h2>
+              <div className="flex flex-col gap-5">
+                <Input
+                  label="JWT Expiry"
+                  placeholder="e.g. 7d, 24h"
+                  value={jwtExpiry}
+                  onChange={(e) => setJwtExpiry(e.target.value)}
+                  required
+                />
+                <Input
+                  label="Password Minimum Length"
+                  type="number"
+                  min={6}
+                  placeholder="e.g. 8"
+                  value={passwordMinLength}
+                  onChange={(e) => setPasswordMinLength(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mt-2 flex justify-end">
+                <Button variant="primary" type="submit">
+                  Save Policies
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );
