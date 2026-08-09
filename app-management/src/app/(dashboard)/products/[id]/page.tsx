@@ -111,10 +111,9 @@ export default function ProductDetailsPage() {
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-12">
       {/* Header with actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <h1 className="text-2xl font-bold text-text">Product Details</h1>
+        <div>
           <span className="inline-flex items-center px-2.5 py-1 rounded bg-muted/10 border border-muted/20 text-xs font-semibold text-muted font-mono">
-            ID: {product.id}
+            PRODUCT ID: {product.id}
           </span>
         </div>
         <div className="flex items-center gap-3">
