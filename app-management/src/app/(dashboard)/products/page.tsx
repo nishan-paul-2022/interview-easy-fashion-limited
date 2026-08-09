@@ -178,7 +178,7 @@ export default function ProductListPage() {
           {(row.productSizes || []).map((ps) => (
             <span
               key={ps.size?.id}
-              className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 text-text"
+              className="px-2 py-0.5 text-xs font-medium rounded-full bg-muted/20 border border-muted/30 text-text"
             >
               {ps.size?.label || ''}
             </span>
