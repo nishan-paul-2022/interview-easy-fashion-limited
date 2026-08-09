@@ -16,6 +16,7 @@ interface ProductDetails {
   styleId?: string;
   style?: { id: string; name: string };
   sizes?: { id: string; name: string }[];
+  productSizes?: { size?: { id: string; name: string } }[];
   price: number;
   status: string;
   isActive?: boolean;
@@ -42,7 +43,7 @@ export default function ProductEditPage() {
           name: res.name,
           categoryId: String(res.categoryId || res.category?.id || ''),
           styleId: String(res.styleId || res.style?.id || ''),
-          sizeIds: (res.sizes || []).map((s) => String(s.id)),
+          sizeIds: (res.productSizes || []).map((ps) => String(ps.size?.id || '')).filter(Boolean),
           description: res.description || '',
           price: String(res.price || ''),
           isActive: res.status !== 'INACTIVE', // or res.isActive if that's what backend returns
