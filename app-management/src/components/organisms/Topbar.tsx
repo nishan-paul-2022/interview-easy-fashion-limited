@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Avatar } from '@/components/atoms/Avatar';
 import { Icon } from '@/components/atoms/Icon';
@@ -14,6 +14,26 @@ export const Topbar = () => {
   const router = useRouter();
   const { setIsMobileOpen } = useSidebar();
   const { user } = useDashboardAuth();
+
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === 'dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextMode = !isDarkMode;
+    setIsDarkMode(nextMode);
+    localStorage.setItem('theme', nextMode ? 'dark' : 'light');
+    if (nextMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   const getPageTitle = () => {
     if (!pathname || pathname === '/') {
@@ -58,11 +78,11 @@ export const Topbar = () => {
 
       <div className="flex items-center gap-6">
         <button
-          className="text-muted hover:text-text transition-colors relative"
+          onClick={toggleTheme}
+          className="text-muted hover:text-text transition-colors p-1.5 rounded-md hover:bg-muted/10 outline-none focus-visible:ring-2 focus-visible:ring-accent"
           aria-label="Toggle Theme"
         >
-          <Icon name="AlertTriangle" size={20} />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-surface" />
+          <Icon name={isDarkMode ? 'Sun' : 'Moon'} size={20} />
         </button>
 
         <Dropdown
