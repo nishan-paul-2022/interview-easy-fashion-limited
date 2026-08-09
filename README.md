@@ -17,7 +17,6 @@ Easy Fashion Limited is a full-stack e-commerce platform designed for a fashion 
 ## Architecture Diagram
 
 ```mermaid
-%%{init: {'themeCSS': '.edgeLabel { background-color: #4f46e5 !important; color: #ffffff !important; border-radius: 4px; padding: 2px 4px; }'}}%%
 flowchart TD
     Browser["User Browser<br/>(Customer/Management)"]:::browser
 
