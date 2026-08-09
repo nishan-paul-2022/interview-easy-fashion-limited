@@ -10,7 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const apiVersion = process.env.API_VERSION || 'v1';
-  app.setGlobalPrefix(`api/${apiVersion}`);
+  app.setGlobalPrefix(`api/${apiVersion}`, { exclude: ['/'] });
   app.use(helmet());
 
   const configService = app.get(ConfigService);
