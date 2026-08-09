@@ -53,7 +53,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           }}
           className={`
             w-full bg-surface text-text rounded-lg px-4 py-2
-            border ${hasError ? 'border-error' : 'border-transparent'}
+            border ${hasError ? 'border-error' : 'border-muted/20'}
             focus:outline-none focus:ring-2 focus:ring-accent
             disabled:opacity-50 disabled:cursor-not-allowed
             transition-colors duration-200

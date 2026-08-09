@@ -41,7 +41,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               w-full bg-surface text-text rounded-lg py-2 min-h-[44px]
               ${leftIcon ? 'pl-10' : 'pl-4'}
               ${rightIcon || rightElement ? 'pr-10' : 'pr-4'}
-              border ${hasError ? 'border-error' : 'border-transparent'}
+              border ${hasError ? 'border-error' : 'border-muted/20'}
               focus:outline-none focus:ring-2 focus:ring-accent
               disabled:opacity-50 disabled:cursor-not-allowed
               transition-colors duration-200

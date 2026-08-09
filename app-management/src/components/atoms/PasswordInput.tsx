@@ -29,7 +29,7 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
             type={show ? 'text' : 'password'}
             className={`
               w-full bg-surface text-text rounded-lg py-2 pl-4 pr-10 min-h-[44px]
-              border ${hasError ? 'border-error' : 'border-transparent'}
+              border ${hasError ? 'border-error' : 'border-muted/20'}
               focus:outline-none focus:ring-2 focus:ring-accent
               disabled:opacity-50 disabled:cursor-not-allowed
               transition-colors duration-200
