@@ -6,12 +6,13 @@ import React, { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/molecules/Skeleton';
 import { useToast } from '@/components/molecules/Toast';
 import { ProductForm, ProductFormData } from '@/components/organisms/ProductForm';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { apiClient } from '@/lib/api';
 
 interface ProductDetails {
   id: string;
   name: string;
-  categoryId?: string;
+  categoryId: string;
   category?: { id: string; name: string };
   styleId?: string;
   style?: { id: string; name: string };
@@ -29,11 +30,21 @@ export default function ProductEditPage() {
   const router = useRouter();
   const toast = useToast();
   const productId = params.id as string;
+  const { user, isLoading: isAuthLoading } = useDashboardAuth();
 
   const [initialData, setInitialData] = useState<ProductFormData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (isAuthLoading) {
+      return;
+    }
+    if (user && user.role === 'MANAGER') {
+      router.replace('/products');
+      toast.error('You do not have permission to edit products.');
+      return;
+    }
+
     async function fetchProduct() {
       try {
         const res = await apiClient.get<ProductDetails>(`/products/${productId}`);
@@ -69,7 +80,7 @@ export default function ProductEditPage() {
     if (productId) {
       fetchProduct();
     }
-  }, [productId, router, toast]);
+  }, [productId, router, toast, user, isAuthLoading]);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 pb-12">

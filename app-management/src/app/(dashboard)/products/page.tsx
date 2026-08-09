@@ -10,6 +10,7 @@ import { Dropdown } from '@/components/molecules/Dropdown';
 import { SearchBar } from '@/components/molecules/SearchBar';
 import { useToast } from '@/components/molecules/Toast';
 import { DataTable, DataTableColumn } from '@/components/organisms/DataTable';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { apiClient } from '@/lib/api';
 
 interface ProductData {
@@ -27,6 +28,8 @@ interface ProductData {
 export default function ProductListPage() {
   const router = useRouter();
   const toast = useToast();
+  const { user } = useDashboardAuth();
+  const isManager = user?.role === 'MANAGER';
 
   const [products, setProducts] = useState<ProductData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -110,10 +113,18 @@ export default function ProductListPage() {
   }, [fetchProducts]);
 
   const handleAddClick = () => {
+    if (isManager) {
+      toast.error('You do not have permission to add products.');
+      return;
+    }
     router.push('/products/new');
   };
 
   const handleEditClick = (product: ProductData) => {
+    if (isManager) {
+      toast.error('You do not have permission to edit products.');
+      return;
+    }
     router.push(`/products/${product.id}/edit`);
   };
 
@@ -122,11 +133,19 @@ export default function ProductListPage() {
   };
 
   const handleDeleteClick = (product: ProductData) => {
+    if (isManager) {
+      toast.error('You do not have permission to delete products.');
+      return;
+    }
     setProductToDelete(product);
     setIsDeleteModalOpen(true);
   };
 
   const handleConfirmDelete = async () => {
+    if (isManager) {
+      toast.error('You do not have permission to delete products.');
+      return;
+    }
     if (!productToDelete) {
       return;
     }
@@ -238,14 +257,16 @@ export default function ProductListPage() {
           />
         </div>
 
-        <Button
-          variant="primary"
-          leftIcon="Plus"
-          onClick={handleAddClick}
-          className="w-full xl:w-auto shrink-0"
-        >
-          Add Product
-        </Button>
+        {!isManager && (
+          <Button
+            variant="primary"
+            leftIcon="Plus"
+            onClick={handleAddClick}
+            className="w-full xl:w-auto shrink-0"
+          >
+            Add Product
+          </Button>
+        )}
       </div>
 
       {/* Data Table */}
@@ -257,10 +278,12 @@ export default function ProductListPage() {
           icon: 'Package',
           title: 'No products yet',
           description: 'Get started by creating your first product.',
-          action: {
-            label: 'Add Product',
-            onClick: handleAddClick,
-          },
+          action: isManager
+            ? undefined
+            : {
+                label: 'Add Product',
+                onClick: handleAddClick,
+              },
         }}
         rowActions={(row) => (
           <>
@@ -271,21 +294,25 @@ export default function ProductListPage() {
               onClick={() => handleViewClick(row)}
               aria-label="View product"
             />
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon="Pencil"
-              onClick={() => handleEditClick(row)}
-              aria-label="Edit product"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon="Trash2"
-              className="text-error hover:bg-error/10 hover:text-error"
-              onClick={() => handleDeleteClick(row)}
-              aria-label="Delete product"
-            />
+            {!isManager && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  leftIcon="Pencil"
+                  onClick={() => handleEditClick(row)}
+                  aria-label="Edit product"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  leftIcon="Trash2"
+                  className="text-error hover:bg-error/10 hover:text-error"
+                  onClick={() => handleDeleteClick(row)}
+                  aria-label="Delete product"
+                />
+              </>
+            )}
           </>
         )}
       />

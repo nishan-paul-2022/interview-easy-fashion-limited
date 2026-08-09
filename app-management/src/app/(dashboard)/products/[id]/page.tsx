@@ -9,6 +9,7 @@ import { DeleteConfirmationModal } from '@/components/molecules/DeleteConfirmati
 import { ImageGallery } from '@/components/molecules/ImageGallery';
 import { Skeleton } from '@/components/molecules/Skeleton';
 import { useToast } from '@/components/molecules/Toast';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { apiClient } from '@/lib/api';
 
 interface ProductDetails {
@@ -28,6 +29,8 @@ export default function ProductDetailsPage() {
   const params = useParams();
   const toast = useToast();
   const productId = params.id as string;
+  const { user } = useDashboardAuth();
+  const isManager = user?.role === 'MANAGER';
 
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,16 +55,28 @@ export default function ProductDetailsPage() {
   }, [productId, router, toast]);
 
   const handleEditClick = () => {
+    if (isManager) {
+      toast.error('You do not have permission to edit products.');
+      return;
+    }
     if (product) {
       router.push(`/products/${product.id}/edit`);
     }
   };
 
   const handleDeleteClick = () => {
+    if (isManager) {
+      toast.error('You do not have permission to delete products.');
+      return;
+    }
     setIsDeleteModalOpen(true);
   };
 
   const handleConfirmDelete = async () => {
+    if (isManager) {
+      toast.error('You do not have permission to delete products.');
+      return;
+    }
     if (!product) {
       return;
     }
@@ -104,12 +119,16 @@ export default function ProductDetailsPage() {
           <Button variant="ghost" onClick={() => router.push('/products')} leftIcon="ChevronLeft">
             Back to List
           </Button>
-          <Button variant="outline" onClick={handleEditClick} leftIcon="Pencil">
-            Edit Product
-          </Button>
-          <Button variant="danger" onClick={handleDeleteClick} leftIcon="Trash2">
-            Delete
-          </Button>
+          {!isManager && (
+            <>
+              <Button variant="outline" onClick={handleEditClick} leftIcon="Pencil">
+                Edit Product
+              </Button>
+              <Button variant="danger" onClick={handleDeleteClick} leftIcon="Trash2">
+                Delete
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
