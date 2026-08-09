@@ -63,9 +63,7 @@ export const TableHeader = React.forwardRef<HTMLTableCellElement, TableHeaderPro
               <Icon name="ChevronRight" className="-rotate-90 text-accent" size={14} />
             ) : sortDirection === 'desc' ? (
               <Icon name="ChevronRight" className="rotate-90 text-accent" size={14} />
-            ) : (
-              <Icon name="Minus" className="text-muted/30" size={14} />
-            )}
+            ) : null}
           </span>
         )}
       </div>
