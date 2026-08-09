@@ -29,14 +29,15 @@ function LoginForm() {
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const errorParam = searchParams.get('error');
+
   useEffect(() => {
-    const errorParam = searchParams.get('error');
     if (errorParam === 'inactive') {
       toast.error('Account is inactive. Please contact support.');
     } else if (errorParam === 'auth_failed') {
       toast.error('Authentication failed. Please try again.');
     }
-  }, [searchParams, toast]);
+  }, [errorParam, toast]);
 
   const {
     register,
@@ -70,6 +71,24 @@ function LoginForm() {
         <h2 className="text-3xl font-bold tracking-tight text-text">Welcome back</h2>
         <p className="mt-2 text-sm text-muted">Please sign in to your account</p>
       </div>
+
+      {errorParam === 'inactive' && (
+        <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-500">
+          <p className="font-semibold">Account is inactive</p>
+          <p className="mt-1 text-xs opacity-90">
+            Your account has been deactivated. Please contact support for assistance.
+          </p>
+        </div>
+      )}
+
+      {errorParam === 'auth_failed' && (
+        <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-500">
+          <p className="font-semibold">Authentication failed</p>
+          <p className="mt-1 text-xs opacity-90">
+            An error occurred during authentication. Please try again.
+          </p>
+        </div>
+      )}
 
       <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
         <Input
