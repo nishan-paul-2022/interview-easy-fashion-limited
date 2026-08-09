@@ -101,7 +101,7 @@ function ProductsContent() {
       try {
         const [categoriesRes, stylesRes, sizesRes] = await Promise.all([
           apiClient
-            .get<PaginatedResponse<FilterOptionResponse>>('/categories')
+            .get<PaginatedResponse<FilterOptionResponse>>('/categories', { isActive: 'true' })
             .catch(() => ({ data: [] })),
           apiClient
             .get<PaginatedResponse<FilterOptionResponse>>('/styles')
@@ -138,6 +138,7 @@ function ProductsContent() {
         const params: Record<string, string | number> = {
           page: currentPage,
           limit,
+          isActive: 'true',
         };
         if (searchQuery) {
           params.search = searchQuery;

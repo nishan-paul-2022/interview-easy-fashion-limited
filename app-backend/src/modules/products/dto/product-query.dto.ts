@@ -22,4 +22,9 @@ export class ProductQueryDto extends PaginationQueryDto {
   @IsString()
   @IsOptional()
   sizeId?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  isActive?: string;
 }

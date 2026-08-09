@@ -7,4 +7,9 @@ export class CategoryQueryDto extends PaginationQueryDto {
   @IsString()
   @IsOptional()
   search?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  isActive?: string;
 }

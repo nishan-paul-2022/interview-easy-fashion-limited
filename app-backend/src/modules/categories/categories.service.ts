@@ -23,12 +23,15 @@ export class CategoriesService {
   }
 
   async findAll(query: CategoryQueryDto) {
-    const { page = 1, limit = 10, search } = query;
+    const { page = 1, limit = 10, search, isActive } = query;
     const skip = (page - 1) * limit;
 
     const where: Prisma.CategoryWhereInput = {};
     if (search) {
       where.name = { contains: search, mode: 'insensitive' };
+    }
+    if (isActive !== undefined) {
+      where.isActive = isActive === 'true';
     }
 
     const [total, data] = await Promise.all([

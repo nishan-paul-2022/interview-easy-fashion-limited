@@ -118,10 +118,10 @@ export default function Home() {
         const [statsData, productsData, categoriesData, bannersData] = await Promise.all([
           apiClient.get<StatsResponse>('/stats/summary').catch(() => null),
           apiClient
-            .get<PaginatedResponse<ProductResponse>>('/products', { limit: 6 })
+            .get<PaginatedResponse<ProductResponse>>('/products', { limit: 6, isActive: 'true' })
             .catch(() => ({ data: [] })),
           apiClient
-            .get<PaginatedResponse<CategoryResponse>>('/categories')
+            .get<PaginatedResponse<CategoryResponse>>('/categories', { isActive: 'true' })
             .catch(() => ({ data: [] })),
           apiClient.get<Banner[]>('/banners').catch(() => []),
         ]);
