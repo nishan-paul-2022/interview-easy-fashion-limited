@@ -37,6 +37,11 @@ export class CategoriesService {
         where,
         skip,
         take: limit,
+        include: {
+          _count: {
+            select: { products: true },
+          },
+        },
         orderBy: { createdAt: 'desc' },
       }),
     ]);
