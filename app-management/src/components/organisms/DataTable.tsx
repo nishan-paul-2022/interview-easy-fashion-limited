@@ -41,8 +41,57 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const colSpan = columns.length + (rowActions ? 1 : 0);
 
+  // Client-side sorting state
+  const [sortBy, setSortBy] = React.useState<string | null>(null);
+  const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc' | null>(null);
+
+  const handleSort = (key: string) => {
+    if (sortBy === key) {
+      if (sortOrder === 'asc') {
+        setSortOrder('desc');
+      } else {
+        setSortBy(null);
+        setSortOrder(null);
+      }
+    } else {
+      setSortBy(key);
+      setSortOrder('asc');
+    }
+  };
+
+  const sortedData = React.useMemo(() => {
+    if (!sortBy || !sortOrder) {
+      return data;
+    }
+
+    return [...data].sort((a, b) => {
+      // Resolve custom display properties if they are nested or not simple
+      const aVal = a[sortBy as keyof T];
+      const bVal = b[sortBy as keyof T];
+
+      if (aVal === undefined || aVal === null) {
+        return 1;
+      }
+      if (bVal === undefined || bVal === null) {
+        return -1;
+      }
+
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      }
+
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+
+      return sortOrder === 'asc'
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+  }, [data, sortBy, sortOrder]);
+
   // Treat empty data array as empty state if not loading
-  const showEmpty = isEmpty || (!isLoading && data.length === 0);
+  const showEmpty = isEmpty || (!isLoading && sortedData.length === 0);
 
   return (
     <div className="flex w-full flex-col gap-4">
@@ -51,11 +100,16 @@ export function DataTable<T>({
           <thead>
             <TableRow>
               {columns.map((col, idx) => (
-                <TableHeader key={String(col.key) || idx} sortable={col.sortable}>
+                <TableHeader
+                  key={String(col.key) || idx}
+                  sortable={col.sortable}
+                  sortDirection={sortBy === col.key ? sortOrder : null}
+                  onClick={() => col.sortable && handleSort(String(col.key))}
+                >
                   {col.header}
                 </TableHeader>
               ))}
-              {rowActions && <TableHeader className="text-right">Actions</TableHeader>}
+              {rowActions && <TableHeader align="right">Actions</TableHeader>}
             </TableRow>
           </thead>
           <TableBody>
@@ -71,7 +125,7 @@ export function DataTable<T>({
                 />
               </TableEmpty>
             ) : (
-              data.map((row, rowIndex) => (
+              sortedData.map((row, rowIndex) => (
                 <TableRow key={rowIndex} striped>
                   {columns.map((col, colIndex) => (
                     <TableCell key={String(col.key) || colIndex}>

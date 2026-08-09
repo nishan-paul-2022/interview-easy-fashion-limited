@@ -170,7 +170,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Change user password' })
   @ApiResponse({ status: 200, description: 'Password successfully changed' })
   @ApiResponse({ status: 400, description: 'Invalid current password' })
-  async changePassword(@CurrentUser() payload: { sub: string }, @Body() dto: ChangePasswordDto) {
-    return this.authService.changePassword(payload.sub, dto);
+  async changePassword(@CurrentUser() payload: { id: string }, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(payload.id, dto);
   }
 }

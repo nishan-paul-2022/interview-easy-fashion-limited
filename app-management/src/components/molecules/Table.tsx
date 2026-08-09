@@ -45,32 +45,41 @@ TableBody.displayName = 'TableBody';
 export interface TableHeaderProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
   sortable?: boolean;
   sortDirection?: 'asc' | 'desc' | null;
+  align?: 'left' | 'center' | 'right';
 }
 
 export const TableHeader = React.forwardRef<HTMLTableCellElement, TableHeaderProps>(
-  ({ className = '', children, sortable, sortDirection, onClick, ...props }, ref) => (
-    <th
-      ref={ref}
-      className={`px-4 py-3 font-medium whitespace-nowrap sticky top-0 ${sortable ? 'cursor-pointer hover:bg-muted/10 transition-colors' : ''} ${className}`}
-      onClick={onClick}
-      {...props}
-    >
-      <div className="flex items-center space-x-1">
-        <span>{children}</span>
-        {sortable && (
-          <span className="flex flex-col">
-            {sortDirection === 'asc' ? (
-              <Icon name="ChevronRight" className="-rotate-90 text-accent" size={14} />
-            ) : sortDirection === 'desc' ? (
-              <Icon name="ChevronRight" className="rotate-90 text-accent" size={14} />
-            ) : (
-              <Icon name="Minus" className="text-muted/30" size={14} />
-            )}
-          </span>
-        )}
-      </div>
-    </th>
-  ),
+  (
+    { className = '', children, sortable, sortDirection, align = 'left', onClick, ...props },
+    ref,
+  ) => {
+    const justifyClass =
+      align === 'center' ? 'justify-center' : align === 'right' ? 'justify-end' : 'justify-start';
+    const textAlignClass =
+      align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : 'text-left';
+
+    return (
+      <th
+        ref={ref}
+        className={`px-4 py-3 font-medium whitespace-nowrap sticky top-0 ${sortable ? 'cursor-pointer hover:bg-muted/10 transition-colors' : ''} ${textAlignClass} ${className}`}
+        onClick={onClick}
+        {...props}
+      >
+        <div className={`flex items-center space-x-1 ${justifyClass}`}>
+          <span>{children}</span>
+          {sortable && (
+            <span className="flex flex-col">
+              {sortDirection === 'asc' ? (
+                <Icon name="ChevronRight" className="-rotate-90 text-accent" size={14} />
+              ) : sortDirection === 'desc' ? (
+                <Icon name="ChevronRight" className="rotate-90 text-accent" size={14} />
+              ) : null}
+            </span>
+          )}
+        </div>
+      </th>
+    );
+  },
 );
 TableHeader.displayName = 'TableHeader';
 

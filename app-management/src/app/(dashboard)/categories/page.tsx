@@ -30,8 +30,12 @@ export default function CategoryListPage() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
 
+  const isFirstLoad = React.useRef(true);
+
   const fetchCategories = useCallback(async () => {
-    setIsLoading(true);
+    if (isFirstLoad.current) {
+      setIsLoading(true);
+    }
     try {
       const queryParams: Record<string, string> = { limit: '100' };
       if (debouncedSearch) {
@@ -45,6 +49,7 @@ export default function CategoryListPage() {
       setCategories([]);
     } finally {
       setIsLoading(false);
+      isFirstLoad.current = false;
     }
   }, [debouncedSearch, toast]);
 

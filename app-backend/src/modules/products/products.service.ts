@@ -63,12 +63,17 @@ export class ProductsService {
   }
 
   async findAll(query: ProductQueryDto) {
-    const { page = 1, limit = 10, search, categoryId, styleId, sizeId } = query;
+    const { page = 1, limit = 10, search, categoryId, styleId, sizeId, isActive } = query;
     const skip = (page - 1) * limit;
 
     const where: Prisma.ProductWhereInput = {};
     if (search) {
       where.name = { contains: search, mode: 'insensitive' };
+    }
+    if (isActive !== undefined) {
+      where.isActive = isActive === 'true';
+      // Also filter out products belonging to inactive categories!
+      where.category = { isActive: true };
     }
     if (categoryId) {
       const categoryIds = String(categoryId)

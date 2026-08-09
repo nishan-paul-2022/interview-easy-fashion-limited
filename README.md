@@ -43,26 +43,94 @@ flowchart TD
     Browser -->|HTTPS| Nginx
 ```
 
-## Full Local Installation Steps
+## Setup & Installation
 
-To set up the project locally for development, ensure you have Node.js, Docker, and `make` installed.
+Before starting, copy the root `.env.example` file to `.env` in the project root, and copy the `.env.example` files to `.env` in each sub-app folder (`app-backend`, `app-customer`, and `app-management`), then configure the variables accordingly.
+
+### 🐳 Option A: Docker (Containerized)
+
+This option runs the entire stack (Database, Backend API, Customer Storefront, and Management Dashboard) inside Docker containers. Recommended for a quick start.
+
+#### 1. Build the Docker images
 
 ```bash
-make install
-make migrate
-make seed
-make dev
+make build
 ```
 
-_Note: Before running `make dev`, ensure you have copied the `.env.example` files to `.env` in `app-backend`, `app-customer`, and `app-management` and filled in the required values._
-
-## Docker-Based Local Start
-
-To run the entire stack (Database, Backend, Customer App, Management App) locally using Docker:
+#### 2. Spin up the containers
 
 ```bash
 make up
 ```
+
+#### 3. Initialize & Seed the Database
+
+```bash
+make db-setup
+```
+
+This runs all database migrations and seeds initial database records (roles, users, products, categories, styles, sizes, etc.).
+
+To stop the containers, run `make down`. To wipe database volumes and start fresh, run `make db-destroy`.
+
+---
+
+### 💻 Option B: Local (Node.js)
+
+This option runs PostgreSQL in Docker but launches the NestJS backend and Next.js frontend servers locally on your machine. Best for active development.
+
+#### 1. Install dependencies across all apps
+
+```bash
+make install
+```
+
+#### 2. Start PostgreSQL & local development servers
+
+```bash
+make dev
+```
+
+This command starts the PostgreSQL container, waits for the database to become healthy, and then concurrently boots the NestJS dev server and both Next.js dev servers on your machine.
+
+#### 3. Run database migrations & seed
+
+In a new terminal window, run:
+
+```bash
+make db-setup
+```
+
+---
+
+### 🔗 Local Access Ports
+
+Once the services are started (via either Option A or Option B), they can be accessed at:
+
+- **Customer Storefront**: [http://localhost:3013](http://localhost:3013)
+- **Management Dashboard**: [http://localhost:3014](http://localhost:3014)
+- **Backend API**: [http://localhost:3015](http://localhost:3015)
+
+---
+
+### 🌐 Production Live Links
+
+The production services are deployed and accessible at:
+
+- **Customer Storefront**: [https://easy.kaiofficial.xyz](https://easy.kaiofficial.xyz)
+- **Management Dashboard**: [https://admin-easy.kaiofficial.xyz](https://admin-easy.kaiofficial.xyz)
+- **Backend API**: [https://api-easy.kaiofficial.xyz](https://api-easy.kaiofficial.xyz)
+
+---
+
+### ⚙️ Utility Commands
+
+- **`make test`**: Runs the full test suite (unit + E2E).
+- **`make lint`** / **`make lint-fix`**: Scans and auto-fixes linting errors.
+- **`make format`**: Automatically formats code with Prettier.
+- **`make typecheck`**: Runs TypeScript type check checks across the project.
+- **`make db-destroy`**: Stops local containers and wipes database volumes.
+- **`make down`**: Stops local development containers and frees up ports.
 
 ## Production Deployment
 
@@ -89,7 +157,6 @@ The production deployment process is fully automated via GitHub Actions:
 - **Design System First Approach**: Implemented a scalable UI using an atomic design hierarchy (Tokens → Atoms → Molecules → Organisms → Pages).
 - **Automated Code Formatting**: Enforced ESLint, Prettier, Husky, and Commitlint at the monorepo root.
 - **Responsive & Accessible Components**: All UI primitives are fully accessible (keyboard-navigable, ARIA attributes) and responsive out of the box.
-- **Micro-Animations**: Enhanced user experience with subtle animations across components like buttons, modals, and toasts.
 
 ## Assumptions & Limitations
 

@@ -63,13 +63,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, isEdit })
     async function loadOptions() {
       try {
         const [catRes, styleRes, sizeRes] = await Promise.all([
-          apiClient.get<{ data: Option[] }>('/categories', { limit: 100 }),
+          apiClient.get<{ data: Option[] }>('/categories', { limit: 100, isActive: 'true' }),
           apiClient.get<{ data: Option[] }>('/styles', { limit: 100 }),
-          apiClient.get<{ data: Option[] }>('/sizes', { limit: 100 }),
+          apiClient.get<{ data: { id: string; name?: string; label?: string }[] }>('/sizes', {
+            limit: 100,
+          }),
         ]);
         setCategories(catRes.data || []);
         setStyles(styleRes.data || []);
-        setSizes(sizeRes.data || []);
+
+        const mappedSizes = (sizeRes.data || []).map((s) => ({
+          id: s.id,
+          name: s.name || s.label || '',
+        }));
+        setSizes(mappedSizes);
       } catch (e) {
         console.error('Failed to load options', e);
       }
@@ -124,11 +131,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, isEdit })
       if (isEdit) {
         // In this simple API logic, we might just pass new files
         // and ignore existing URLs depending on backend, but let's pass new files
-        newImageFiles.forEach((file) => formData.append('images', file));
+        newImageFiles.forEach((file) => formData.append('files', file));
         await apiClient.patch(`/products/${initialData?.id}`, formData);
         toast.success('Product updated successfully!');
       } else {
-        newImageFiles.forEach((file) => formData.append('images', file));
+        newImageFiles.forEach((file) => formData.append('files', file));
         await apiClient.post('/products', formData);
         toast.success('Product created successfully!');
       }

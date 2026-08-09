@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 
 import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
+import { useToast } from '@/components/molecules/Toast';
 
 export default function SettingsPage() {
+  const toast = useToast();
   const [jwtExpiry, setJwtExpiry] = useState('7d');
   const [passwordMinLength, setPasswordMinLength] = useState('8');
   const [isMounted, setIsMounted] = useState(false);
@@ -28,9 +30,24 @@ export default function SettingsPage() {
 
   const handleSecuritySave = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Validate JWT Expiry format (e.g. 7d, 24h, 60s)
+    const jwtPattern = /^\d+[smhdw]$/;
+    if (!jwtPattern.test(jwtExpiry)) {
+      toast.error('Invalid JWT Expiry format. Please use a format like 7d, 24h, or 60s.');
+      return;
+    }
+
+    // 2. Validate Password Minimum Length
+    const minLength = parseInt(passwordMinLength, 10);
+    if (isNaN(minLength) || minLength < 6 || minLength > 32) {
+      toast.error('Password minimum length must be between 6 and 32 characters.');
+      return;
+    }
+
     localStorage.setItem('settings_jwtExpiry', jwtExpiry);
     localStorage.setItem('settings_passwordMinLength', passwordMinLength);
-    console.log('Security settings saved');
+    toast.success('Security settings saved successfully!');
   };
 
   // Prevent hydration mismatch by returning null until mounted
