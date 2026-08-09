@@ -21,7 +21,7 @@ test.describe('Customer Storefront Happy Paths', () => {
           categoryId: 1,
           category: { id: 1, name: 'Tops' },
           images: [{ url: 'https://res.cloudinary.com/demo/image/upload/sample.jpg' }],
-          sizes: [{ name: 'M' }],
+          productSizes: [{ size: { label: 'M' } }],
         },
         {
           id: 2,
@@ -31,7 +31,7 @@ test.describe('Customer Storefront Happy Paths', () => {
           categoryId: 2,
           category: { id: 2, name: 'Bottoms' },
           images: [{ url: 'https://res.cloudinary.com/demo/image/upload/sample2.jpg' }],
-          sizes: [{ name: 'M' }],
+          productSizes: [{ size: { label: 'M' } }],
         },
       ];
 
@@ -81,7 +81,7 @@ test.describe('Customer Storefront Happy Paths', () => {
           description: 'A classic tee',
           categoryId: 1,
           images: [{ url: 'https://res.cloudinary.com/demo/image/upload/sample.jpg' }],
-          sizes: [{ name: 'M' }, { name: 'L' }],
+          productSizes: [{ size: { label: 'M' } }, { size: { label: 'L' } }],
         },
       });
     });

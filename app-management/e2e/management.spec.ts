@@ -283,7 +283,7 @@ test.describe('Management Dashboard Happy Paths', () => {
     page,
   }) => {
     await page.route('**/api/v1/auth/me', async (route) => {
-      await route.fulfill({ status: 200, json: { id: 2, role: 'ADMIN' } });
+      await route.fulfill({ status: 200, json: { id: 2, role: 'SUPER_ADMIN' } });
     });
 
     const mockOrder = {
@@ -331,7 +331,7 @@ test.describe('Management Dashboard Happy Paths', () => {
     await page.goto('/orders/101');
 
     // Verify initial status
-    await expect(page.locator('text=Order #101')).toBeVisible();
+    await expect(page.locator('text=ORDER ID: 101')).toBeVisible();
 
     // Select new status
     // The initial status is PENDING. Open dropdown and select Processing
