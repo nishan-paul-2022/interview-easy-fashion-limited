@@ -96,6 +96,16 @@ function ProductsContent() {
     setSearchValue(searchQuery);
   }, [searchQuery]);
 
+  // Debounced auto-search as user types
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchValue !== searchQuery) {
+        updateQueryString('search', searchValue);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchValue, searchQuery]);
+
   useEffect(() => {
     async function fetchFilters() {
       try {
@@ -327,11 +337,13 @@ function ProductsContent() {
           />
         </div>
 
-        {isLoading ? (
+        {isLoading && products.length === 0 ? (
           <ProductGridSkeleton />
         ) : products.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
+            <div
+              className={`grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-6 transition-opacity duration-200 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
+            >
               {products.map((product) => (
                 <ProductCard key={product.id} {...product} onAddToCart={handleAddToCart} />
               ))}
