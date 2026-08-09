@@ -21,7 +21,7 @@ interface ProductDetail {
   price: number | string;
   category?: { id: string | number; name: string };
   style?: { id: string | number; name: string };
-  sizes?: { name: string }[];
+  productSizes?: { size?: { id: string; label: string } }[];
   images?: string[];
 }
 
@@ -98,7 +98,10 @@ export default function ProductDetailsPage({ params }: { params: { id: string } 
 
   const categoryName = product.category?.name || 'Uncategorized';
   const styleName = product.style?.name || 'Standard';
-  const sizeNames = product.sizes?.map((s) => s.name) || [];
+  const sizeNames =
+    (product.productSizes || [])
+      .map((ps) => ps.size?.label)
+      .filter((label): label is string => typeof label === 'string') || [];
   const imageUrls = product.images?.length
     ? product.images.map((img: unknown) =>
         typeof img === 'string' ? img : (img as { url: string }).url,

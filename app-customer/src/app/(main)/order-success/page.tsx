@@ -125,7 +125,7 @@ export default function OrderSuccessPage() {
               <thead>
                 <tr>
                   <th>Item Description</th>
-                  <th style="text-align: center;">Qty</th>
+                  <th style="text-align: center;">Quantity</th>
                   <th style="text-align: right;">Price</th>
                   <th style="text-align: right;">Total</th>
                 </tr>
@@ -216,7 +216,7 @@ export default function OrderSuccessPage() {
               <div className="flex flex-1 flex-col">
                 <span className="font-semibold text-text line-clamp-1">{item.name}</span>
                 <span className="text-sm text-muted">
-                  Size: {item.size} &bull; Qty: {item.quantity}
+                  Size: {item.size} &bull; Quantity: {item.quantity}
                 </span>
                 <span className="mt-auto font-medium text-text">
                   ${(item.price * item.quantity).toFixed(2)}

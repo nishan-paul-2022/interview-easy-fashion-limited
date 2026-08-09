@@ -25,7 +25,7 @@ interface ProductResponse {
   price: number | string;
   category?: { name: string };
   style?: { name: string };
-  sizes?: { name: string }[];
+  productSizes?: { size?: { id: string; label: string } }[];
   images?: string[];
 }
 
@@ -153,7 +153,10 @@ export default function Home() {
             name: p.name,
             category: p.category?.name || 'Uncategorized',
             styleName: p.style?.name || 'Standard',
-            sizes: p.sizes?.map((s) => s.name) || [],
+            sizes:
+              p.productSizes
+                ?.map((ps) => ps.size?.label)
+                .filter((l): l is string => typeof l === 'string') || [],
             price: Number(p.price) || 0,
             imageUrl:
               (typeof p.images?.[0] === 'string'
