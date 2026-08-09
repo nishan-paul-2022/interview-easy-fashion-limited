@@ -30,6 +30,7 @@ export default function CheckoutPage() {
 
   const [mounted, setMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderSuccessful, setOrderSuccessful] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -50,7 +51,7 @@ export default function CheckoutPage() {
     );
   }
 
-  if (state.items.length === 0) {
+  if (state.items.length === 0 && !orderSuccessful) {
     return (
       <div className="mx-auto flex w-full max-w-7xl flex-col px-4 py-16">
         <EmptyState
@@ -104,6 +105,7 @@ export default function CheckoutPage() {
 
       sessionStorage.setItem('easyfashion_order_success', JSON.stringify(orderData));
 
+      setOrderSuccessful(true);
       dispatch({ type: 'CLEAR_CART' });
       router.push('/order-success');
     } catch (error: unknown) {
