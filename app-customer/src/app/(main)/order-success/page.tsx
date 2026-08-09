@@ -214,10 +214,18 @@ export default function OrderSuccessPage() {
                 <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
               </div>
               <div className="flex flex-col text-sm text-muted">
-                <span className="font-semibold text-text line-clamp-1 mb-1">{item.name}</span>
-                <span>Size: {item.size}</span>
-                <span>Quantity: {item.quantity}</span>
-                <span>Price: ${item.price.toFixed(2)} each</span>
+                <span className="font-semibold text-text line-clamp-1 mb-1.5">{item.name}</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
+                    Size: {item.size}
+                  </span>
+                  <span className="px-2 py-0.5 text-xs font-medium rounded bg-muted/10 border border-muted/20 text-muted">
+                    Quantity: {item.quantity}
+                  </span>
+                  <span className="px-2 py-0.5 text-xs font-medium rounded bg-accent/10 border border-accent/20 text-accent">
+                    ${item.price.toFixed(2)} each
+                  </span>
+                </div>
               </div>
             </div>
           ))}
