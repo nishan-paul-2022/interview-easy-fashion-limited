@@ -10,9 +10,21 @@ Easy Fashion Limited is a full-stack e-commerce platform designed for a fashion 
 
 ## 📸 Application Previews
 
+### Customer Storefront
+
 |                  Customer Home Page                  |                 Product Catalog & Filters                  |                 Profile & Order List                 |
 | :--------------------------------------------------: | :--------------------------------------------------------: | :--------------------------------------------------: |
 | ![Customer Home Page](assets/customer-home-page.gif) | ![Customer Product Page](assets/customer-product-page.gif) | ![Customer User Page](assets/customer-user-page.gif) |
+
+### Management Dashboard
+
+|                     Sales Analytics                      |                    Product Management                     |                     Category Management                     |
+| :------------------------------------------------------: | :-------------------------------------------------------: | :---------------------------------------------------------: |
+| ![Sales Analytics](assets/management-dashboard-page.gif) | ![Product Management](assets/management-product-page.gif) | ![Category Management](assets/management-category-page.gif) |
+
+|                   Order Management                    |                        Sizes & Styles                         |                   User Management                   |
+| :---------------------------------------------------: | :-----------------------------------------------------------: | :-------------------------------------------------: |
+| ![Order Management](assets/management-order-page.gif) | ![Sizes & Styles](assets/management-sizes-and-style-page.gif) | ![User Management](assets/management-user-page.gif) |
 
 ## Architecture Diagram
 
