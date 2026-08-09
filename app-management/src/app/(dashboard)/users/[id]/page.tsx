@@ -257,6 +257,8 @@ export default function UserDetailsPage() {
       <DeleteConfirmationModal
         isOpen={isDeactivateModalOpen}
         title={isUserActive ? 'Deactivate User' : 'Activate User'}
+        confirmLabel={isUserActive ? 'Deactivate' : 'Activate'}
+        confirmVariant={isUserActive ? 'danger' : 'primary'}
         description={
           <span>
             Are you sure you want to {isUserActive ? 'deactivate' : 'activate'}{' '}
