@@ -29,7 +29,7 @@ interface OrderDetails {
     subtotal: number;
     product: {
       name: string;
-      images: { url: string }[];
+      images: (string | { url: string })[];
     };
   }[];
 }
@@ -176,8 +176,10 @@ export default function OrderDetailsPage() {
                     <div className="h-16 w-16 overflow-hidden rounded-md border border-muted/20">
                       <img
                         src={
-                          item.product.images?.[0]?.url ||
-                          'https://via.placeholder.com/80?text=Product'
+                          (typeof item.product.images?.[0] === 'string'
+                            ? item.product.images[0]
+                            : (item.product.images?.[0] as { url: string } | undefined)?.url) ||
+                          '/placeholder.svg'
                         }
                         alt={item.product.name}
                         className="h-full w-full object-cover"
