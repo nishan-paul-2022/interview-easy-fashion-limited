@@ -112,8 +112,7 @@ export default function ProductDetailsPage() {
       {/* Header with actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">Product Details</h1>
-          <p className="text-sm text-muted">ID: {product.id}</p>
+          <h1 className="text-2xl font-bold text-text">{product.id}</h1>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="ghost" onClick={() => router.push('/products')} leftIcon="ChevronLeft">

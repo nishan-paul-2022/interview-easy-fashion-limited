@@ -134,8 +134,7 @@ export default function UserDetailsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">User Details</h1>
-          <p className="text-sm text-muted">ID: {user.id}</p>
+          <h1 className="text-2xl font-bold text-text">{user.id}</h1>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="ghost" onClick={() => router.push('/users')} leftIcon="ChevronLeft">

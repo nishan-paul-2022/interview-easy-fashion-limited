@@ -163,8 +163,7 @@ export default function OrderDetailsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">Order Details</h1>
-          <p className="text-sm text-muted">Order #{order.id}</p>
+          <h1 className="text-2xl font-bold text-text">Order #{order.id}</h1>
         </div>
         <Button variant="ghost" onClick={() => router.push('/orders')} leftIcon="ChevronLeft">
           Back to Orders
